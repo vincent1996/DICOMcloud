@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MedicalCo.Dicom.Data.Access")]
+[assembly: AssemblyTitle("DICOMcloud.Dicom.Data.Access")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("SPX Corporation")]
-[assembly: AssemblyProduct("MedicalCo.Dicom.Data.Access")]
-[assembly: AssemblyCopyright("Copyright © SPX Corporation 2015")]
+[assembly: AssemblyCompany("Zaid Al-Safadi")]
+[assembly: AssemblyProduct("DICOMcloud.Dicom.Data.Access")]
+[assembly: AssemblyCopyright("Copyright © Zaid Al-Safadi 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 {
     public class ConditionFactory : DicomDataParameterFactory<IMatchingCondition>
     {
-        private static RangeMatching      studyDateTime = new RangeMatching ( new List<uint> ( ), DicomTags.StudyDate ) ;
+        private static RangeMatching      studyDateTime = new RangeMatching ( new List<uint> ( ), (uint) fo.DicomTag.StudyDate ) ;
         private static IMatchingCondition seqMatching = new SequenceMatching ( ) ;
         private static IMatchingCondition uidMatching = new ListofUIDMatching ( ) ;
         private static IMatchingCondition rngMatching = new RangeMatching ( ) ;
@@ -21,8 +21,8 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
         {
             IList<uint> supportedTags = studyDateTime.SupportedTags ;
 
-            supportedTags.Add ( DicomTags.StudyDate);
-            supportedTags.Add ( DicomTags.StudyTime);
+            supportedTags.Add ( (uint) fo.DicomTag.StudyDate);
+            supportedTags.Add ( (uint) fo.DicomTag.StudyTime);
         }
 
         public ConditionFactory ( )

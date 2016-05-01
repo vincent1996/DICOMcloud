@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -19,10 +19,10 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
             SchemaSource  = source ;
         }
 
-        public  string GetTableName ( DicomTag tag )
+        public  string GetTableName ( fo.DicomTag tag )
         {
                 IList<ColumnInfo> columns = null ;
-            if ( SchemaSource.Tags.TryGetValue ( tag.TagValue, out columns ) )
+            if ( SchemaSource.Tags.TryGetValue ( (uint)tag, out columns ) )
             {
                 return columns.FirstOrDefault ( ).Table.Name ;
             }

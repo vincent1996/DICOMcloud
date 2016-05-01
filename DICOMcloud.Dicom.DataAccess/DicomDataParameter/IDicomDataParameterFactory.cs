@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +12,10 @@ namespace DICOMcloud.Dicom.DataAccess
     {
         void BeginProcessingElements ( ) ;
 
-        void ProcessElement(DicomAttribute element) ;
+        void ProcessElement(fo.DicomItem element) ;
 
         IEnumerable<T> EndProcessingElements ( ) ;
 
-        IEnumerable<T> ProcessDataSet ( DicomAttributeCollection dataset );
+        IEnumerable<T> ProcessDataSet ( fo.DicomDataset dataset );
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
 using DICOMcloud.Dicom.DataAccess.Matching;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess.DB.Query;
 using DICOMcloud.Dicom.Data;
 
@@ -82,7 +82,7 @@ IF @@ROWCOUNT = 0
    INSERT INTO {0} ({2}) VALUES (@{2})
 ", DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName, DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn ) ;
 
-             var sopParam  = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SopInstanceUID ) ;
+             var sopParam  = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
              var metaParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn, metadata ) ;
             
             insertCommand.Parameters.Add ( sopParam ) ;
@@ -96,7 +96,7 @@ IF @@ROWCOUNT = 0
         public IDbCommand CreateGetMetadataCommand ( IObjectID instance )
         {
             IDbCommand command  = CreateCommand ( ) ;
-             var       sopParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SopInstanceUID ) ;
+             var       sopParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
             
              
              command.CommandText = string.Format ( "SELECT {0} FROM {1} WHERE {2}=@{2}", 

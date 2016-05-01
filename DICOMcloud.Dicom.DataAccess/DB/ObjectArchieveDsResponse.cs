@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
 
     //    }
 
-    //    //public override IList<DicomAttributeCollection> GetResponse ( )
+    //    //public override IList<fo.DicomDataset> GetResponse ( )
     //    //{ 
     //    //    return _currentResponses ;
     //    //}

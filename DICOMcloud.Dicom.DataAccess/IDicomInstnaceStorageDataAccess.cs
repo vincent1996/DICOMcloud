@@ -1,5 +1,5 @@
-﻿using DICOMcloud.Dicom.Data;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Dicom.DataAccess
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 
 namespace DICOMcloud.Dicom.DataAccess
 {
@@ -19,6 +19,6 @@ namespace DICOMcloud.Dicom.DataAccess
         void ReadData   ( string tableName, string columnName, object value ) ;
     
         
-        ICollection<DicomAttributeCollection> GetResponse ( ) ;
+        ICollection<fo.DicomDataset> GetResponse ( ) ;
     }
 }

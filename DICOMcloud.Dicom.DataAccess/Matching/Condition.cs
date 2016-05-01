@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 
         public MatchingBase ( IList<uint> supportedTags, uint keyTag )
         {
-            Elements      = new List<DicomAttribute> ( ) ;
+            Elements      = new List<fo.DicomItem> ( ) ;
             SupportedTags = supportedTags ?? new List<uint> ( );
             KeyTag        = keyTag ;
 
@@ -29,17 +29,17 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 
         public virtual bool SupportFuzzy { get; protected set ;}
 
-        public virtual bool CanMatch ( DicomAttribute element )
+        public virtual bool CanMatch ( fo.DicomItem element )
         {
             if ( SupportedTags.Count > 0 ) 
             {
-                return SupportedTags.Contains(element.Tag.TagValue ) ;
+                return SupportedTags.Contains((uint) element.Tag ) ;
             }
 
             return true ;
         }
 
-        public override bool IsSupported(DicomAttribute element)
+        public override bool IsSupported(fo.DicomItem element)
         {
             return CanMatch ( element ) ;
         }
@@ -59,15 +59,19 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
             IsCaseSensitive = false ;
         }
 
-        public override bool CanMatch ( DicomAttribute element )
+        public override bool CanMatch ( fo.DicomItem item )
         {
-            if ( element.Tag.VR.Equals ( DicomVr.SQvr ) || element.Count == 0 ) { return false ;}
+            //if SQ casting will fail and be null
+            fo.DicomElement element = item as fo.DicomElement ;
+
+
+            if ( element == null || element.Count == 0 ) { return false ;}
 
             string elementValue = element.ToString ( ) ;
 
-            if ( element.Tag.VR.Equals ( DicomVr.DAvr) || 
-                 element.Tag.VR.Equals ( DicomVr.DTvr ) || 
-                 element.Tag.VR.Equals ( DicomVr.TMvr ) )
+            if ( element.ValueRepresentation.Equals ( fo.DicomVR.DA) || 
+                 element.ValueRepresentation.Equals ( fo.DicomVR.DT ) || 
+                 element.ValueRepresentation.Equals ( fo.DicomVR.TM ) )
             {
                 if ( elementValue.Contains ( "-")){return false ;}
             }
@@ -85,11 +89,11 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 
     public class ListofUIDMatching : MatchingBase
     {
-        public override bool CanMatch(DicomAttribute element)
+        public override bool CanMatch(fo.DicomItem element)
         {
-            if ( !element.Tag.VR.Equals ( DicomVr.UIvr)) { return false ; }
+            if ( !element.ValueRepresentation.Equals ( fo.DicomVR.UI)) { return false ; }
 
-            if ( element.Count <= 1 ) { return false ; }
+            if ( ((fo.DicomElement)element).Count <= 1 ) { return false ; }
 
             return base.CanMatch ( element ) ;
         }
@@ -97,9 +101,11 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 
     public class UniversalMatching : MatchingBase
     {
-        public override bool CanMatch(DicomAttribute element)
+        public override bool CanMatch(fo.DicomItem item)
         {
-            if ( element.Count > 0 ) { return false ; }
+            fo.DicomElement element = item as fo.DicomElement ;
+
+            if ( null == element || element.Count > 0 ) { return false ; }
 
             return base.CanMatch ( element ) ;
         }
@@ -108,7 +114,7 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
     public class WildCardMatching : MatchingBase
     {
 
-        private static List<DicomVr> _invliadVrs = new List<DicomVr> ( ) ;
+        private static List<fo.DicomVR> _invliadVrs = new List<fo.DicomVR> ( ) ;
 
         public WildCardMatching ( )
         {
@@ -117,9 +123,9 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 
         static WildCardMatching ( )
         {
-            _invliadVrs.AddRange ( new DicomVr[] { DicomVr.SQvr, DicomVr.DAvr, DicomVr.TMvr, DicomVr.DTvr, DicomVr.SLvr, DicomVr.SSvr,
-                                                   DicomVr.USvr, DicomVr.ULvr, DicomVr.FLvr, DicomVr.FDvr, DicomVr.OBvr, DicomVr.OWvr,
-                                                   DicomVr.UNvr, DicomVr.ATvr, DicomVr.DSvr, DicomVr.ISvr, DicomVr.ASvr, DicomVr.UIvr } ) ;
+            _invliadVrs.AddRange ( new fo.DicomVR[] { fo.DicomVR.SQ, fo.DicomVR.DA, fo.DicomVR.TM, fo.DicomVR.DT, fo.DicomVR.SL, fo.DicomVR.SS,
+                                                   fo.DicomVR.US, fo.DicomVR.UL, fo.DicomVR.FL, fo.DicomVR.FD, fo.DicomVR.OB, fo.DicomVR.OW,
+                                                   fo.DicomVR.UN, fo.DicomVR.AT, fo.DicomVR.DS, fo.DicomVR.IS, fo.DicomVR.AS, fo.DicomVR.UI } ) ;
         }
 
         public override bool ExactMatch
@@ -135,9 +141,9 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
             }
         }
 
-        public override bool CanMatch(DicomAttribute element)
+        public override bool CanMatch(fo.DicomItem element)
         {
-            if ( _invliadVrs.Contains ( element.Tag.VR ) ) { return false ; }
+            if ( _invliadVrs.Contains ( element.ValueRepresentation ) ) { return false ; }
 
             if ( !HasWildcardMatching (element.ToString ( )) ) { return false ; }
 
@@ -157,7 +163,7 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 
         }
 
-        public override bool CanMatch(DicomAttribute element)
+        public override bool CanMatch(fo.DicomItem element)
         {
             //if ( IsRangeSupported && !DateTimeMatching.IsSupported(element.Tag.TagValue ) )
             //{
@@ -172,10 +178,10 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
             return base.CanMatch ( element ) ;
         }
 
-        private bool MatchVr(DicomAttribute element)
+        private bool MatchVr(fo.DicomItem element)
         {
-            DicomVr elementVr = element.Tag.VR ;
-            if ( !elementVr.Equals ( DicomVr.DAvr) && !elementVr.Equals ( DicomVr.TMvr ) && !elementVr.Equals ( DicomVr.DTvr)) { return false ; }
+            fo.DicomVR elementVr = element.ValueRepresentation ;
+            if ( !elementVr.Equals ( fo.DicomVR.DA) && !elementVr.Equals ( fo.DicomVR.TM ) && !elementVr.Equals ( fo.DicomVR.DT)) { return false ; }
 
             if ( HasWildcardMatching (element.ToString ( ) )) { return false ; }
 
@@ -208,23 +214,23 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
             }
         }
 
-        public override void SetElement(DicomAttribute element)
+        public override void SetElement(fo.DicomItem element)
         {
             base.SetElement ( element ) ;
         
-            if ( element.Tag.VR == DicomVr.DAvr )
+            if ( element.ValueRepresentation == fo.DicomVR.DA )
             { 
                 DateElement = element ;
             }
 
-            if ( element.Tag.VR == DicomVr.TMvr )
+            if ( element.ValueRepresentation == fo.DicomVR.TM )
             { 
                 TimeElement = element ;
             }
         }
 
-        public DicomAttribute DateElement { get; protected set; }
-        public DicomAttribute TimeElement { get; protected set; }
+        public fo.DicomItem DateElement { get; protected set; }
+        public fo.DicomItem TimeElement { get; protected set; }
 
         //protected DateTimeElementsMatching DateTimeMatching { get; set; }
         
@@ -265,9 +271,9 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 
     public class SequenceMatching : MatchingBase
     {
-        public override bool CanMatch(DicomAttribute element)
+        public override bool CanMatch(fo.DicomItem element)
         {
-            if ( !element.Tag.VR.Equals (DicomVr.SQvr)) { return false; }
+            if ( !element.ValueRepresentation.Equals (fo.DicomVR.SQ)) { return false; }
 
             return base.CanMatch ( element ) ;
         }

@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace DICOMcloud.Dicom.DataAccess
     public class DicomDataParameter : IDicomDataParameter
     {
         public virtual uint        KeyTag            { get;  set ; }
-        public virtual DicomVr     VR                { get; set ; }
+        public virtual fo.DicomVR     VR                { get; set ; }
         public virtual bool        AllowExtraElement {  get; set ;}
         public         IList<uint> SupportedTags     { get ; protected set; }
 
@@ -19,7 +19,7 @@ namespace DICOMcloud.Dicom.DataAccess
         }
 
         public DicomDataParameter(IList<uint> supportedTags ) {
-            Elements = new List<DicomAttribute> ( ) ;
+            Elements = new List<fo.DicomItem> ( ) ;
             SupportedTags = supportedTags ?? new List<uint> ( ) ;
         }
 
@@ -27,31 +27,33 @@ namespace DICOMcloud.Dicom.DataAccess
         {
             if ( Elements.Count == 1 )
             { 
-                return Elements.First ( ).ToString ( ).Split ( '/' ) ;
+                var item = Elements.First ( ) as fo.DicomElement ;
+
+                return item.Get<string> ( ).Split ( '/' ) ;
             }
 
             return null ;
         }
-        public virtual void SetElement ( DicomAttribute element )
+        public virtual void SetElement ( fo.DicomItem element )
         {
             Elements.Add ( element ) ;
 
             if ( KeyTag == 0 )
             { 
-                KeyTag = element.Tag.TagValue ;
+                KeyTag = (uint) element.Tag ;
             }
 
             if ( VR == null )
             { 
-                VR = element.Tag.VR ;
+                VR = element.ValueRepresentation ;
             }
         }
 
-        public virtual bool IsSupported(DicomAttribute element) {
+        public virtual bool IsSupported(fo.DicomItem element) {
 
             if ( null != SupportedTags && SupportedTags.Count > 0 )
             {
-                return SupportedTags.Contains ( element.Tag.TagValue ) ;
+                return SupportedTags.Contains ( (uint) element.Tag ) ;
             }
 
             return true ;
@@ -75,7 +77,7 @@ namespace DICOMcloud.Dicom.DataAccess
         
         public virtual List<PersonNameData> GetPNValues ( )
         {
-            if ( VR != DicomVr.PNvr) {return null ; }
+            if ( VR != fo.DicomVR.PN) {return null ; }
 
             List<PersonNameData> result   = new List<PersonNameData> ( ) ;
             string[]             pnValues = GetValues ( ) ;
@@ -113,7 +115,7 @@ namespace DICOMcloud.Dicom.DataAccess
             return result ;
         }
 
-        public IList<DicomAttribute> Elements { get; set ; }
+        public IList<fo.DicomItem> Elements { get; set ; }
     }
 
     public class StoreParameter : DicomDataParameter
@@ -130,25 +132,25 @@ namespace DICOMcloud.Dicom.DataAccess
 
             if ( Elements.Count > 1 )
             {
-                if ( VR == DicomVr.TMvr || VR == DicomVr.DAvr )
+                if ( VR == fo.DicomVR.TM || VR == fo.DicomVR.DA )
                 {
                     List<string> values = new List<string> ( ) ;
 
                     for ( int index = 0; index < Elements.Count; index+=2)
                     {
-                        DicomAttribute dateElement = null ;
-                        DicomAttribute timeElement = null ;
+                        fo.DicomItem dateElement = null ;
+                        fo.DicomItem timeElement = null ;
                         string value = null ;
 
                         for ( int localIndex = index; localIndex < index + 2 && localIndex < Elements.Count; localIndex++)
                         {
                             var element = Elements[localIndex] ;
 
-                            if ( element.Tag.VR == DicomVr.DAvr )
+                            if ( element.ValueRepresentation == fo.DicomVR.DA )
                             {
                                 dateElement = element ;
                             }
-                            else if ( element.Tag.VR == DicomVr.TMvr )
+                            else if ( element.ValueRepresentation == fo.DicomVR.TM )
                             {
                                 timeElement = element ;
                             }

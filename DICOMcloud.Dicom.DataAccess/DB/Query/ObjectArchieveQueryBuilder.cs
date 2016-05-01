@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using DICOMcloud.Dicom.DataAccess.Matching;
 using System;
@@ -62,7 +62,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
                 {
                     //string[] values = GetValues ( condition ) ;
 
-                    if ( condition.VR == DicomVr.PNvr )
+                    if ( condition.VR == fo.DicomVR.PN )
                     { 
                         List<PersonNameData> pnValues = new List<PersonNameData> ( ) ;
 

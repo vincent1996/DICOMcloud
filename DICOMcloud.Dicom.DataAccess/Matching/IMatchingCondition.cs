@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +9,6 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
 {
     public interface IMatchingCondition : IQueryInfo, IDicomDataParameter
     {
-        bool CanMatch ( DicomAttribute element ) ;
+        bool CanMatch ( fo.DicomItem element ) ;
     }
 }

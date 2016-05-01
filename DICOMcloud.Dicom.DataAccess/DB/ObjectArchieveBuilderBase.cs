@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using DICOMcloud.Dicom.DataAccess.Matching;
 using System;
@@ -27,28 +27,28 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             if ( condition is RangeMatching )
             {
                 RangeMatching  rangeCondition  = (RangeMatching) condition ;
-                DicomAttribute dateElement     = rangeCondition.DateElement ;
-                DicomAttribute timeElement     = rangeCondition.TimeElement ;
+                fo.DicomItem dateElement     = rangeCondition.DateElement ;
+                fo.DicomItem timeElement     = rangeCondition.TimeElement ;
                 
                 
-                return GetDateTimeValues ( dateElement, timeElement ) ;
+                return GetDateTimeValues ( (fo.DicomElement) dateElement, (fo.DicomElement) timeElement ) ;
             }
-            else if ( condition.VR.Equals ( DicomVr.DAvr ) || condition.VR.Equals ( DicomVr.DTvr ) )
+            else if ( condition.VR.Equals ( fo.DicomVR.DA ) || condition.VR.Equals ( fo.DicomVR.DT ) )
             {
-                DicomAttribute dateElement = null ;
-                DicomAttribute timeElement = null ;
+                fo.DicomElement dateElement = null ;
+                fo.DicomElement timeElement = null ;
 
                 foreach ( var element in condition.Elements )
                 {
-                    if ( element.Tag.VR.Equals ( DicomVr.DAvr ) )
+                    if ( element.ValueRepresentation.Equals ( fo.DicomVR.DA ) )
                     {
-                        dateElement = element ;
+                        dateElement = (fo.DicomElement) element ;
                         continue ;
                     }
 
-                    if ( element.Tag.VR.Equals ( DicomVr.TMvr ) )
+                    if ( element.ValueRepresentation.Equals ( fo.DicomVR.TM ) )
                     { 
-                        timeElement = element ;
+                        timeElement = (fo.DicomElement) element ;
                     }
                 }
 
@@ -60,7 +60,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             }
         }
 
-        private IList<string> GetDateTimeValues ( DicomAttribute dateElement, DicomAttribute timeElement )
+        private IList<string> GetDateTimeValues ( fo.DicomElement dateElement, fo.DicomElement timeElement )
         {
             List<string> values = new List<string> ( ) ; 
             int dateValuesCount = dateElement == null ? 0 : (int)dateElement.Count;
@@ -74,12 +74,12 @@ namespace DICOMcloud.Dicom.DataAccess.DB
 
                 if (dateTimeIndex < dateValuesCount)
                 {
-                    dateString = dateElement == null ? null : dateElement.GetString(0, "");
+                    dateString = dateElement == null ? null : dateElement.Get<string>(0); //TODO: test - original code returns "" as default
                 }
 
                 if (dateTimeIndex < dateValuesCount)
                 {
-                    timeString = timeElement == null ? null : timeElement.GetString(0, "");
+                    timeString = timeElement == null ? null : timeElement.Get<string>(0); //TODO: test - original code returns "" as default
                 }
 
                 values.AddRange(GetDateTimeValues(dateString, timeString));

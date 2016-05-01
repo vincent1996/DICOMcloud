@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,16 +10,16 @@ namespace DICOMcloud.Dicom.DataAccess
     public interface IDicomDataParameter
     {
         uint        KeyTag            { get; set ; }
-        DicomVr     VR                { get; set ; }
+        fo.DicomVR  VR                { get; set ; }
         bool        AllowExtraElement { get; set ; }
         IList<uint> SupportedTags     { get ; }
 
-        bool                  IsSupported     ( DicomAttribute element );
-        void                  SetElement      ( DicomAttribute element ) ;
+        bool                  IsSupported     ( fo.DicomItem element );
+        void                  SetElement      ( fo.DicomItem element ) ;
         string[]              GetValues       ( ) ;
         List<PersonNameData>  GetPNValues     ( ) ;
         IDicomDataParameter   CreateParameter ( ) ;
-        IList<DicomAttribute> Elements { get; set ; }
+        IList<fo.DicomItem> Elements { get; set ; }
     
     }
 }

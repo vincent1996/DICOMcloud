@@ -1,5 +1,5 @@
 ﻿
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -34,7 +34,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
         public class MetadataTable
         {
             public static string TableName         = "ObjectInstance" ;
-            public static string SopInstanceColumn = "SopInstanceUid" ;
+            public static string SopInstanceColumn = "SopInstanceUID" ;
             public static string MetadataColumn    = "Metadata" ;
         }
         

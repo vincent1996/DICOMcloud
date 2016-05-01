@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ namespace DICOMcloud.Dicom.DataAccess
             PupolateTemplate ( ParametersTemplate ) ;
         }
 
-        public IEnumerable<T> ProcessDataSet ( DicomAttributeCollection dataset )
+        public IEnumerable<T> ProcessDataSet ( fo.DicomDataset dataset )
         {
             BeginProcessingElements ( ) ;
             
@@ -47,7 +47,7 @@ namespace DICOMcloud.Dicom.DataAccess
             ProcessingList = new List<IDicomDataParameter> ( ) ;
         }
 
-        public virtual void ProcessElement(DicomAttribute element) 
+        public virtual void ProcessElement(fo.DicomItem element) 
         {
             for ( int index = ProcessingList.Count -1; index >= 0; index-- )
             { 
@@ -110,11 +110,11 @@ namespace DICOMcloud.Dicom.DataAccess
         protected override void PupolateTemplate(List<IDicomDataParameter> parametersTemplate)
         {
             List<uint> supportedDateTime = new List<uint> ( ) ;
-            supportedDateTime.Add ( DicomTags.StudyDate ) ;
-            supportedDateTime.Add ( DicomTags.StudyTime ) ;
+            supportedDateTime.Add ( (uint) fo.DicomTag.StudyDate ) ;
+            supportedDateTime.Add ( (uint) fo.DicomTag.StudyTime ) ;
 
             studyDateTime = new StoreParameter ( supportedDateTime ) ; 
-            studyDateTime.KeyTag = DicomTags.StudyDate ;
+            studyDateTime.KeyTag = (uint) fo.DicomTag.StudyDate ;
 
             parametersTemplate.Add ( studyDateTime ) ;
             parametersTemplate.Add ( new StoreParameter ( ) ) ;
