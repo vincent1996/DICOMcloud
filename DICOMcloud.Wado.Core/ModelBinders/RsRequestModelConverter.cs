@@ -152,7 +152,7 @@ namespace DICOMcloud.Wado.Core
         { 
             FillSeriesParams ( valueProvider, result ) ;
 
-            result.SopInstanceUID = valueProvider.GetValue ("SOPInstanceUID").RawValue as string  ;
+            result.SOPInstanceUID = valueProvider.GetValue ("SOPInstanceUID").RawValue as string  ;
         }
 
         private void FillIFramesParams ( IValueProvider valueProvider, IWadoRSFramesRequest result )

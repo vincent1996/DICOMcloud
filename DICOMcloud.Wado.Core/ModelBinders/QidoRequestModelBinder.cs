@@ -1,4 +1,5 @@
-﻿using DICOMcloud.Wado.Models;
+﻿
+using DICOMcloud.Wado.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

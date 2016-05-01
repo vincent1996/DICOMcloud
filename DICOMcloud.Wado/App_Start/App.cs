@@ -2,6 +2,7 @@
 using System.Web.Http;
 using DICOMcloud.Core.Azure.Storage;
 using DICOMcloud.Core.Storage;
+using DICOMcloud.Dicom.Data.Services;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Pacs;
 using DICOMcloud.Pacs.Commands;

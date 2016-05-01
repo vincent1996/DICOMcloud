@@ -18,7 +18,7 @@ namespace DICOMcloud.Wado.Models
 
         public string StudyInstanceUID   { get; set; }
         public string SeriesInstanceUID  { get; set; }
-        public string SopInstanceUID     { get; set; }
+        public string SOPInstanceUID     { get; set; }
         public int?   Frame              { get; set; }
         
         public bool Anonymize { get; set; }

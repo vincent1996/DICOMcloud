@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using System.IO;
 using DICOMcloud.Dicom.Media;
 using DICOMcloud.Core.Storage;
@@ -24,13 +24,13 @@ namespace DICOMcloud.Wado.Core
 
         protected override WadoResponse DoProcess(IWadoUriRequest request, string mimeType)
         {
-            DicomFile df = new DicomFile ( ) ;
+            fo.DicomFile df = fo.DicomFile.Open (Location.GetReadStream ( )) ;//TODO: check how the toolkit loads the image in memory or not. we do not need to load it
             WadoResponse response = new WadoResponse ( ) ;
 
 
-            df.Load ( Location.GetReadStream ( ), null, DicomReadOptions.DoNotStorePixelDataInDataSet);
+            //df.Load ( Location.GetReadStream ( ), null, DicomReadOptions.DoNotStorePixelDataInDataSet);
 
-            response.Content = GenerateStreamFromString ( df.DataSet.Dump() );
+            response.Content = GenerateStreamFromString ( df.ToString ( ) );
             response.MimeType = mimeType ;
 
             return response ;

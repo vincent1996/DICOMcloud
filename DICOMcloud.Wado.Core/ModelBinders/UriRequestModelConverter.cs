@@ -28,7 +28,7 @@ namespace DICOMcloud.Wado.Core
          wadoReq.RequestType = query[WadoRequestKeys.RequestType] ;
          wadoReq.StudyInstanceUID = query[WadoRequestKeys.StudyUID] ;
          wadoReq.SeriesInstanceUID = query[WadoRequestKeys.SeriesUID] ;
-         wadoReq.SopInstanceUID = query[WadoRequestKeys.ObjectUID] ;
+         wadoReq.SOPInstanceUID = query[WadoRequestKeys.ObjectUID] ;
          wadoReq.ContentType = query[WadoRequestKeys.ContentType] ;
          wadoReq.Charset = query[WadoRequestKeys.Charset] ;
 

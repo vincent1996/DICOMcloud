@@ -1,17 +1,15 @@
-﻿using DICOMcloud.Wado.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using ClearCanvas.Dicom;
-using DICOMcloud.Dicom.Media;
+using System.Linq;
+using Dicom.Imaging;
+using Dicom.Imaging.Codec;
 using DICOMcloud.Core.Storage;
+using DICOMcloud.Dicom;
+using DICOMcloud.Dicom.Media;
 using DICOMcloud.Pacs;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net;
+using DICOMcloud.Wado.Models;
+using fo = Dicom;
 
 namespace DICOMcloud.Wado.Core
 {
@@ -49,70 +47,45 @@ namespace DICOMcloud.Wado.Core
                 return new WadoResponse(Location, mimeType);
             }
 
-            DicomFile file = new DicomFile ( ) ;
+            fo.DicomFile file = fo.DicomFile.Open ( dcmLocation.GetReadStream ( ) ) ;
             var frameIndex = request.ImageRequestInfo.FrameNumber - 1 ?? 0  ;
                     
             frameIndex = Math.Max ( frameIndex, 0 ) ;
 
-            file.Load ( dcmLocation.GetReadStream() ) ;
-
             if (string.Compare(mimeType, MimeMediaTypes.Jpeg, true) == 0)
             {
                 WadoResponse response = new WadoResponse();
+                fo.DicomDataset ds = file.Dataset ;
 
 
-                if (file.TransferSyntax == TransferSyntax.JpegBaselineProcess1)
+                if (file.FileMetaInfo.TransferSyntax != fo.DicomTransferSyntax.JPEGProcess1)
                 {
-                    //ClearCanvas.Dicom.Codec.Jpeg.Jpeg8Codec codec = new ClearCanvas.Dicom.Codec.Jpeg.Jpeg8Codec (ClearCanvas.Dicom.Codec.Jpeg.JpegMode.Baseline, 0, 0 )
+                    
+                    ds = file.Dataset.ChangeTransferSyntax ( fo.DicomTransferSyntax.JPEGProcess1 ) ;
+                }
                 
-                    //codec.Encode ()
+                DicomPixelData pd = DicomPixelData.Create(ds) ;
 
-                    DicomCompressedPixelData pd = DicomPixelData.CreateFrom(file) as DicomCompressedPixelData ;
+                
+                byte[] buffer = pd.GetFrame ( frameIndex ).Data ;
 
-                    byte[] buffer = pd.GetFrameFragmentData ( frameIndex );
+                response.Content = new MemoryStream(buffer);
+                response.MimeType = mimeType ;
 
-                    response.Content = new MemoryStream(buffer);
-                    response.MimeType = mimeType ;
-
-                    return response ;
-                }
-                else
-                {
-                }
+                return response ;
             }
 
             if ( string.Compare(mimeType, MimeMediaTypes.UncompressedData) == 0)
             {
-                WadoResponse response = null ;
-                DicomPixelData pd     = null ;
-                byte[] buffer         = null ;
+                WadoResponse                 response = null ;
+                UncompressedPixelDataWrapper pd       = null ;
+                byte[]                       buffer   = null ;
 
 
                 response = new WadoResponse          ( ) ;
-                pd       = DicomPixelData.CreateFrom ( file ) ;
-                buffer   = pd.GetFrame                ( frameIndex) ;
+                pd       = new UncompressedPixelDataWrapper ( file.Dataset ) ;
+                buffer   = pd.PixelData.GetFrame ( frameIndex ).Data ;
             
-            
-                //********* TEST CODE***************
-                    //System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap (pd.ImageWidth, pd.ImageHeight, System.Drawing.Imaging.PixelFormat.Format8bppIndexed ) ;
-
-                    //System.Drawing.Imaging.ColorPalette ncp = bitmap.Palette;
-                    //    for (int i = 0; i < 256; i++)
-                    //        ncp.Entries[i] = System.Drawing.Color.FromArgb(255, i, i, i);
-                    //    bitmap.Palette = ncp;
-                    // System.Drawing.Imaging.BitmapData data =  bitmap.LockBits (new System.Drawing.Rectangle ( 0,0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
-
-                    //IntPtr ptr = data.Scan0 ;
-
-                    //System.Runtime.InteropServices.Marshal.Copy (buffer, 0, ptr, buffer.Length ) ;
-                    //string fileName = @"C:\Users\zalsafadi_p\Downloads\libwebp-master\Output\release-static\x86\bin\Samples\uncompressed.raw" ;
-                    //bitmap.UnlockBits (data);
-                    //bitmap.Save ( fileName);
-
-                    //File.WriteAllBytes(fileName, buffer) ;
-
-                //********* TEST CODE***************
-
                 response.Content  = new MemoryStream(buffer);
                 response.MimeType = mimeType ;
 

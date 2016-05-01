@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Wado.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using DICOMcloud.Pacs;
 using DICOMcloud.Dicom.Media;
-using DICOMcloud.Dicom.Common;
+using DICOMcloud.Dicom;
 
 namespace DICOMcloud.Wado.Core
 {
@@ -29,7 +29,7 @@ namespace DICOMcloud.Wado.Core
             string studyInstanceUID 
         )
         {
-            DicomAttributeCollection bodyContent = null ;
+            fo.DicomDataset bodyContent = null ;
             
             
             switch ( request.MediaType )
@@ -86,9 +86,9 @@ namespace DICOMcloud.Wado.Core
             }
         }
 
-        private async Task<DicomAttributeCollection> GetResponseDataset ( IWebStoreRequest request, string studyInstanceUID )
+        private async Task<fo.DicomDataset> GetResponseDataset ( IWebStoreRequest request, string studyInstanceUID )
         {
-            DicomAttributeCollection bodyContent = null ;
+            fo.DicomDataset bodyContent = null ;
             WadoStoreResponse response = new WadoStoreResponse(studyInstanceUID);
 
             foreach (var mediaContent in request.Contents)

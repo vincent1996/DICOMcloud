@@ -1,11 +1,11 @@
-﻿using DICOMcloud.Wado.Models;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using DICOMcloud.Dicom.Media;
 using DICOMcloud.Core.Extensions;
+using DICOMcloud.Wado.Models;
 
 
 namespace DICOMcloud.Wado.Core

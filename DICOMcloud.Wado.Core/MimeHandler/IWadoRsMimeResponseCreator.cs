@@ -1,6 +1,6 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Core.Storage;
-using DICOMcloud.Dicom.Common;
+
 using DICOMcloud.Wado.Models;
 using System;
 using System.Collections.Generic;
@@ -31,9 +31,9 @@ namespace DICOMcloud.Wado.Core
 
 
 
-    //    private static DicomFile GetDicom(IStorageLocation storage)
+    //    private static fo.DicomFile GetDicom(IStorageLocation storage)
     //    {
-    //        DicomFile file = new DicomFile(storage.GetName());
+    //        fo.DicomFile file = new fo.DicomFile(storage.GetName());
 
     //        file.Load(DicomReadOptions.Default); //TODO: change read options
     //        return file;

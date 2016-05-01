@@ -55,10 +55,10 @@ namespace DICOMcloud.Wado.Models
         public WadoRSInstanceRequest(WadoRSInstanceRequest request)
         : this ( (IWadoRsSeriesRequest)request)
         {
-            SopInstanceUID = request.SopInstanceUID;
+            SOPInstanceUID = request.SOPInstanceUID;
         }
 
-        public string SopInstanceUID{get; set;}
+        public string SOPInstanceUID{get; set;}
         public int? Frame { get; set; }
     }
 

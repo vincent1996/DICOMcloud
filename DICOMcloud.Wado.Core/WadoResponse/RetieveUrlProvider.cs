@@ -31,7 +31,7 @@ namespace DICOMcloud.Wado.Core
 
         public string GetInstanceUrl ( ObjectID instance )
         {
-            return GetInstanceUrl ( instance.StudyInstanceUID, instance.SeriesInstanceUID, instance.SopInstanceUID ) ;
+            return GetInstanceUrl ( instance.StudyInstanceUID, instance.SeriesInstanceUID, instance.SOPInstanceUID ) ;
         }
         public string GetInstanceUrl ( string studyInstanceUID, string seriesInstanceUID, string sopInstanceUID )
         {

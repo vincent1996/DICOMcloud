@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,40 +9,51 @@ namespace DICOMcloud.Wado.Core
 {
     public class DefaultDicomQueryElements
     {
-        static DicomAttributeCollection _studyDs = new DicomAttributeCollection ( ) ;
-        static DicomAttributeCollection _seriesDs = new DicomAttributeCollection ( ) ;
-        static DicomAttributeCollection _instanceDs = new DicomAttributeCollection ( ) ;
+        static fo.DicomDataset _studyDs = new fo.DicomDataset ( ) ;
+        static fo.DicomDataset _seriesDs = new fo.DicomDataset ( ) ;
+        static fo.DicomDataset _instanceDs = new fo.DicomDataset ( ) ;
             
     
-        public virtual DicomAttributeCollection GetStudyQuery ( ) 
+        public virtual fo.DicomDataset GetStudyQuery ( ) 
         {
             return GetDefaultStudyQuery ( ) ;
         }
 
-        public virtual DicomAttributeCollection GetSeriesQuery ( ) 
+        public virtual fo.DicomDataset GetSeriesQuery ( ) 
         {
             return GetDefaultSeriesQuery ( ) ;
         }
 
-        public virtual DicomAttributeCollection GetInstanceQuery ( ) 
+        public virtual fo.DicomDataset GetInstanceQuery ( ) 
         {
             return GetDefaultInstanceQuery ( ) ;
         }
 
 
-        public static DicomAttributeCollection GetDefaultStudyQuery ( ) 
+        public static fo.DicomDataset GetDefaultStudyQuery ( ) 
         {
-            return _studyDs.Copy ( false, true, true ) ;
+            fo.DicomDataset ds = new fo.DicomDataset ( ) ;
+            _studyDs.CopyTo ( ds ) ; 
+
+            return ds ;
         }
 
-        public static DicomAttributeCollection GetDefaultSeriesQuery ( ) 
+        public static fo.DicomDataset GetDefaultSeriesQuery ( ) 
         {
-            return _seriesDs.Copy ( false, true, true ) ;
+            fo.DicomDataset ds = new fo.DicomDataset ( ) ;
+            
+            _seriesDs.CopyTo ( ds ) ;
+
+            return ds ;
         }
 
-        public static DicomAttributeCollection GetDefaultInstanceQuery ( ) 
+        public static fo.DicomDataset GetDefaultInstanceQuery ( ) 
         {
-            return _instanceDs.Copy ( false, true, true ) ;
+            fo.DicomDataset ds = new fo.DicomDataset ( ) ;
+            
+            _instanceDs.CopyTo ( ds ) ;
+
+            return ds ;
         }
 
         static DefaultDicomQueryElements ( ) 
@@ -54,51 +65,51 @@ namespace DICOMcloud.Wado.Core
 
         }
 
-        private static void FillStudyLevel(DicomAttributeCollection studyDs)
+        //TODO: adding empty elements is a challenge. How can I update/append values?
+        private static void FillStudyLevel(fo.DicomDataset studyDs)
         {
-            var temp = studyDs[DicomTags.SpecificCharacterSet] ;
-            temp = studyDs[DicomTags.StudyDate] ;
-            temp = studyDs[DicomTags.StudyTime] ;
-            temp = studyDs[DicomTags.AccessionNumber] ;
-            temp = studyDs[DicomTags.InstanceAvailability] ;
-            temp = studyDs[DicomTags.ModalitiesInStudy] ;
-            temp = studyDs[DicomTags.ReferringPhysiciansName] ;
-            temp = studyDs[DicomTags.TimezoneOffsetFromUtc] ;
-            temp = studyDs[DicomTags.RetrieveUri] ;
-            temp = studyDs[DicomTags.PatientsName] ;
-            temp = studyDs[DicomTags.PatientId] ;
-            temp = studyDs[DicomTags.PatientsBirthDate] ;
-            temp = studyDs[DicomTags.PatientsSex] ;
-            temp = studyDs[DicomTags.StudyInstanceUid] ;
-            temp = studyDs[DicomTags.StudyId] ;
-            temp = studyDs[DicomTags.NumberOfStudyRelatedSeries] ;
-            temp = studyDs[DicomTags.NumberOfStudyRelatedInstances] ;
+            studyDs.Add<object>(fo.DicomTag.SpecificCharacterSet,null) ;
+            studyDs.Add<object>(fo.DicomTag.StudyDate,null) ;
+            studyDs.Add<object>(fo.DicomTag.StudyTime,null) ;
+            studyDs.Add<object>(fo.DicomTag.AccessionNumber,null) ;
+            studyDs.Add<object>(fo.DicomTag.InstanceAvailability,null) ;
+            studyDs.Add<object>(fo.DicomTag.ModalitiesInStudy,null) ;
+            studyDs.Add<object>(fo.DicomTag.ReferringPhysicianName,null) ;
+            studyDs.Add<object>(fo.DicomTag.TimezoneOffsetFromUTC,null) ;
+            studyDs.Add<object>(fo.DicomTag.RetrieveURI,null) ;
+            studyDs.Add<object>(fo.DicomTag.PatientName,null) ;
+            studyDs.Add<object>(fo.DicomTag.PatientID,null) ;
+            studyDs.Add<object>(fo.DicomTag.PatientBirthDate,null) ;
+            studyDs.Add<object>(fo.DicomTag.PatientSex,null) ;
+            studyDs.Add<object>(fo.DicomTag.StudyInstanceUID,null) ;
+            studyDs.Add<object>(fo.DicomTag.StudyID,null) ;
+            studyDs.Add<object>(fo.DicomTag.NumberOfStudyRelatedSeries,null) ;
+            studyDs.Add<object>(fo.DicomTag.NumberOfStudyRelatedInstances,null) ;
         }
 
-        private static void FillSeriesLevel(DicomAttributeCollection seriesDs)
+        private static void FillSeriesLevel(fo.DicomDataset seriesDs)
         {
-            var temp = seriesDs[DicomTags.SpecificCharacterSet] ;
-            temp = seriesDs[DicomTags.Modality] ;
-            temp = seriesDs[DicomTags.TimezoneOffsetFromUtc] ;
-            temp = seriesDs[DicomTags.SeriesDescription] ;
-            temp = seriesDs[DicomTags.RetrieveUri] ;
-            temp = seriesDs[DicomTags.SeriesInstanceUid] ;
-            temp = seriesDs[DicomTags.SeriesNumber] ;
-            temp = seriesDs[DicomTags.NumberOfSeriesRelatedInstances] ;
-            temp = seriesDs[DicomTags.PerformedProcedureStepStartDate] ;
-            temp = seriesDs[DicomTags.PerformedProcedureStepStartTime] ;
-            //temp = seriesDs[DicomTags.RequestAttributesSequence] ; //Not supported yet
+            seriesDs.Add<object>(fo.DicomTag.SpecificCharacterSet,null) ;
+            seriesDs.Add<object>(fo.DicomTag.Modality,null) ;
+            seriesDs.Add<object>(fo.DicomTag.TimezoneOffsetFromUTC,null) ;
+            seriesDs.Add<object>(fo.DicomTag.SeriesDescription,null) ;
+            seriesDs.Add<object>(fo.DicomTag.RetrieveURI,null) ;
+            seriesDs.Add<object>(fo.DicomTag.SeriesInstanceUID,null) ;
+            seriesDs.Add<object>(fo.DicomTag.SeriesNumber,null) ;
+            seriesDs.Add<object>(fo.DicomTag.NumberOfSeriesRelatedInstances,null) ;
+            seriesDs.Add<object>(fo.DicomTag.PerformedProcedureStepStartDate,null) ;
+            seriesDs.Add<object>(fo.DicomTag.PerformedProcedureStepStartTime,null) ;
+            //seriesDs.Add<object>(fo.DicomTag.RequestAttributesSequence,null) ; //Not supported yet
 
 
         }
 
-        private static void FillInstsanceLevel(DicomAttributeCollection instanceDs)
+        private static void FillInstsanceLevel(fo.DicomDataset instanceDs)
         {
-            var temp = instanceDs[DicomTags.SpecificCharacterSet] ;
-            temp = instanceDs[DicomTags.SopClassUid] ;
-            temp = instanceDs[DicomTags.SopInstanceUid] ;
-            temp = instanceDs[DicomTags.InstanceNumber] ;
-            //temp = instanceDs[DicomTags.SopClassUid] ;
+            instanceDs.Add<object>(fo.DicomTag.SpecificCharacterSet,null) ;
+            instanceDs.Add<object>(fo.DicomTag.SOPClassUID,null) ;
+            instanceDs.Add<object>(fo.DicomTag.SOPInstanceUID,null) ;
+            instanceDs.Add<object>(fo.DicomTag.InstanceNumber,null) ;
         }
     }
 }

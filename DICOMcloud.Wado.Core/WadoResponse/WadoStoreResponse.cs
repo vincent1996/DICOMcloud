@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using DICOMcloud.Dicom;
 using DICOMcloud.Dicom.Data;
 using DICOMcloud.Pacs;
@@ -14,7 +14,7 @@ namespace DICOMcloud.Wado.Core
 {
     public class WadoStoreResponse
     {
-        private DicomAttributeCollection _dataset ;
+        private fo.DicomDataset _dataset ;
         public RetieveUrlProvider UrlProvider { get; set; }
         public string StudyInstanceUID { get; private set; }
 
@@ -26,7 +26,7 @@ namespace DICOMcloud.Wado.Core
 
         public WadoStoreResponse ( string studyInstanceUID )
         {
-            _dataset         = new DicomAttributeCollection ( ) ;
+            _dataset         = new fo.DicomDataset ( ) ;
             UrlProvider      = new RetieveUrlProvider ( ) ;
             StudyInstanceUID = studyInstanceUID ;
         }
@@ -53,54 +53,56 @@ namespace DICOMcloud.Wado.Core
             }
         }
 
-        public DicomAttributeCollection GetResponseContent ( )
+        public fo.DicomDataset GetResponseContent ( )
         {
-            _dataset[DicomTags.RetrieveUri].SetStringValue ( UrlProvider.GetStudyUrl ( StudyInstanceUID ) ) ;
+            _dataset.Add<string>(fo.DicomTag.RetrieveURI, UrlProvider.GetStudyUrl ( StudyInstanceUID ) ) ;
         
             return _dataset ;
         }
 
         public void AddResult ( Exception ex, Stream dicomStream )
         {
-            DicomFile dataSet = new DicomFile ( ) ;
+            fo.DicomFile dataSet = fo.DicomFile.Open ( dicomStream ) ;
             
-            dataSet.Load ( dicomStream ) ;
-            
-            AddFailedItem ( GetReferencedInstsance ( dataSet.DataSet ) ) ;
+            AddFailedItem ( GetReferencedInstsance ( dataSet.Dataset ) ) ;
         }
 
-        private void AddFailedItem ( DicomAttributeCollection ds )
-        {
-            var            referencedInstance = GetReferencedInstsance ( ds ) ;
-            DicomAttribute failedSeq          = _dataset[DicomTags.FailedSopSequence];
-            var            item = new DicomSequenceItem ( ) ;
-
-            referencedInstance.Merge ( item ) ;
-
-            failedSeq.AddSequenceItem ( item ) ;
-
-            item [ DicomTags.FailureReason ].SetUInt16 ( 0, 272 ) ; //TODO: for now 272 == "0110 - Processing failure", must map proper result code from org. exception
-        }
-
-        private void AddSuccessItem ( DicomAttributeCollection ds )
+        private void AddFailedItem ( fo.DicomDataset ds )
         {
             var referencedInstance = GetReferencedInstsance ( ds ) ;
-            var referencedSeq      = _dataset [DicomTags.ReferencedInstanceSequence];
-            var item               = new DicomSequenceItem ( ) ;
+            var failedSeq          = new fo.DicomSequence ( fo.DicomTag.FailedSOPSequence ) ;
+            var item               = new fo.DicomDataset ( ) ;
+
 
             referencedInstance.Merge ( item ) ;
 
-            item[DicomTags.RetrieveUri].SetStringValue ( UrlProvider.GetInstanceUrl ( new ObjectID ( ds ) ) ) ; 
+            _dataset.Add (failedSeq);
+            failedSeq.Items.Add ( item ) ;
 
-            referencedSeq.AddSequenceItem ( item ) ;
+            item.Add<UInt16> (fo.DicomTag.FailureReason, 272 ) ; //TODO: for now 272 == "0110 - Processing failure", must map proper result code from org. exception
         }
 
-        private DicomAttributeCollection GetReferencedInstsance ( DicomAttributeCollection ds )
+        private void AddSuccessItem ( fo.DicomDataset ds )
         {
-            DicomAttributeCollection dataset = new DicomAttributeCollection ( ) ;
+            var referencedInstance = GetReferencedInstsance ( ds ) ;
+            var referencedSeq      = new fo.DicomSequence ( fo.DicomTag.ReferencedInstanceSequence ) ;
+            var item               = new fo.DicomDataset ( ) ;
 
-            dataset [DicomTags.SopClassUid]    = ds [DicomTags.SopClassUid] ;
-            dataset [DicomTags.SopInstanceUid] = ds [DicomTags.SopInstanceUid] ;
+
+            referencedInstance.Merge ( item ) ;
+
+            _dataset.Add ( referencedSeq ) ;
+            referencedSeq.Items.Add ( item ) ;
+            
+            item.Add<string> (fo.DicomTag.RetrieveURI, UrlProvider.GetInstanceUrl ( new ObjectID ( ds ) ) ) ; 
+        }
+
+        private fo.DicomDataset GetReferencedInstsance ( fo.DicomDataset ds )
+        {
+            fo.DicomDataset dataset = new fo.DicomDataset ( ) ;
+
+            dataset.Add ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPClassUID) ) ;
+            dataset.Add ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPInstanceUID) ) ;
 
             return dataset ;
         }

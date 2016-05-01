@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Configuration;
-using DICOMcloud.Core.Azure.Storage;
-using DICOMcloud.Core.Storage;
-using DICOMcloud.Dicom.Common;
-using DICOMcloud.Dicom.DataAccess;
+using DICOMcloud.Dicom;
 using DICOMcloud.Dicom.Media;
-using DICOMcloud.Pacs;
-using DICOMcloud.Pacs.Commands;
-using DICOMcloud.Wado.Core;
-using Microsoft.Azure;
 using Microsoft.Practices.Unity;
-using Microsoft.WindowsAzure.Storage;
 
 namespace DICOMcloud.Wado
 {

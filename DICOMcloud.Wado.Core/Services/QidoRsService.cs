@@ -1,6 +1,6 @@
-﻿using ClearCanvas.Dicom;
-using DICOMcloud.Dicom.Common;
-using DICOMcloud.Pacs;
+﻿using fo = Dicom;
+
+using DICOMcloud.Dicom.Data.Services;
 using DICOMcloud.Wado.Models;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using DICOMcloud.Dicom;
 using DICOMcloud.Dicom.Media;
 
 
@@ -32,7 +33,7 @@ namespace DICOMcloud.Wado.Core.Services
             delegate 
             ( 
                 IObjectArchieveQueryService queryService, 
-                DicomAttributeCollection dicomRequest, 
+                fo.DicomDataset dicomRequest, 
                 int? limit, 
                 int? offset  
             )
@@ -48,7 +49,7 @@ namespace DICOMcloud.Wado.Core.Services
             delegate 
             ( 
                 IObjectArchieveQueryService queryService, 
-                DicomAttributeCollection dicomRequest, 
+                fo.DicomDataset dicomRequest, 
                 int? limit, 
                 int? offset  
             )
@@ -64,7 +65,7 @@ namespace DICOMcloud.Wado.Core.Services
             delegate 
             ( 
                 IObjectArchieveQueryService queryService, 
-                DicomAttributeCollection dicomRequest, 
+                fo.DicomDataset dicomRequest, 
                 int? limit, 
                 int? offset  
             )
@@ -76,7 +77,7 @@ namespace DICOMcloud.Wado.Core.Services
         private HttpResponseMessage SearchForDicomEntity 
         ( 
             IQidoRequestModel request, 
-            DicomAttributeCollection dicomSource,
+            fo.DicomDataset dicomSource,
             DoQueryDelegate doQuery 
         )
         {
@@ -97,7 +98,7 @@ namespace DICOMcloud.Wado.Core.Services
                     InsertDicomElement ( dicomSource,  returnParam, "" );
                 }
 
-                ICollection<DicomAttributeCollection> results = doQuery (QueryService, dicomSource, request.Limit, request.Offset ) ; //TODO: move configuration params into their own object
+                ICollection<fo.DicomDataset> results = doQuery (QueryService, dicomSource, request.Limit, request.Offset ) ; //TODO: move configuration params into their own object
 
                 StringBuilder jsonReturn = new StringBuilder ( "[" ) ;
 
@@ -124,7 +125,7 @@ namespace DICOMcloud.Wado.Core.Services
             return null;
         }
 
-        private void InsertDicomElement(DicomAttributeCollection dicomRequest, string paramKey, string paramValue)
+        private void InsertDicomElement(fo.DicomDataset dicomRequest, string paramKey, string paramValue)
         {
             List<string> elements = new List<string>();
 
@@ -140,39 +141,36 @@ namespace DICOMcloud.Wado.Core.Services
             }
         }
 
-        private void CreateElement(string tagString, DicomAttributeCollection dicomRequest, string value)
+        private void CreateElement(string tagString, fo.DicomDataset dicomRequest, string value)
         {
             uint tag = uint.Parse (tagString, System.Globalization.NumberStyles.HexNumber) ;
 
-            dicomRequest[tag].SetStringValue (value ) ;
+            dicomRequest.Add(tag, value ) ;
         }
 
-        private void CreateSequence(List<string> elements, int currentElementIndex, DicomAttributeCollection dicomRequest, string value)
+        private void CreateSequence(List<string> elements, int currentElementIndex, fo.DicomDataset dicomRequest, string value)
         {
             uint tag = uint.Parse ( elements[currentElementIndex], System.Globalization.NumberStyles.HexNumber) ;//TODO: need to handle the case of keywords
+            var dicEntry = fo.DicomDictionary.Default[tag] ;
+            fo.DicomSequence sequence ;
+            fo.DicomDataset  item ;
+            
+            dicomRequest.Add ( new fo.DicomSequence ( dicEntry.Tag ) ) ;
+            sequence = dicomRequest.Get<fo.DicomSequence>(dicEntry.Tag);
 
-            DicomAttributeSQ sequence = dicomRequest[tag] as DicomAttributeSQ ;
-            DicomSequenceItem item ;
 
+            item = new fo.DicomDataset ( ) ;
 
-            if ( sequence.Count > 0 )
-            {
-                item = sequence[0] ;
-            }
-            else
-            {
-                item = new DicomSequenceItem ( ) ;
-
-                sequence.AddSequenceItem ( item ) ;
-            }
+            sequence.Items.Add ( item ) ;
+            
             
             for ( int index = (currentElementIndex+1); index < elements.Count; index++  )
             {
                 tag = uint.Parse ( elements[index], System.Globalization.NumberStyles.HexNumber) ;
                 
-                DicomAttribute childElement = item[tag] ; //TODO: if item.Contains(tag)??? throw error?
+                dicEntry = fo.DicomDictionary.Default[tag] ;
 
-                if (  childElement.Tag.VR.Equals (DicomVr.SQvr) )
+                if (  dicEntry.ValueRepresentations.Contains (fo.DicomVR.SQ) )
                 {
                     CreateSequence ( elements, index, item, value) ;
 
@@ -180,15 +178,15 @@ namespace DICOMcloud.Wado.Core.Services
                 }
                 else
                 {
-                    childElement.SetStringValue ( value ) ;
+                    item.Add<string> ( tag, value) ;
                 }
             }
         }
     
-        private delegate ICollection<DicomAttributeCollection> DoQueryDelegate 
+        private delegate ICollection<fo.DicomDataset> DoQueryDelegate 
         ( 
             IObjectArchieveQueryService queryService, 
-            DicomAttributeCollection dicomRequest, 
+            fo.DicomDataset dicomRequest, 
             int? limit, 
             int? offset  
         ) ;
