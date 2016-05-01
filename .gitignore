@@ -210,3 +210,5 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/DICOMcloud.Wado/Properties/PublishProfiles/az-wado .pubxml
+/DICOMcloud.Wado/Properties/PublishProfiles/DICOMcloud - Web Deploy.pubxml
