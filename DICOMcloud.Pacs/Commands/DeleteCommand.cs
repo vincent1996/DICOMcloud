@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using DICOMcloud.Dicom.Data;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.Media;
@@ -45,7 +45,7 @@ namespace DICOMcloud.Pacs.Commands
                 location.Delete ( ) ;
             }
 
-            DataAccess.DeleteInstance ( instance.SopInstanceUID ) ;
+            DataAccess.DeleteInstance ( instance.SOPInstanceUID ) ;
         
             return new DicomCommandResult ( ) ;//TODO: currently nothing to return    
         }

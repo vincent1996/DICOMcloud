@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DICOMcloud.Core.Storage;
-using DICOMcloud.Dicom.Data;
 
-namespace DICOMcloud.Pacs
+namespace DICOMcloud.Dicom.Data.Services
 {
     public class DicomStoreSuccessEventArgs : EventArgs
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 
 namespace DICOMcloud.Pacs.Commands
 {
@@ -17,7 +17,7 @@ namespace DICOMcloud.Pacs.Commands
         public Exception     Error   { get; set; }
         public string        Message { get; set; }
 
-        public DicomAttributeCollection ReferencedSopInstance { get; set; }
+        public fo.DicomDataset ReferencedSopInstance { get; set; }
     }
 
     public enum CommandStatus

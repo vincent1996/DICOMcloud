@@ -1,15 +1,8 @@
-﻿using ClearCanvas.Dicom;
-using DICOMcloud.Core.Storage;
-using DICOMcloud.Dicom.Common;
-using DICOMcloud.Dicom.DataAccess;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using System.IO;
-using DICOMcloud.Dicom;
+using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Pacs.Commands;
+using fo = Dicom;
 
 namespace DICOMcloud.Pacs
 {
@@ -35,7 +28,7 @@ namespace DICOMcloud.Pacs
         )
         {
             StoreResult storeResult  = new StoreResult ( ) ;
-            DicomFile   dicomObject  = null ;
+            fo.DicomDataset dicomObject  = null ;
 
 
             try
@@ -48,7 +41,7 @@ namespace DICOMcloud.Pacs
                 
                 result = StoreCommand.Execute ( dicomObject );
 
-                storeResult.DataSet = dicomObject.DataSet ;
+                storeResult.DataSet = dicomObject ;
                 storeResult.Status  = CommandStatus.Success ;
             }
             catch ( Exception ex )
@@ -56,48 +49,23 @@ namespace DICOMcloud.Pacs
                 storeResult.Status = CommandStatus.Failed ;
 
                 //TODO: must catch specific exception types and set status, message and "code" accoringely
-                storeResult.DataSet = dicomObject.DataSet ;
+                storeResult.DataSet = dicomObject ;
                 storeResult.Status  = CommandStatus.Failed ;
                 storeResult.Error   = ex ;
                 storeResult.Message = ex.Message ;
             }
-            finally
-            {
-                if ( null != dicomObject && !string.IsNullOrEmpty ( dicomObject.Filename ) && File.Exists ( dicomObject.Filename ) ) 
-                {
-                    try
-                    {
-                        File.Delete ( dicomObject.Filename ) ;
-                    }catch {}
-                }
-            }
-        
+            
             return storeResult ;    
         }
 
-        protected virtual DicomFile GetDicom ( Stream dicomStream )
+        protected virtual fo.DicomDataset GetDicom ( Stream dicomStream )
         {
-            //TODO: try this!
-            DicomFile dicom;
-            dicom = new DicomFile();
-            dicom.Load(dicomStream);
-            return dicom;
+            fo.DicomFile dicom ;
 
-            string tempFile = Path.GetTempFileName();
 
-            var reader = File.Open(tempFile, FileMode.OpenOrCreate, FileAccess.ReadWrite);//new MemoryStream () ;
+            dicom = fo.DicomFile.Open ( dicomStream ) ;
 
-            dicomStream.CopyTo(reader);
-
-            reader.Close();
-
-            //byte[] buffer =  reader.ToArray();
-
-            //File.WriteAllBytes(tempFile, buffer);
-
-            DicomFile df = new DicomFile(tempFile);
-            df.Load();
-            return df;
+            return dicom.Dataset ;
         }
     }
 }

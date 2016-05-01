@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using DICOMcloud.Dicom.DataAccess.Matching;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DICOMcloud.Pacs.Query
+namespace DICOMcloud.Dicom.Data.Services.Query
 {
 
     //TODO: base class for query services
@@ -21,9 +21,9 @@ namespace DICOMcloud.Pacs.Query
             QueryDataAccess = queryDataAccess ;
         }
 
-        public ICollection<DicomAttributeCollection> Find 
+        public ICollection<fo.DicomDataset> Find 
         ( 
-            DicomAttributeCollection request, 
+            fo.DicomDataset request, 
             QueryOptions options 
         )
         {
@@ -41,7 +41,7 @@ namespace DICOMcloud.Pacs.Query
 
         protected virtual IEnumerable<IMatchingCondition> BuildConditions
         (
-            DicomAttributeCollection request
+            fo.DicomDataset request
         )
         {
             ConditionFactory condFactory = new ConditionFactory ( ) ;
@@ -61,7 +61,7 @@ namespace DICOMcloud.Pacs.Query
 
         protected abstract void DoFind
         (
-            DicomAttributeCollection request,
+            fo.DicomDataset request,
             QueryOptions options, 
             IEnumerable<IMatchingCondition> conditions, 
             ObjectArchieveResponseBuilder responseBuilder

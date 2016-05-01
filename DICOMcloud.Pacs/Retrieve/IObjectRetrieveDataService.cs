@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DICOMcloud.Dicom.Data;
+using DICOMcloud.Dicom.Data.Services;
 using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Pacs

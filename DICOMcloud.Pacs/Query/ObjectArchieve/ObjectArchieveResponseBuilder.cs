@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using ClearCanvas.Dicom;
-using DICOMcloud.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DICOMcloud.Pacs
+namespace DICOMcloud.Dicom.Data.Services
 {
     public partial class ObjectArchieveResponseBuilder : IStorageDataReader
     {
@@ -64,14 +66,14 @@ namespace DICOMcloud.Pacs
             }
             
             if ( column.IsForeign )
-            { 
+            {
                 string keyString = value.ToString ( ) ;
 
                 KeyToDataSetCollection resultSet = null ;
                 
                 if ( ResultSets.TryGetValue ( column.Table.Parent, out resultSet ) )
                 {             
-                    DicomAttributeCollection foreignDs = resultSet[keyString] ;
+                    fo.DicomDataset foreignDs = resultSet[keyString] ;
 
                     if ( QueryLevel == column.Table.Name )
                     { 
@@ -83,10 +85,10 @@ namespace DICOMcloud.Pacs
                     { 
                         if ( column.Table.IsSequence )
                         { 
-                            DicomAttributeSQ sq = (DicomAttributeSQ) CurrentData.ForeignDs [CurrentData.ForeignTagValue] ;
-                            DicomSequenceItem item = new DicomSequenceItem ( ) ;
-
-                            sq.AddSequenceItem ( item ) ;
+                            fo.DicomSequence sq = (fo.DicomSequence) CurrentData.ForeignDs.Get<fo.DicomSequence> (CurrentData.ForeignTagValue) ;
+                            fo.DicomDataset item = new fo.DicomDataset ( ) ;
+                            
+                            sq.Items.Add ( item ) ;
 
                             CurrentData.CurrentDs.Merge ( item ) ;
 
@@ -100,7 +102,7 @@ namespace DICOMcloud.Pacs
                         {
                             CurrentData.CurrentDs.Merge ( foreignDs ) ;
 
-                            CurrentData.CurrentDs = foreignDs.Copy ( ) ;
+                            foreignDs.CopyTo ( CurrentData.CurrentDs ) ; //TODO: check if above merge is still necessary with this new CopyTo method
                         }
                     }
                 }
@@ -115,36 +117,36 @@ namespace DICOMcloud.Pacs
         {
             foreach ( var dicomTag in dicomTags )
             {
-                var dicomElement = CurrentData.CurrentDs[dicomTag] ;
-            
+                fo.DicomDictionaryEntry dicEntry = fo.DicomDictionary.Default[dicomTag];
 
-                if ( null != dicomElement && DBNull.Value != value && value != null )
+
+                if ( DBNull.Value != value && value != null )
                 {
-                    var vr = dicomElement.Tag.VR ;
+                    var vr = dicEntry.ValueRepresentations.First() ;
                     Type valueType = value.GetType ( ) ;
 
-                    if ( vr == DicomVr.PNvr )
-                    { 
+                    if ( vr == fo.DicomVR.PN )
+                    {
                         PersonNameParts currentPart = SchemaProvider.GetPNColumnPart ( columnName ) ;
 
                         if ( CurrentData.CurrentPersonNameData == null )
                         { 
                             CurrentData.CurrentPersonNameData = new PersonNameData ( ) ;
-                            CurrentData.CurrentPersonNameTagValue  = dicomElement.Tag.TagValue ;
+                            CurrentData.CurrentPersonNameTagValue  = (uint) dicEntry.Tag ;
                             CurrentData.CurrentPersonNames.Add ( CurrentData.CurrentPersonNameTagValue , CurrentData.CurrentPersonNameData ) ;
                         }
                         else
                         { 
-                            if ( dicomElement.Tag.TagValue != CurrentData.CurrentPersonNameTagValue )
+                            if ( dicEntry.Tag != CurrentData.CurrentPersonNameTagValue )
                             { 
-                                if ( CurrentData.CurrentPersonNames.TryGetValue ( dicomElement.Tag.TagValue, out CurrentData.CurrentPersonNameData ) )
+                                if ( CurrentData.CurrentPersonNames.TryGetValue ( (uint)dicEntry.Tag, out CurrentData.CurrentPersonNameData ) )
                                 {
-                                    CurrentData.CurrentPersonNameTagValue = dicomElement.Tag.TagValue ;
+                                    CurrentData.CurrentPersonNameTagValue = (uint) dicEntry.Tag ;
                                 }
                                 else
                                 { 
                                     CurrentData.CurrentPersonNameData = new PersonNameData ( ) ;
-                                    CurrentData.CurrentPersonNameTagValue  = dicomElement.Tag.TagValue ;
+                                    CurrentData.CurrentPersonNameTagValue  = (uint) dicEntry.Tag ;
                                     CurrentData.CurrentPersonNames.Add ( CurrentData.CurrentPersonNameTagValue , CurrentData.CurrentPersonNameData ) ;
                                 }
                             }
@@ -152,34 +154,38 @@ namespace DICOMcloud.Pacs
 
                         CurrentData.CurrentPersonNameData.SetPart ( currentPart, (string) value ) ;
                     }
-                    else if ( valueType == typeof(String) ) //shortcut
-                    { 
-                        dicomElement.SetStringValue ( (string)value ) ;
+                    
+                    if (valueType == typeof(String)) //shortcut
+                    {
+                        CurrentData.CurrentDs.Add<string>(dicomTag, (string) value);
                     }
-                    else if (  valueType == typeof(DateTime) ) 
-                    { 
-                        dicomElement.SetDateTime ( (int) dicomElement.Count, (DateTime) value ) ;
+                    else if (valueType == typeof(DateTime))
+                    {
+                        CurrentData.CurrentDs.Add<DateTime>(dicomTag, (DateTime) value);
                     }
 
-                    else if ( valueType == typeof(Int32))
-                    { 
-                        dicomElement.SetInt32 ((int) dicomElement.Count, (Int32) value ) ;
-                    }
-                    else if ( valueType == typeof(Int64))
-                    { 
-                        dicomElement.SetInt64 ((int) dicomElement.Count, (Int64) value ) ;
-                    }
-                    else
-                    { 
-                        dicomElement.SetStringValue ( (string)value ) ;                        
-                        
-                        System.Diagnostics.Debug.Assert ( false, "Unknown element db value" ) ;
-                    }
+                    //TODO: fix ASAP! fo-dicom is not flixible at all with setting values
+                    //TODO: need to implement a way to update/add/append value to DicomItem/DicomElement
+                    //else if (valueType == typeof(Int32))
+                    //{
+                    //    CurrentData.CurrentDs.Add<DateTime>(dicomTag, (DateTime) value);
+                    //    dicomElement.SetInt32((int)dicomElement.Count, (Int32)value);
+                    //}
+                    //else if (valueType == typeof(Int64))
+                    //{
+                    //    dicomElement.SetInt64((int)dicomElement.Count, (Int64)value);
+                    //}
+                    //else
+                    //{
+                    //    dicomElement.SetStringValue((string)value);
+
+                    //    System.Diagnostics.Debug.Assert(false, "Unknown element db value");
+                    //}
                 }
             }
         }
         
-        public virtual ICollection<DicomAttributeCollection> GetResponse ( )
+        public virtual ICollection<fo.DicomDataset> GetResponse ( )
         { 
             return ResultSets[QueryLevel].Values ;
         }
@@ -190,9 +196,7 @@ namespace DICOMcloud.Pacs
             {
                 foreach (var personName in CurrentData.CurrentPersonNames)
                 {
-                    var pnElement = CurrentData.CurrentDs[personName.Key];
-
-                    pnElement.SetStringValue(personName.Value.ToString());
+                    CurrentData.CurrentDs.Add ( personName.Key, personName.Value.ToString());
                 }
             }
 

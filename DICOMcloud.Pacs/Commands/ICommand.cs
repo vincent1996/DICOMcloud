@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 
 namespace DICOMcloud.Pacs.Commands
 {

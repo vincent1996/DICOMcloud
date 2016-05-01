@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Core.Storage;
 using System;
 using System.Collections.Generic;

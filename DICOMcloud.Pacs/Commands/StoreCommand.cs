@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Core.Storage;
 using System;
 using System.Collections.Generic;
@@ -10,11 +10,12 @@ using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.Media;
 using System.Diagnostics;
 using DICOMcloud.Core.Messaging;
+using DICOMcloud.Dicom.Data.Services;
 using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Pacs.Commands
 {
-    public class StoreCommand : DicomCommand<DicomFile,StoreCommandResult>, IStoreCommand
+    public class StoreCommand : DicomCommand<fo.DicomDataset,StoreCommandResult>, IStoreCommand
     {
         public StoreCommand ( ) : this ( null, null ) 
         {}
@@ -30,7 +31,7 @@ namespace DICOMcloud.Pacs.Commands
             MediaFactory = mediaFactory ;
         }
 
-        public override StoreCommandResult Execute ( DicomFile dicomObject )
+        public override StoreCommandResult Execute ( fo.DicomDataset dicomObject )
         {
 
             //TODO: Check against supported types/association, validation, can store, return appropriate error
@@ -41,21 +42,21 @@ namespace DICOMcloud.Pacs.Commands
             
             StoreObjectMetadata ( dicomObject, media ) ;
 
-            EventBroker.Publish ( new DicomStoreSuccessEventArgs ( media, new ObjectID ( dicomObject.DataSet ) ) ) ;            
+            EventBroker.Publish ( new DicomStoreSuccessEventArgs ( media, new ObjectID ( dicomObject ) ) ) ;            
             
             return null ;
         }
 
-        protected virtual void StoreObjectMetadata(DicomFile dicomObject, Dictionary<string, IList<IStorageLocation>> media)
+        protected virtual void StoreObjectMetadata(fo.DicomDataset dicomObject, Dictionary<string, IList<IStorageLocation>> media)
         {
             string metadata = "{\"Media\":\"" + string.Join ( ";", media.Keys ) + "\"}" ; 
         
-            DataAccess.StoreInstanceMetadata ( new ObjectID ( dicomObject.DataSet ) , metadata ) ;
+            DataAccess.StoreInstanceMetadata ( new ObjectID ( dicomObject ) , metadata ) ;
         }
 
         protected virtual Dictionary<string,IList<IStorageLocation>> SaveDicomMedia 
         ( 
-            DicomFile dicomObject
+            fo.DicomDataset dicomObject
         )
         {
             Dictionary<string,IList<IStorageLocation>> mediaLocations ;
@@ -97,14 +98,14 @@ namespace DICOMcloud.Pacs.Commands
 
         protected virtual void StoreQueryModel
         (
-            DicomFile dicomObject
+            fo.DicomDataset dicomObject
         )
         {
             IDicomDataParameterFactory<StoreParameter> condFactory ;
             IEnumerable<StoreParameter>                conditions ;
 
             condFactory = new DicomStoreParameterFactory ( ) ;
-            conditions = condFactory.ProcessDataSet ( dicomObject.DataSet ) ;
+            conditions = condFactory.ProcessDataSet ( dicomObject ) ;
 
             DataAccess.StoreInstance ( conditions, 0, 0 ) ;
         }

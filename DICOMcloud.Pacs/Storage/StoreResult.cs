@@ -1,5 +1,5 @@
 ﻿using System;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using DICOMcloud.Pacs.Commands;
 
 namespace DICOMcloud.Pacs
@@ -10,6 +10,6 @@ namespace DICOMcloud.Pacs
         public string Message { get; set; }
         public CommandStatus Status { get; set; }
     
-        public DicomAttributeCollection DataSet { get; set; }    
+        public fo.DicomDataset DataSet { get; set; }    
     }
 }

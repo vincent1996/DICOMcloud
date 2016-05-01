@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using System;
@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DICOMcloud.Pacs
+namespace DICOMcloud.Dicom.Data.Services
 {
     public partial class ObjectArchieveResponseBuilder
     { 
         private class EntityReadData
         { 
-            public DicomAttributeCollection         CurrentDs                 = new DicomAttributeCollection ( ) ;
+            public fo.DicomDataset         CurrentDs                 = new fo.DicomDataset ( ) ;
             public Dictionary<uint, PersonNameData> CurrentPersonNames        = new Dictionary<uint,PersonNameData> ( )  ; 
             public PersonNameData                   CurrentPersonNameData     = null ;
             public uint                             CurrentPersonNameTagValue = 0 ;
@@ -23,7 +23,7 @@ namespace DICOMcloud.Pacs
             public bool  IsCurrentDsSequence   = false ;
             public bool  IsCurrentDsMultiValue = false ;
             public uint  ForeignTagValue       = 0 ;
-            public DicomAttributeCollection ForeignDs = null ;             
+            public fo.DicomDataset ForeignDs = null ;             
             
             //public void ResetCurrentRead ( )
             //{

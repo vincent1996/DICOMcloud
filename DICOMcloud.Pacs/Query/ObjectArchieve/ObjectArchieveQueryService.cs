@@ -1,25 +1,25 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.DataAccess.DB;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using DICOMcloud.Dicom.DataAccess.Matching;
+using DICOMcloud.Dicom.Data.Services.Query;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DICOMcloud.Pacs.Query;
 
-namespace DICOMcloud.Pacs
+namespace DICOMcloud.Dicom.Data.Services
 {
     public class ObjectArchieveQueryService : DicomQueryServiceBase, IObjectArchieveQueryService
     {
         public ObjectArchieveQueryService ( IDicomStorageQueryDataAccess dataAccess ) : base ( dataAccess )
         {}
          
-        public ICollection<DicomAttributeCollection> FindStudies 
+        public ICollection<fo.DicomDataset> FindStudies 
         ( 
-            DicomAttributeCollection request, 
+            fo.DicomDataset request, 
             int? limit,
             int? offset    
         )
@@ -27,9 +27,9 @@ namespace DICOMcloud.Pacs
             return Find ( request, new QueryOptions() { Limit = limit, Offset = offset, QueryLevel = StorageDbSchemaProvider.StudyTableName } ) ;
         }
 
-        public ICollection<DicomAttributeCollection> FindObjectInstances
+        public ICollection<fo.DicomDataset> FindObjectInstances
         (
-            DicomAttributeCollection request,
+            fo.DicomDataset request,
             int? limit,
             int? offset
         )
@@ -37,9 +37,9 @@ namespace DICOMcloud.Pacs
             return Find ( request, new QueryOptions() { Limit = limit, Offset = offset, QueryLevel = StorageDbSchemaProvider.ObjectInstanceTableName }) ;
         }
 
-        public ICollection<DicomAttributeCollection> FindSeries
+        public ICollection<fo.DicomDataset> FindSeries
         (
-            DicomAttributeCollection request,
+            fo.DicomDataset request,
             int? limit,
             int? offset
         )
@@ -49,7 +49,7 @@ namespace DICOMcloud.Pacs
 
         protected override void DoFind
         (
-           DicomAttributeCollection request,
+           fo.DicomDataset request,
            QueryOptions options,
            IEnumerable<IMatchingCondition> conditions,
            ObjectArchieveResponseBuilder responseBuilder
@@ -60,7 +60,7 @@ namespace DICOMcloud.Pacs
 
 
 
-        //private List<IMatchingCondition> BuildQueryCondition(DicomAttribute element)
+        //private List<IMatchingCondition> BuildQueryCondition(fo.DicomItem element)
         //{
         //    List<IMatchingCondition> conditions = new List<IMatchingCondition> ( ) ;
 

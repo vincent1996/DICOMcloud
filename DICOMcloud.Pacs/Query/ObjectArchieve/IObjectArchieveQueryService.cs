@@ -1,27 +1,27 @@
 ﻿using System.Collections.Generic;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 
-namespace DICOMcloud.Pacs
+namespace DICOMcloud.Dicom.Data.Services
 {
     public interface IObjectArchieveQueryService
     {
-        ICollection<DicomAttributeCollection> FindStudies 
+        ICollection<fo.DicomDataset> FindStudies 
         ( 
-            DicomAttributeCollection request, 
+            fo.DicomDataset request, 
             int? limit,
             int? offset    
         ) ;
 
-        ICollection<DicomAttributeCollection> FindObjectInstances
+        ICollection<fo.DicomDataset> FindObjectInstances
         (
-            DicomAttributeCollection request,
+            fo.DicomDataset request,
             int? limit,
             int? offset
         ) ;
 
-        ICollection<DicomAttributeCollection> FindSeries
+        ICollection<fo.DicomDataset> FindSeries
         (
-            DicomAttributeCollection request,
+            fo.DicomDataset request,
             int? limit,
             int? offset
         ) ;

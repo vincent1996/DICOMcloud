@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess;
 
-namespace DICOMcloud.Pacs.Query
+namespace DICOMcloud.Dicom.Data.Services.Query
 {
     public interface IDicomQueryService
     {
-        ICollection<DicomAttributeCollection> Find 
+        ICollection<fo.DicomDataset> Find 
         ( 
-            DicomAttributeCollection request, 
+            fo.DicomDataset request, 
             QueryOptions options 
         ) ;
     }
