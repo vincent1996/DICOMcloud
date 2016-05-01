@@ -9,8 +9,6 @@ namespace DICOMcloud.Core.Storage
 {
     public class FileStorageService : MediaStorageService 
     {
-        //List<IStorageContainer> _containers = new List<IStorageContainer> ( ) ;
-        
         //public override IStorageLocation GetTempLocation ( ) 
         //{
         //    return new LocalStorageLocation ( Path.GetTempFileName () ) ;
