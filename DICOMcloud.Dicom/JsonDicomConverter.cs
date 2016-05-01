@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using foDicom = Dicom;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -7,52 +7,52 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DICOMcloud.Dicom.Common
+namespace DICOMcloud.Dicom
 {
     public interface IJsonDicomConverter : IDicomConverter<string>
     { }
 
     public class JsonDicomConverter : IJsonDicomConverter
     {
-        private int _minValueIndex ;
+        private int _minValueIndex;
 
-        public JsonDicomConverter ( ) 
+        public JsonDicomConverter()
         {
-            IncludeEmptyElements = false ;
+            IncludeEmptyElements = false;
         }
 
         public bool IncludeEmptyElements
-        { 
+        {
             get
-            { 
-                return ( _minValueIndex == -1 ) ;
+            {
+                return (_minValueIndex == -1);
             }
             set
-            { 
-                _minValueIndex = ( value ? -1 : 0 ) ;
+            {
+                _minValueIndex = (value ? -1 : 0);
             }
         }
 
-        public string Convert(DicomAttributeCollection ds)
+        public string Convert(foDicom.DicomDataset ds)
         {
-            StringBuilder sb = new StringBuilder ( ) ;
-            StringWriter sw = new StringWriter(sb) ;
-            
-            using ( JsonWriter writer = new JsonTextWriter (sw))
-            { 
-                writer.Formatting = Formatting.Indented ;
+            StringBuilder sb = new StringBuilder();
+            StringWriter sw = new StringWriter(sb);
 
-                writer.WriteStartObject( ) ;
-            
-                ConvertChildren ( ds, writer ) ;
-            
-                writer.WriteEndObject ( ) ;
+            using (JsonWriter writer = new JsonTextWriter(sw))
+            {
+                writer.Formatting = Formatting.Indented;
+
+                writer.WriteStartObject();
+
+                ConvertChildren(ds, writer);
+
+                writer.WriteEndObject();
             }
 
-            return sb.ToString ( ) ;
+            return sb.ToString();
         }
 
-        private void ConvertChildren ( DicomAttributeCollection ds, JsonWriter writer ) 
+        private void ConvertChildren(foDicom.DicomDataset ds, JsonWriter writer)
         {
             //WriteDicomAttribute ( ds, ds[DicomTags.FileMetaInformationVersion], writer ) ;
             //WriteDicomAttribute ( ds, ds[DicomTags.MediaStorageSopClassUid], writer ) ;
@@ -60,158 +60,159 @@ namespace DICOMcloud.Dicom.Common
             //WriteDicomAttribute ( ds, ds[DicomTags.TransferSyntaxUid], writer ) ;
             //WriteDicomAttribute ( ds, ds[DicomTags.ImplementationClassUid], writer ) ;
             //WriteDicomAttribute ( ds, ds[DicomTags.ImplementationVersionName], writer ) ;
-            
-            foreach ( var element in ds.Where ( n=>n.Count > _minValueIndex ) )
+
+            foreach (var element in ds )
             {
                 //TODO:
                 //WriterService.WriteElement (element,writer);
-                WriteDicomAttribute ( ds, element, writer ) ;
+                WriteDicomAttribute(ds, element, writer);
             }
         }
 
         private void WriteDicomAttribute
-        ( 
-            DicomAttributeCollection ds, 
-            DicomAttribute element, 
-            JsonWriter writer 
+        (
+            foDicom.DicomDataset ds,
+            foDicom.DicomItem element,
+            JsonWriter writer
         )
         {
-            DicomVr dicomVr = element.Tag.VR ;
-            
-            writer.WritePropertyName(element.Tag.HexString, false);
+            foDicom.DicomVR dicomVr = element.ValueRepresentation;
+
+            writer.WritePropertyName(((uint)element.Tag).ToString ("X8", null));//TODO: zaid, pass proper hex format
+            //writer.WritePropertyName(element.Tag.HexString, false);
             //writer.WritePropertyName(element.Tag.Group.ToString("D4") + element.Tag.Element.ToString("D4"), false);
             writer.WriteStartObject();
 
-            
+
             writer.WritePropertyName("temp");
-            writer.WriteValue(element.Tag.VariableName);
-            
+            writer.WriteValue(element.Tag.DictionaryEntry.Name);
+
             writer.WritePropertyName("vr");
-            writer.WriteValue(element.Tag.VR.Name);
+            writer.WriteValue(element.ValueRepresentation.Name);
 
 
-            //VR should at least support a switch!
-            if ( dicomVr.Name == DicomVr.SQvr.Name ) 
+            if (element is foDicom.DicomSequence)
             {
-                ConvertSequence ( element, writer ) ;
+                ConvertSequence((foDicom.DicomSequence) element, writer);
             }
-            else if ( dicomVr.Equals (DicomVr.PNvr) )
+            else if (dicomVr.Equals(foDicom.DicomVR.PN))
             {
-                
-                writer.WritePropertyName (JsonConstants.ValueField);
+
+                writer.WritePropertyName(JsonConstants.ValueField);
                 writer.WriteStartArray();
-                    writer.WriteStartObject();
-                        writer.WritePropertyName ( JsonConstants.Alphabetic) ;
-                        writer.WriteValue ( element.ToString().TrimEnd()); //TODO: not sure if PN need to be trimmed
-                    writer.WriteEndObject();
+                writer.WriteStartObject();
+                writer.WritePropertyName(JsonConstants.Alphabetic);
+                writer.WriteValue(element.ToString().TrimEnd()); //TODO: not sure if PN need to be trimmed
+                writer.WriteEndObject();
                 writer.WriteEndArray();
             }
-            else if ( dicomVr.Equals (DicomVr.OBvr) || dicomVr.Equals(DicomVr.ODvr) ||
-                      dicomVr.Equals (DicomVr.OFvr) || dicomVr.Equals(DicomVr.OWvr) ||
-                      dicomVr.Equals (DicomVr.UNvr) ) //TODO inline bulk
+            else if (dicomVr.Equals(foDicom.DicomVR.OB) || dicomVr.Equals(foDicom.DicomVR.OD) ||
+                      dicomVr.Equals(foDicom.DicomVR.OF) || dicomVr.Equals(foDicom.DicomVR.OW) ||
+                      dicomVr.Equals(foDicom.DicomVR.UN)) //TODO inline bulk
             {
-                if ( element.Tag.TagValue == DicomTags.PixelData )
+                if (element.Tag == foDicom.DicomTag.PixelData)
                 { }
                 else
-                { 
-                    byte[] data = (byte[]) element.Values;
-                    WriteStringValue ( writer, System.Convert.ToBase64String ( data));
+                {
+                    var dicomElement = (foDicom.DicomElement)element ;
+                    byte[] data = (byte[])dicomElement.Buffer.Data;
+                    WriteStringValue(writer, System.Convert.ToBase64String(data));
                 }
             }
-            //else if ( dicomVr.Equals (DicomVr.PNvr) ) //TODO bulk reference
+            //else if ( dicomVr.Equals (foDicom.DicomVR.PNvr) ) //TODO bulk reference
             //{
-                
+
             //}
-            else 
+            else
             {
-                ConvertValue(element, writer);
+                ConvertValue((foDicom.DicomElement) element, writer);
             }
-            
-            if ( element.Tag.IsPrivate )
-            { 
+
+            if (element.Tag.IsPrivate)
+            {
                 //TODO:
                 //writer.WriteAttributeString ("privateCreator", ds[DicomTags.privatecreatro. ) ;                        
             }
 
-            writer.WriteEndObject ( ) ; 
+            writer.WriteEndObject();
         }
 
 
-        private void ConvertSequence(DicomAttribute element, JsonWriter writer )
+        private void ConvertSequence(foDicom.DicomSequence element, JsonWriter writer)
         {
-            for ( int index = 0; index < element.Count; index++ )
+            for (int index = 0; index < element.Items.Count; index++)
             {
-                StringBuilder sqBuilder = new StringBuilder ( ) ;
-                StringWriter sw = new StringWriter ( sqBuilder) ;
+                StringBuilder sqBuilder = new StringBuilder();
+                StringWriter sw = new StringWriter(sqBuilder);
 
-                using ( JsonWriter sqWriter = new JsonTextWriter (sw))
+                using (JsonWriter sqWriter = new JsonTextWriter(sw))
                 {
-                    sqWriter.Formatting = Formatting.Indented ;
+                    sqWriter.Formatting = Formatting.Indented;
 
-                    sqWriter.WriteStartArray ( ) ;
+                    sqWriter.WriteStartArray();
 
-                        var item = element.GetSequenceItem ( index ) ;
-                        sqWriter.WriteStartObject ( ) ;
-                            if ( null != item)
-                            { 
-                                ConvertChildren ( item, sqWriter) ;
-                            }
-                        sqWriter.WriteEndObject ( ) ;
-                    sqWriter.WriteEndArray ( ) ;
-                
+                    var item = element.Items[index];
+                    sqWriter.WriteStartObject();
+                    if (null != item)
+                    {
+                        ConvertChildren(item, sqWriter);
+                    }
+                    sqWriter.WriteEndObject();
+                    sqWriter.WriteEndArray();
+
                 }
-                
-                WriteSequence ( writer, sqBuilder.ToString ( ) ) ;
+
+                WriteSequence(writer, sqBuilder.ToString());
             }
         }
 
-        private void WriteSequence(JsonWriter writer,string data)
+        private void WriteSequence(JsonWriter writer, string data)
         {
             writer.WritePropertyName(JsonConstants.ValueField);
-            writer.WriteRawValue(data) ;
+            writer.WriteRawValue(data);
         }
 
-        private void WriteStringValue(JsonWriter writer,string data)
+        private void WriteStringValue(JsonWriter writer, string data)
         {
             writer.WritePropertyName(JsonConstants.ValueField);
-            writer.WriteStartArray ( ) ;
-                    writer.WriteValue ( data )  ;
-            writer.WriteEndArray ( ) ;
-                
+            writer.WriteStartArray();
+            writer.WriteValue(data);
+            writer.WriteEndArray();
+
         }
 
-        private void WriteNumberValue(JsonWriter writer,string data)
+        private void WriteNumberValue(JsonWriter writer, string data)
         {
             writer.WritePropertyName(JsonConstants.ValueField);
-            writer.WriteStartArray ( ) ;
-                    writer.WriteValue ( data )  ; //TODO: handle numbers to be with no ""
-            writer.WriteEndArray ( ) ;
+            writer.WriteStartArray();
+            writer.WriteValue(data); //TODO: handle numbers to be with no ""
+            writer.WriteEndArray();
         }
 
-        private void ConvertValue(DicomAttribute element, JsonWriter writer)
+        private void ConvertValue(foDicom.DicomElement element, JsonWriter writer)
         {
-            if ( _numberBasedVrs.Contains (element.Tag.VR.Name))
+            if (_numberBasedVrs.Contains(element.ValueRepresentation.Name))
             {
-                WriteNumberValue ( writer, element.ToString().TrimEnd());
+                WriteNumberValue(writer, element.ToString().TrimEnd());
             }
             else
             {
                 //TODO: NOT ALL VRS CAN BE TRIMMED, CHECK THE STANDARD     
-                WriteStringValue ( writer, element.ToString().TrimEnd());
+                WriteStringValue(writer, element.ToString().TrimEnd());
             }
         }
-    
-        private static List<string> _numberBasedVrs = new List<string> ( ) ;
-        private const string QuoutedStringFormat = "\"{0}\"" ;
-        private const string QuoutedKeyValueStringFormat = "\"{0}\":\"{1}\"" ;
-        private const string QuoutedKeyValueArrayFormat = "\"Value\":[\"{0}\"]" ;
-        private const string SequenceValueFormatted     = "\"Value\":[{\"{0}\"}]" ;
-        private const string NumberValueFormatted       = "\"Value\":[{1}]" ;
+
+        private static List<string> _numberBasedVrs = new List<string>();
+        private const string QuoutedStringFormat = "\"{0}\"";
+        private const string QuoutedKeyValueStringFormat = "\"{0}\":\"{1}\"";
+        private const string QuoutedKeyValueArrayFormat = "\"Value\":[\"{0}\"]";
+        private const string SequenceValueFormatted = "\"Value\":[{\"{0}\"}]";
+        private const string NumberValueFormatted = "\"Value\":[{1}]";
 
         private abstract class JsonConstants
         {
-            public const string ValueField = "Value" ;
-            public const string Alphabetic = "Alphabetic" ;
+            public const string ValueField = "Value";
+            public const string Alphabetic = "Alphabetic";
         }
     }
 }
