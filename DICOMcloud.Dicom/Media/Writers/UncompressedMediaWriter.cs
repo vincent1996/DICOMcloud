@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom ;
+using Dicom.Imaging ;
 using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Dicom.Media
@@ -30,16 +31,16 @@ namespace DICOMcloud.Dicom.Media
             }
         }
 
-        protected override void Upload ( DicomFile dicomObject, int frame, IStorageLocation storeLocation)
+        protected override void Upload ( fo.DicomDataset dicomDataset, int frame, IStorageLocation storeLocation)
         {
-            DicomPixelData pd = null ;
-            byte[] buffer     = null ;
-
-
-            pd     = DicomPixelData.CreateFrom ( dicomObject ) ;
-            buffer = pd.GetFrame               ( frame - 1 ) ;
+            UncompressedPixelDataWrapper uncompressedData ;
+            byte[]                       buffer           ;
         
-            storeLocation.Upload ( buffer ) ;    
+        
+            uncompressedData = new UncompressedPixelDataWrapper ( dicomDataset ) ;
+            buffer           = uncompressedData.PixelData.GetFrame ( frame - 1 ).Data ;
+        
+            storeLocation.Upload ( buffer ) ;
         }
     }
 }

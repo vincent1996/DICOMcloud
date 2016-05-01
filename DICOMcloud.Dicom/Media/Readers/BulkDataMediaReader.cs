@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
 using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Dicom.Media

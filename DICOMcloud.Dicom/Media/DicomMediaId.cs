@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ClearCanvas.Dicom;
-using DICOMcloud.Dicom.Data;
 using DICOMcloud.Core.Storage;
+using DICOMcloud.Dicom.Data;
+using fo = Dicom;
 
 namespace DICOMcloud.Dicom.Media
 {
@@ -23,18 +20,18 @@ namespace DICOMcloud.Dicom.Media
             if ( parts == null || parts.Length != 5 ) { throw new ArgumentOutOfRangeException ( "parts array must be 5" ) ; }
 
             MediaType   = parts[0] ;
-            DicomObject = new ObjectID ( ) { StudyInstanceUID = parts[1], SeriesInstanceUID = parts[2], SopInstanceUID = parts[3], Frame = int.Parse(parts[4]) };
+            DicomObject = new ObjectID ( ) { StudyInstanceUID = parts[1], SeriesInstanceUID = parts[2], SOPInstanceUID = parts[3], Frame = int.Parse(parts[4]) };
         }
 
-        public DicomMediaId ( DicomAttributeCollection dataset, string mediaType ) : this (dataset, 0, mediaType )
+        public DicomMediaId ( fo.DicomDataset dataset, string mediaType ) : this (dataset, 0, mediaType )
         {}
 
-        public DicomMediaId ( DicomAttributeCollection dataset, int frame, string mediaType )
+        public DicomMediaId ( fo.DicomDataset dataset, int frame, string mediaType )
         {
             DicomObject       = new ObjectID ( ) {
-            StudyInstanceUID  = dataset[DicomTags.StudyInstanceUid].GetString(0,""),
-            SeriesInstanceUID = dataset[DicomTags.SeriesInstanceUid].GetString(0,""), 
-            SopInstanceUID    = dataset[DicomTags.SopInstanceUid].GetString(0,""),
+            StudyInstanceUID  = dataset.Get<string> ( fo.DicomTag.StudyInstanceUID, 0, "" ),
+            SeriesInstanceUID = dataset.Get<string> ( fo.DicomTag.SeriesInstanceUID, 0,""), 
+            SOPInstanceUID    = dataset.Get<string> ( fo.DicomTag.SOPInstanceUID, 0, ""),
             Frame             = frame } ;
             
             MediaType = mediaType ;
@@ -76,12 +73,12 @@ namespace DICOMcloud.Dicom.Media
 
             parts.Add ( DicomObject.SeriesInstanceUID ) ;
 
-            if( string.IsNullOrWhiteSpace ( DicomObject.SopInstanceUID ) )
+            if( string.IsNullOrWhiteSpace ( DicomObject.SOPInstanceUID ) )
             {
                 return parts.ToArray ( ) ;
             }
 
-            parts.Add ( DicomObject.SopInstanceUID ) ;
+            parts.Add ( DicomObject.SOPInstanceUID ) ;
 
             if( DicomObject.Frame == null )
             {

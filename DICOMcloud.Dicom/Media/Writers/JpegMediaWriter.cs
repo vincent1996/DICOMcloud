@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom;
+using Dicom.Imaging;
+using Dicom.Imaging.Codec ;
 using DICOMcloud.Core.Storage;
+
 
 namespace DICOMcloud.Dicom.Media
 {
@@ -30,50 +33,23 @@ namespace DICOMcloud.Dicom.Media
             }
         }
 
-        protected override void Upload ( DicomFile dicomObject, int frame, IStorageLocation storeLocation )
+        protected override void Upload ( fo.DicomDataset dicomObject, int frame, IStorageLocation storeLocation )
         {
             var frameIndex = frame - 1 ;
             
-            
-            if (dicomObject.TransferSyntax == TransferSyntax.JpegBaselineProcess1)
+            //TODO: this is still not working with fo-dicom 
+            //when images are not compatible from one Transfer to the other
+            if (dicomObject.InternalTransferSyntax != fo.DicomTransferSyntax.JPEGProcess1)
             {
-                DicomCompressedPixelData pd = DicomPixelData.CreateFrom(dicomObject) as DicomCompressedPixelData ;
+                dicomObject = dicomObject.ChangeTransferSyntax ( fo.DicomTransferSyntax.JPEGProcess1 ) ;
+            }
+            
+            DicomPixelData pd = DicomPixelData.Create(dicomObject) ;
 
                 
-                byte[] buffer = pd.GetFrameFragmentData ( frameIndex ) ;
+            byte[] buffer = pd.GetFrame ( frameIndex ).Data ;
 
-                storeLocation.Upload ( buffer) ;
-            }
-            else if ( false ) //TODO: handle compressed images properly!
-            {
-                DicomFile dcmJpeg = new DicomFile ( ) ;
-                DicomUncompressedPixelData unCompressed = DicomPixelData.CreateFrom (dicomObject)as DicomUncompressedPixelData ;
-                DicomCompressedPixelData compressed = new DicomCompressedPixelData (unCompressed) ;
-
-
-                //compressed.ImageWidth = unCompressed.ImageWidth;
-                //compressed.ImageHeight = unCompressed.HighBit;
-                compressed.BitsStored = 8;
-                compressed.BitsAllocated = 8;
-                //compressed.HighBit = 7;
-                compressed.SamplesPerPixel = 3;
-                //compressed.PlanarConfiguration = 0;
-                compressed.PhotometricInterpretation = "YBR_FULL_422";
-                compressed.TransferSyntax = TransferSyntax.JpegBaselineProcess1 ;
-
-                byte[] imageBuffer = unCompressed.GetFrame (frameIndex);
-                compressed.AddFrameFragment(imageBuffer);
-
-                compressed.UpdateMessage(dcmJpeg);
-
-                storeLocation.Upload ( compressed.GetFrame(frameIndex) ) ;
-                //ClearCanvas.Dicom.Codec.Jpeg.Jpeg8Codec codec = new ClearCanvas.Dicom.Codec.Jpeg.Jpeg8Codec (ClearCanvas.Dicom.Codec.Jpeg.JpegMode.Baseline, 0, 0 ) ;
-                //ClearCanvas.Dicom.Codec.Jpeg.DicomJpegParameters jparam = new ClearCanvas.Dicom.Codec.Jpeg.DicomJpegParameters ( ) ;
-
-                //jparam.
-                //codec.
-                //codec.Encode ( )
-            }
+            storeLocation.Upload ( buffer) ;
         }
     }
 }

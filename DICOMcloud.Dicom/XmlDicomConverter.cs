@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom ;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Xml;
 using System.Xml.Linq;
 
 
-namespace DICOMcloud.Dicom.Common
+namespace DICOMcloud.Dicom
 {
     
     public interface IXmlDicomConverter : IDicomConverter<string>
@@ -22,7 +22,7 @@ namespace DICOMcloud.Dicom.Common
             WriterService = new XmlDicomWriterService ( ) ;
         }
 
-        public string Convert ( DicomAttributeCollection ds )
+        public string Convert ( fo.DicomDataset ds )
         {
             StringBuilder sb = new StringBuilder ( ) ;
             XmlWriter writer = XmlTextWriter.Create (sb);
@@ -45,16 +45,16 @@ namespace DICOMcloud.Dicom.Common
             writer.WriteStartDocument ();
         }
 
-        private void ConvertChildren ( DicomAttributeCollection ds, XmlWriter writer ) 
+        private void ConvertChildren ( fo.DicomDataset ds, XmlWriter writer ) 
         {
-            //WriteDicomAttribute ( ds, ds[DicomTags.FileMetaInformationVersion], writer ) ;
-            //WriteDicomAttribute ( ds, ds[DicomTags.MediaStorageSopClassUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[DicomTags.MediaStorageSopInstanceUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[DicomTags.TransferSyntaxUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[DicomTags.ImplementationClassUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[DicomTags.ImplementationVersionName], writer ) ;
+            //WriteDicomAttribute ( ds, ds[fo.DicomTag.FileMetaInformationVersion], writer ) ;
+            //WriteDicomAttribute ( ds, ds[fo.DicomTag.MediaStorageSopClassUid], writer ) ;
+            //WriteDicomAttribute ( ds, ds[fo.DicomTag.MediaStorageSopInstanceUID], writer ) ;
+            //WriteDicomAttribute ( ds, ds[fo.DicomTag.TransferSyntaxUid], writer ) ;
+            //WriteDicomAttribute ( ds, ds[fo.DicomTag.ImplementationClassUid], writer ) ;
+            //WriteDicomAttribute ( ds, ds[fo.DicomTag.ImplementationVersionName], writer ) ;
 
-            foreach ( var element in ds.Where ( n=>n.Count > 0 ) )
+            foreach ( var element in ds.OfType<fo.DicomElement>().Where ( n=>n.Count > 0 ) )
             {
                 //TODO:
                 //WriterService.WriteElement (element,writer);
@@ -64,27 +64,43 @@ namespace DICOMcloud.Dicom.Common
 
         private void WriteDicomAttribute 
         ( 
-            DicomAttributeCollection ds, 
-            DicomAttribute element, 
+            fo.DicomDataset ds, 
+            fo.DicomItem element, 
             XmlWriter writer 
         )
         {
-            if (null == element ) {return ; }
+            if (null == element) { return; }
 
-            DicomVr dicomVr = element.Tag.VR ;
-            
-            writer.WriteStartElement ("DiocomAttribute") ;
+            fo.DicomVR dicomVr = element.ValueRepresentation;
 
-            writer.WriteAttributeString ("keyword", element.Tag.VariableName ) ;
-            writer.WriteAttributeString ("tag", element.Tag.Group.ToString("D4") + element.Tag.Element.ToString("D4") ) ;
-            writer.WriteAttributeString ("vr", element.Tag.VR.Name ) ;            
+            writer.WriteStartElement("DiocomAttribute");
+
+            writer.WriteAttributeString("keyword", element.Tag.DictionaryEntry.Name);
+            writer.WriteAttributeString("tag", element.Tag.Group.ToString("D4") + element.Tag.Element.ToString("D4"));
+            writer.WriteAttributeString("vr", element.ValueRepresentation.Name);
 
             //VR should at least support a switch!
-            if ( dicomVr.Name == DicomVr.SQvr.Name ) 
+            if (dicomVr.Name == fo.DicomVR.SQ.Name)
             {
-                ConvertSequence ( element, writer ) ;
+                ConvertSequence((fo.DicomSequence)element, writer);
             }
-            else if ( dicomVr.Equals (DicomVr.PNvr) )
+            else
+            {
+                ConvertElement( ds, (fo.DicomElement) element, writer, dicomVr ) ;
+            }
+
+            if (element.Tag.IsPrivate)
+            {
+                //TODO:
+                //writer.WriteAttributeString ("privateCreator", ds[fo.DicomTag.privatecreatro. ) ;                        
+            }
+
+            writer.WriteEndElement();
+        }
+
+        private void ConvertElement(fo.DicomDataset ds, fo.DicomElement element, XmlWriter writer, fo.DicomVR dicomVr)
+        {
+            if ( dicomVr.Equals (fo.DicomVR.PN) )
             {
                 for (int index = 0; index < element.Count; index++)
                 {
@@ -95,39 +111,31 @@ namespace DICOMcloud.Dicom.Common
                     writer.WriteEndElement ( ) ;
                 }
             }
-            else if ( dicomVr.Equals (DicomVr.OBvr) || dicomVr.Equals(DicomVr.ODvr) ||
-                      dicomVr.Equals (DicomVr.OFvr) || dicomVr.Equals(DicomVr.OWvr) ||
-                      dicomVr.Equals (DicomVr.UNvr) ) //TODO inline bulk
+            else if ( dicomVr.Equals (fo.DicomVR.OB) || dicomVr.Equals(fo.DicomVR.OD) ||
+                      dicomVr.Equals (fo.DicomVR.OF) || dicomVr.Equals(fo.DicomVR.OW) ||
+                      dicomVr.Equals (fo.DicomVR.UN) ) //TODO inline bulk
             {
-                if ( element.Tag.TagValue == DicomTags.PixelData )
+                if ( element.Tag.Element == fo.DicomTag.PixelData )
                 { }
                 else
                 { 
-                    byte[] data = (byte[]) element.Values;
+                    byte[] data = element.Buffer.Data;
                     writer.WriteBase64 ( data, 0, data.Length ) ;
                 }
             }
-            //else if ( dicomVr.Equals (DicomVr.PNvr) ) //TODO bulk reference
+            //else if ( dicomVr.Equals (fo.DicomVR.PN) ) //TODO bulk reference
             //{
                 
             //}
             else 
             {
-                ConvertValue(element, writer);
+                ConvertValue(ds, element, writer);
             }
-            
-            if ( element.Tag.IsPrivate )
-            { 
-                //TODO:
-                //writer.WriteAttributeString ("privateCreator", ds[DicomTags.privatecreatro. ) ;                        
-            }
-
-            writer.WriteEndElement ( ) ;
         }
 
-        private static void ConvertValue(DicomAttribute element, XmlWriter writer )
+        private static void ConvertValue( fo.DicomDataset ds, fo.DicomElement element, XmlWriter writer )
         {
-            DicomVr dicomVr = element.Tag.VR ;
+            fo.DicomVR dicomVr = element.ValueRepresentation ;
 
 
             for ( int index = 0; index < element.Count; index++ )
@@ -135,13 +143,13 @@ namespace DICOMcloud.Dicom.Common
                 writer.WriteStartElement ( "Value");
                 WriteNumberAttrib(writer, index);
                     
-                if ( dicomVr.Equals(DicomVr.ATvr))
+                if ( dicomVr.Equals(fo.DicomVR.AT))
                 {
-                    writer.WriteString(element.GetString(index, string.Empty)); //TODO: check standard
+                    writer.WriteString(ds.Get<string>(element.Tag, index, string.Empty)); //TODO: check standard
                 }
                 else
                 {
-                    writer.WriteString(element.GetString(index,string.Empty)); 
+                    writer.WriteString(ds.Get<string>(element.Tag, index,string.Empty)); 
                 }
 
                 writer.WriteEndElement ( );
@@ -153,11 +161,11 @@ namespace DICOMcloud.Dicom.Common
             writer.WriteAttributeString("number", (index + 1).ToString());
         }
 
-        private void ConvertSequence(DicomAttribute element, XmlWriter writer )
+        private void ConvertSequence(fo.DicomSequence element, XmlWriter writer )
         {
-            for ( int index = 0; index < element.Count; index++ )
+            for ( int index = 0; index < element.Items.Count; index++ )
             {
-                var item = element.GetSequenceItem ( index ) ;
+                var item = element.Items [ index ] ;
 
                 writer.WriteStartElement ( "Item");
                 WriteNumberAttrib(writer, index);

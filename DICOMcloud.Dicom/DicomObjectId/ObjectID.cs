@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom ;
 
 namespace DICOMcloud.Dicom.Data
 {
@@ -13,11 +13,11 @@ namespace DICOMcloud.Dicom.Data
         public ObjectID ( ) 
         {}
 
-        public ObjectID ( DicomAttributeCollection dataset )
+        public ObjectID ( fo.DicomDataset dataset )
         {
-            StudyInstanceUID  = dataset[DicomTags.StudyInstanceUid].GetString   ( 0, "" ) ;
-            SeriesInstanceUID = dataset[DicomTags.SeriesInstanceUid].GetString  ( 0, "" ) ;
-            SopInstanceUID    = dataset[DicomTags.SopInstanceUid].GetString     ( 0, "" ) ;
+            StudyInstanceUID  = dataset.Get<string> (fo.DicomTag.StudyInstanceUID, 0, "" ) ;
+            SeriesInstanceUID = dataset.Get<string> (fo.DicomTag.SeriesInstanceUID, 0, "" ) ;
+            SOPInstanceUID    = dataset.Get<string> (fo.DicomTag.SOPInstanceUID, 0, "" ) ;
         }
 
         public string SeriesInstanceUID
@@ -26,7 +26,7 @@ namespace DICOMcloud.Dicom.Data
             set ;
         }
 
-        public string SopInstanceUID
+        public string SOPInstanceUID
         {
             get ;
             set ;

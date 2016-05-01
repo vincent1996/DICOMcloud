@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using DICOMcloud.Core.Storage;
 using System;
 using System.Collections.Generic;
@@ -10,7 +10,7 @@ using System.Xml;
 using System.Xml.Linq;
 
 
-namespace DICOMcloud.Dicom.Common
+namespace DICOMcloud.Dicom
 {
     
     public interface IUncompressedPixelDataConverter : IDicomConverter<Stream>
@@ -22,19 +22,21 @@ namespace DICOMcloud.Dicom.Common
         {
         }
 
-        public Stream Convert ( DicomAttributeCollection ds )
+        //TODO: is this used? update with fo-dicom
+        public Stream Convert ( fo.DicomDataset ds )
         {
-            DicomAttributeCollection command = new DicomAttributeCollection () ;
+            //fo.DicomDataset command = new fo.DicomDataset () ;
 
-            command[DicomTags.TransferSyntaxUid] = ds[DicomTags.TransferSyntaxUid] ;
-            DicomMessage message = new DicomMessage (command, ds) ;
+            //command[fo.DicomTag.TransferSyntaxUid] = ds[fo.DicomTag.TransferSyntaxUid] ;
+            //DicomMessage message = new DicomMessage (command, ds) ;
 
             
-            DicomPixelData pd = DicomPixelData.CreateFrom ( message ) ;
-            string tempFile = System.IO.Path.GetTempFileName ( ) ; 
-            System.IO.File.WriteAllBytes ( tempFile, pd.GetFrame (0));
+            //DicomPixelData pd = DicomPixelData.CreateFrom ( message ) ;
+            //string tempFile = System.IO.Path.GetTempFileName ( ) ; 
+            //System.IO.File.WriteAllBytes ( tempFile, pd.GetFrame (0));
         
-            return new DICOMcloud.Core.Storage.TempStream (new TempFile(tempFile));
+            //return new DICOMcloud.Storage.TempStream (new TempFile(tempFile));
+            return null ;
         }
     }
 }

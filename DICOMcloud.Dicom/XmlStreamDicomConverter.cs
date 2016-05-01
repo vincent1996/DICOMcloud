@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using fo = Dicom;
 
-namespace DICOMcloud.Dicom.Common
+namespace DICOMcloud.Dicom
 {
     public interface IXmlStreamDicomConverter : IDicomConverter<Stream>
     {}
@@ -20,7 +21,7 @@ namespace DICOMcloud.Dicom.Common
             XmlConverter = xmlconverter ;
         }
 
-        public Stream Convert(ClearCanvas.Dicom.DicomAttributeCollection ds)
+        public Stream Convert(fo.DicomDataset ds)
         {
             return new MemoryStream ( ASCIIEncoding.UTF8.GetBytes ( XmlConverter.Convert (ds)));
         }

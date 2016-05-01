@@ -1,4 +1,4 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace DICOMcloud.Dicom.Common
+namespace DICOMcloud.Dicom
 {
     public class XmlDicomWriterService
     {
@@ -19,24 +19,24 @@ namespace DICOMcloud.Dicom.Common
         public XmlDicomWriterService ( )
         { }
 
-        public XmlDicomWriterService ( DicomAttribute dicomElement )
+        public XmlDicomWriterService ( fo.DicomElement dicomElement )
         { 
             DicomElement = dicomElement ;
         }
 
-        internal string WriteElement(DicomAttributeCollection ds, DicomAttribute element, XmlWriter writer)
+        internal string WriteElement(fo.DicomDataset ds, fo.DicomElement element, XmlWriter writer)
         {
             IDicomXmlVrWriter vrWriter = GetVrWriter ( element ) ;
 
             return vrWriter.WriteElement ( element, writer ) ;
         }
 
-        private IDicomXmlVrWriter GetVrWriter(DicomAttribute element)
+        private IDicomXmlVrWriter GetVrWriter(fo.DicomElement element)
         {
-            return _vrWriters.GetOrAdd ( element.Tag.VR.Name, CreateDefualtVrWriter(element.Tag.VR));
+            return _vrWriters.GetOrAdd ( element.ValueRepresentation.Name, CreateDefualtVrWriter(element.ValueRepresentation));
         }
 
-        protected virtual IDicomXmlVrWriter CreateDefualtVrWriter(DicomVr dicomVr)
+        protected virtual IDicomXmlVrWriter CreateDefualtVrWriter(fo.DicomVR dicomVr)
         {
             IDicomXmlVrWriter writer = null ;
 
@@ -51,7 +51,7 @@ namespace DICOMcloud.Dicom.Common
     
     
     
-        public DicomAttribute DicomElement { get; set; }
+        public fo.DicomElement DicomElement { get; set; }
     
 
 

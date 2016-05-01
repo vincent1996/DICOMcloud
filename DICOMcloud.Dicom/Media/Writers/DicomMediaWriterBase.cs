@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom;
+using Dicom.Imaging ;
 using DICOMcloud.Core.Storage;
+
 
 namespace DICOMcloud.Dicom.Media
 {
@@ -25,7 +27,7 @@ namespace DICOMcloud.Dicom.Media
             get ;
         }
 
-        public IList<IStorageLocation> CreateMedia(DicomFile data)
+        public IList<IStorageLocation> CreateMedia(fo.DicomDataset data)
         {
             if (null != MediaStorage)
             {
@@ -38,13 +40,13 @@ namespace DICOMcloud.Dicom.Media
                     DicomPixelData pd ;
 
 
-                    pd          = DicomPixelData.CreateFrom ( data ) ;
+                    pd          = DicomPixelData.Create ( data ) ;
                     framesCount = pd.NumberOfFrames ;
                 }
                 
                 for ( int frame = 1; frame <= framesCount; frame++ )
                 {
-                    var storeLocation = MediaStorage.GetLocation(new DicomMediaId ( data.DataSet, frame, MediaType));
+                    var storeLocation = MediaStorage.GetLocation(new DicomMediaId ( data, frame, MediaType));
 
                     Upload ( data, frame, storeLocation ) ;
                 
@@ -59,6 +61,6 @@ namespace DICOMcloud.Dicom.Media
 
         protected abstract bool StoreMultiFrames { get; }
 
-        protected abstract void Upload(DicomFile dicomObject, int frame, IStorageLocation storeLocation);
+        protected abstract void Upload(fo.DicomDataset dataset, int frame, IStorageLocation storeLocation);
     }
 }

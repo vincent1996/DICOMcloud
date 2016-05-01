@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
 using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Dicom.Media
@@ -59,7 +58,7 @@ namespace DICOMcloud.Dicom.Media
     //    //        return new WadoResponse(Location, mimeType);
     //    //    }
 
-    //    //    DicomFile file = new DicomFile ( ) ;
+    //    //    fo.DicomFile file = new fo.DicomFile ( ) ;
 
     //    //    file.Load ( dcmLocation.GetReadStream() ) ;
 
@@ -112,7 +111,7 @@ namespace DICOMcloud.Dicom.Media
     //    //            //IntPtr ptr = data.Scan0 ;
 
     //    //            //System.Runtime.InteropServices.Marshal.Copy (buffer, 0, ptr, buffer.Length ) ;
-    //    //            //string fileName = @"C:\Users\zalsafadi_p.SPX\Downloads\libwebp-master\Output\release-static\x86\bin\Samples\uncompressed.raw" ;
+    //    //            //string fileName = @"C:\Users\Downloads\libwebp-master\Output\release-static\x86\bin\Samples\uncompressed.raw" ;
     //    //            //bitmap.UnlockBits (data);
     //    //            //bitmap.Save ( fileName);
 

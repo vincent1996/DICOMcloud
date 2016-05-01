@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
-using DICOMcloud.Dicom.Common;
+using fo = Dicom ;
 using DICOMcloud.Core.Storage;
+
 
 namespace DICOMcloud.Dicom.Media
 {
@@ -42,9 +42,9 @@ namespace DICOMcloud.Dicom.Media
         }
 
 
-        protected override void Upload ( DicomFile data, int frame, IStorageLocation location )
+        protected override void Upload ( fo.DicomDataset dicomDataset, int frame, IStorageLocation location )
         {
-            location.Upload ( System.Text.Encoding.UTF8.GetBytes (Converter.Convert(data.DataSet)) ) ;
+            location.Upload ( System.Text.Encoding.UTF8.GetBytes (Converter.Convert(dicomDataset)) ) ;
         }
     }
 }

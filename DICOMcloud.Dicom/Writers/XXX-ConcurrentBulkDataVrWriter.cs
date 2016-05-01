@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DICOMcloud.Dicom.Common
+namespace DICOMcloud.Dicom
 {
     //public class ConcurrentBulkDataVrWriter : ConcurrentStack<IDicomVrWriter>
     //{

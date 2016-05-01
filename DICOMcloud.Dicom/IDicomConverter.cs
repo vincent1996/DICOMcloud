@@ -1,10 +1,10 @@
-﻿using ClearCanvas.Dicom;
+﻿using fo = Dicom ;
 
 namespace DICOMcloud.Dicom
 {
     public interface IDicomConverter<T>
     {
         
-        T Convert ( DicomAttributeCollection dicom ) ;
+        T Convert ( fo.DicomDataset dicom ) ;
     }
 }

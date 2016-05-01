@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom;
 using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Dicom.Media
@@ -31,21 +31,17 @@ namespace DICOMcloud.Dicom.Media
             }
         }
 
-        protected override void Upload(DicomFile dicomObject, int frame, IStorageLocation location )
+        protected override void Upload( fo.DicomDataset dicomDataset, int frame, IStorageLocation location )
         {
-            if (!string.IsNullOrWhiteSpace(dicomObject.Filename))
-            {
-                location.Upload(dicomObject.Filename);
-            }
-            else
-            {
-                using (Stream stream = new MemoryStream())
-                {
-                    dicomObject.Save(stream, DicomWriteOptions.Default);
-                    stream.Position = 0;
+            fo.DicomFile df = new fo.DicomFile ( dicomDataset ) ;
 
-                    location.Upload(stream);
-                }
+
+            using (Stream stream = new MemoryStream())
+            {
+                df.Save(stream);
+                stream.Position = 0;
+
+                location.Upload(stream);
             }
         }
     }

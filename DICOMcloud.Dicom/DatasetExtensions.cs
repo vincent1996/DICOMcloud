@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ClearCanvas.Dicom;
+using fo = Dicom ;
 
 namespace DICOMcloud.Dicom
 {
     public static class DatasetExtensions
     {
-        public static void Merge ( this DicomAttributeCollection source, DicomAttributeCollection destination )
+        public static void Merge ( this fo.DicomDataset source, fo.DicomDataset destination )
         { 
+            
             foreach ( var element in source )
             { 
-                destination[element.Tag] = element ;
+                destination.Add ( element ) ;
             }
         }
     }
