@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MedicalCo.Web.Services.Wado.Models")]
+[assembly: AssemblyTitle("DICOMcloud.WebAccess.Models")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("SPX Corporation")]
-[assembly: AssemblyProduct("MedicalCo.Web.Services.Wado.Models")]
-[assembly: AssemblyCopyright("Copyright © SPX Corporation 2015")]
+[assembly: AssemblyCompany("Zaid Al-Safadi")]
+[assembly: AssemblyProduct("DICOMcloud.WebAccess.Model")]
+[assembly: AssemblyCopyright("Copyright © Zaid Al-Safadi 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

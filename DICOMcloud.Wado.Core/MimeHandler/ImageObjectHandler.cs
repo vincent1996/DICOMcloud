@@ -105,7 +105,7 @@ namespace DICOMcloud.Wado.Core
                     //IntPtr ptr = data.Scan0 ;
 
                     //System.Runtime.InteropServices.Marshal.Copy (buffer, 0, ptr, buffer.Length ) ;
-                    //string fileName = @"C:\Users\zalsafadi_p.SPX\Downloads\libwebp-master\Output\release-static\x86\bin\Samples\uncompressed.raw" ;
+                    //string fileName = @"C:\Users\zalsafadi_p\Downloads\libwebp-master\Output\release-static\x86\bin\Samples\uncompressed.raw" ;
                     //bitmap.UnlockBits (data);
                     //bitmap.Save ( fileName);
 
