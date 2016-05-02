@@ -37,7 +37,7 @@
   <ItemGroup>
     <Reference Include="ClearCanvas.Dicom, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Resources\Bin\ClearCanvas.Dicom.dll</HintPath>
+      <HintPath>..\Resources\Bin\ClearCanvas.Dicom.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
