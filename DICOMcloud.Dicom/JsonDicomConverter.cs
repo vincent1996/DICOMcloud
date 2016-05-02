@@ -97,12 +97,15 @@ namespace DICOMcloud.Dicom
             }
             else if (dicomVr.Equals(foDicom.DicomVR.PN))
             {
+                string stringValue = Encoding.ASCII.GetString ( ((foDicom.DicomElement) element).Buffer.Data ) ; 
+                
+                stringValue = stringValue ?? "" ;
 
                 writer.WritePropertyName(JsonConstants.ValueField);
                 writer.WriteStartArray();
                 writer.WriteStartObject();
                 writer.WritePropertyName(JsonConstants.Alphabetic);
-                writer.WriteValue(element.ToString().TrimEnd()); //TODO: not sure if PN need to be trimmed
+                writer.WriteValue(stringValue.TrimEnd()); //TODO: not sure if PN need to be trimmed
                 writer.WriteEndObject();
                 writer.WriteEndArray();
             }
@@ -174,15 +177,19 @@ namespace DICOMcloud.Dicom
 
         private void WriteStringValue(JsonWriter writer, string data)
         {
+            data = data ?? "" ;
+
             writer.WritePropertyName(JsonConstants.ValueField);
             writer.WriteStartArray();
-            writer.WriteValue(data);
+            writer.WriteValue(data.Trim ( ) ); //TODO: can/should trim?
             writer.WriteEndArray();
 
         }
 
         private void WriteNumberValue(JsonWriter writer, string data)
         {
+            data = data ?? "" ;
+
             writer.WritePropertyName(JsonConstants.ValueField);
             writer.WriteStartArray();
             writer.WriteValue(data); //TODO: handle numbers to be with no ""
@@ -191,14 +198,17 @@ namespace DICOMcloud.Dicom
 
         private void ConvertValue(foDicom.DicomElement element, JsonWriter writer)
         {
+            //TODO:use Charset to get proper encoding
+            //TODO: this might not be the best way to get the value, review. 
+            string stringValue = Encoding.ASCII.GetString ( element.Buffer.Data ) ; 
+
             if (_numberBasedVrs.Contains(element.ValueRepresentation.Name))
             {
-                WriteNumberValue(writer, element.ToString().TrimEnd());
+                WriteNumberValue(writer, stringValue);
             }
             else
             {
-                //TODO: NOT ALL VRS CAN BE TRIMMED, CHECK THE STANDARD     
-                WriteStringValue(writer, element.ToString().TrimEnd());
+                WriteStringValue(writer, stringValue);
             }
         }
 

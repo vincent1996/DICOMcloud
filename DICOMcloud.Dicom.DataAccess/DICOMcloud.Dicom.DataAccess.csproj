@@ -36,7 +36,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dicom.Core">
-      <HintPath>C:\Users\User\Source\Repos\fo-dicom\DICOM\bin\Debug\Dicom.Core.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Resources\Bin\Dicom.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

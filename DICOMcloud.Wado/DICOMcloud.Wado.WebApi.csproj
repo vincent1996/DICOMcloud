@@ -58,10 +58,10 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Dicom.Core, Version=2.1.0.0, Culture=neutral, PublicKeyToken=3a13f649e28eb09a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Users\User\Source\Repos\fo-dicom-dev\DICOM\bin\Debug\Dicom.Core.dll</HintPath>
-    </Reference>
+     <Reference Include="Dicom.Core">
+        <SpecificVersion>False</SpecificVersion>
+        <HintPath>..\Resources\Bin\Dicom.Core.dll</HintPath>
+     </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -465,7 +465,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.10\tools\webjobs.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.10\tools\webjobs.targets')" />
+  <Import Project="..\packages\Microsoft.Web.WebJobs.Publish.1.0.10\tools\webjobs.targets" Condition="Exists('..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.10\tools\webjobs.targets')" />
   <!--<Import Project="..\..\..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.9\tools\webjobs.targets" Condition="Exists('..\..\..\..\packages\Microsoft.Web.WebJobs.Publish.1.0.9\tools\webjobs.targets')" />-->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
