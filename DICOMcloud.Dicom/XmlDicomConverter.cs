@@ -100,6 +100,11 @@ namespace DICOMcloud.Dicom
 
         private void ConvertElement(fo.DicomDataset ds, fo.DicomElement element, XmlWriter writer, fo.DicomVR dicomVr)
         {
+            //Element value can be:
+            // 1. PN
+            // 2. Binary
+            // 3. Value
+
             if ( dicomVr.Equals (fo.DicomVR.PN) )
             {
                 for (int index = 0; index < element.Count; index++)
@@ -107,26 +112,34 @@ namespace DICOMcloud.Dicom
                     writer.WriteStartElement ( "PersonName");
                     WriteNumberAttrib(writer, index) ;
 
-                    writer.WriteElementString("Alphabetic", element.ToString()) ; //TODO: check the standard
+                    writer.WriteElementString("Alphabetic", GetTrimmedString ( element.Get<string> ( ) ) ) ; //TODO: >>>Include Table 10.2-1 “Person Name Components Macro”
                     writer.WriteEndElement ( ) ;
+//TODO:
+//>>Ideographic
+//>>>Include Table 10.2-1 “Person Name Components Macro”
+//A group of name components that are represented in phonetic characters (see thedefinition for the Value Representation of PN in PS3.5).
+//0-1
+//O
+//>>Phonetic
+//>>>Include Table 10.2-1 “Person Name Components Macro”
+
                 }
             }
-            else if ( dicomVr.Equals (fo.DicomVR.OB) || dicomVr.Equals(fo.DicomVR.OD) ||
-                      dicomVr.Equals (fo.DicomVR.OF) || dicomVr.Equals(fo.DicomVR.OW) ||
-                      dicomVr.Equals (fo.DicomVR.UN) ) //TODO inline bulk
+            else if ( IsBinary ( dicomVr ) )
             {
+                //TODO: Add BulkData element support
+
+
                 if ( element.Tag.Element == fo.DicomTag.PixelData )
-                { }
+                { 
+                
+                }
                 else
                 { 
                     byte[] data = element.Buffer.Data;
                     writer.WriteBase64 ( data, 0, data.Length ) ;
                 }
             }
-            //else if ( dicomVr.Equals (fo.DicomVR.PN) ) //TODO bulk reference
-            //{
-                
-            //}
             else 
             {
                 ConvertValue(ds, element, writer);
@@ -145,11 +158,11 @@ namespace DICOMcloud.Dicom
                     
                 if ( dicomVr.Equals(fo.DicomVR.AT))
                 {
-                    writer.WriteString(ds.Get<string>(element.Tag, index, string.Empty)); //TODO: check standard
+                    writer.WriteString ( GetTrimmedString ( ds.Get<string> ( element.Tag, index, string.Empty ) ) ); //TODO: check standard
                 }
                 else
                 {
-                    writer.WriteString(ds.Get<string>(element.Tag, index,string.Empty)); 
+                    writer.WriteString ( GetTrimmedString ( ds.Get<string> ( element.Tag, index, string.Empty ) ) ); 
                 }
 
                 writer.WriteEndElement ( );
@@ -175,5 +188,21 @@ namespace DICOMcloud.Dicom
                 writer.WriteEndElement () ;
             }
         }
+
+        private bool IsBinary ( fo.DicomVR dicomVr ) 
+        {
+            return dicomVr.Equals (fo.DicomVR.OB) || dicomVr.Equals(fo.DicomVR.OD) ||
+                      dicomVr.Equals (fo.DicomVR.OF) || dicomVr.Equals(fo.DicomVR.OW) ||
+                      dicomVr.Equals (fo.DicomVR.UN ) ;
+        }
+
+        //trimming the padding the only allowed raw value transformation in XML
+        //part 19 A.1.1
+        private static string GetTrimmedString ( string value )
+        {
+            return value.TrimEnd (PADDING) ;
+        }
+
+        private static char[] PADDING = new char[] {'\0',' '};
     }
 }

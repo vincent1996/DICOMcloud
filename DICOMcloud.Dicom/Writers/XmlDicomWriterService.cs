@@ -40,7 +40,7 @@ namespace DICOMcloud.Dicom
         {
             IDicomXmlVrWriter writer = null ;
 
-            if ( !_defaultVrWriters.TryGetValue ( dicomVr.Name, out writer) )
+            if ( !_defaultVrWriters.TryGetValue ( dicomVr.Code, out writer) )
             { 
                 throw new ApplicationException ( "Default VR writer not registered!") ;
             }
@@ -57,5 +57,14 @@ namespace DICOMcloud.Dicom
 
         private static ConcurrentDictionary<string,IDicomXmlVrWriter> _vrWriters ;
         private static ConcurrentDictionary<string,IDicomXmlVrWriter> _defaultVrWriters ;
+
+        private static ConcurrentDictionary<string,IDicomXmlVrWriter> CreateDefaultWriters ( )
+        {
+            ConcurrentDictionary<string,IDicomXmlVrWriter> writers = new ConcurrentDictionary<string, IDicomXmlVrWriter> ( ) ;
+
+
+
+            return null ;
+        }
     }
 }

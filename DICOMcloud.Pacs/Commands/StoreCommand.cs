@@ -125,7 +125,7 @@ namespace DICOMcloud.Pacs.Commands
             MediaTypes.Add ( MimeMediaTypes.Json ) ;
             MediaTypes.Add ( MimeMediaTypes.UncompressedData ) ;
             MediaTypes.Add ( MimeMediaTypes.xmlDicom ) ;
-            MediaTypes.Add ( MimeMediaTypes.Jpeg ) ;
+            //MediaTypes.Add ( MimeMediaTypes.Jpeg ) ;
         }
 
         public IList<string> MediaTypes ;

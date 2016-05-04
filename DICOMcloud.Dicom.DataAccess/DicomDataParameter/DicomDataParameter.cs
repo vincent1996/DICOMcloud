@@ -28,8 +28,9 @@ namespace DICOMcloud.Dicom.DataAccess
             if ( Elements.Count == 1 )
             { 
                 var item = Elements.First ( ) as fo.DicomElement ;
+                var value = item.Get<string> ( ).TrimEnd ( '\0' ) ;
 
-                return item.Get<string> ( ).Split ( '/' ) ;
+                return value.Split ( '/' ) ;
             }
 
             return null ;

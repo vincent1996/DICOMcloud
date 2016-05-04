@@ -210,3 +210,10 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/DICOMcloud.Core.Azure/Messaging/AzureMessageReceiver.cs
+/DICOMcloud.Dicom/JsonDicomConverter - Copy.cs
+/DICOMcloud.Pacs/Storage/ObjectStoreModelDicomConverter.cs
+/DICOMcloud.Wado/Logging/IExceptionLogger.cs
+/DICOMcloud.Wado/Web.config
+/DICOMcloud.VC.VC.opendb
+/DICOMcloud.VC.db

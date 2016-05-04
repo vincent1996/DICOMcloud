@@ -88,7 +88,7 @@ namespace DICOMcloud.Dicom
             writer.WriteValue(element.Tag.DictionaryEntry.Name);
 
             writer.WritePropertyName("vr");
-            writer.WriteValue(element.ValueRepresentation.Name);
+            writer.WriteValue(element.ValueRepresentation.Code);
 
 
             if (element is foDicom.DicomSequence)
@@ -101,11 +101,13 @@ namespace DICOMcloud.Dicom
                 
                 stringValue = stringValue ?? "" ;
 
+                stringValue = GetTrimmedString ( stringValue ) ;
+
                 writer.WritePropertyName(JsonConstants.ValueField);
                 writer.WriteStartArray();
                 writer.WriteStartObject();
                 writer.WritePropertyName(JsonConstants.Alphabetic);
-                writer.WriteValue(stringValue.TrimEnd()); //TODO: not sure if PN need to be trimmed
+                writer.WriteValue(stringValue); //TODO: not sure if PN need to be trimmed
                 writer.WriteEndObject();
                 writer.WriteEndArray();
             }
@@ -122,10 +124,6 @@ namespace DICOMcloud.Dicom
                     WriteStringValue(writer, System.Convert.ToBase64String(data));
                 }
             }
-            //else if ( dicomVr.Equals (foDicom.DicomVR.PNvr) ) //TODO bulk reference
-            //{
-
-            //}
             else
             {
                 ConvertValue((foDicom.DicomElement) element, writer);
@@ -179,17 +177,21 @@ namespace DICOMcloud.Dicom
         {
             data = data ?? "" ;
 
+            data = GetTrimmedString(data) ;
             writer.WritePropertyName(JsonConstants.ValueField);
             writer.WriteStartArray();
-            writer.WriteValue(data.Trim ( ) ); //TODO: can/should trim?
+            writer.WriteValue(data ); //TODO: can/should trim?
             writer.WriteEndArray();
 
         }
 
+
+        //TODO: validate JSON output. consider removing...
         private void WriteNumberValue(JsonWriter writer, string data)
         {
             data = data ?? "" ;
 
+            data = GetTrimmedString(data);
             writer.WritePropertyName(JsonConstants.ValueField);
             writer.WriteStartArray();
             writer.WriteValue(data); //TODO: handle numbers to be with no ""
@@ -211,6 +213,13 @@ namespace DICOMcloud.Dicom
                 WriteStringValue(writer, stringValue);
             }
         }
+
+        private string GetTrimmedString ( string value )
+        {
+            return value.TrimEnd (PADDING) ;
+        }
+
+        private static char[] PADDING = new char[] {'\0',' '};
 
         private static List<string> _numberBasedVrs = new List<string>();
         private const string QuoutedStringFormat = "\"{0}\"";
