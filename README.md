@@ -1,42 +1,32 @@
 # DICOMcloud
 
 [![Join the chat at https://gitter.im/Zaid-Safadi/DICOMcloud](https://badges.gitter.im/Zaid-Safadi/DICOMcloud.svg)](https://gitter.im/Zaid-Safadi/DICOMcloud?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 DICOMcloud is an open source DICOMweb server that implements RESTful services in DICOM part 18
 
 
-# Demo
-I'm maintining an online version of the server currently hosted at: 
-[https://dicomcloud.azurewebsites.net/](https://dicomcloud.azurewebsites.net/)
-Sure this is only a default ASP.NET landing page but the Web API can be accessed by using the URLs defined here:
-[https://dicomcloud.azurewebsites.net/help/](https://dicomcloud.azurewebsites.net/help/)
+# Hosted server endpoints and demo
+I'm maintining an online version of the server, check the wiki [Home](https://github.com/Zaid-Safadi/DICOMcloud/wiki) page for endpoint Urls 
 
-There is a client Demo as well that I already open sourced and hosting:
+There is a client Demo that I open sourced and hosting:
 [https://github.com/Zaid-Safadi/dicom-webJS](https://github.com/Zaid-Safadi/dicom-webJS/)
 
 # Implementation
-The code is built in .NET (currently V4.5) and Visual Studio 2015. The web services are built as ASP.NET MVC REST API Controllers.
+The code is built in .NET (currently v4.5) and Visual Studio 2015. The web services are built as ASP.NET REST WebApi Controllers.
+Check the [code and project's structure](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Code-and-Projects-Structure) wiki page for more details.
 
-Currently the project uses ClearCanvas DICOM dll for reading and writing DICOM information and image data. The plan is to replace this by another better supported "open source" library (fo-DICOM or EvilDICOM)
+Currently the project uses ClearCanvas DICOM dll for reading and writing DICOM information and image data. The plan is to replace this by another better supported "open source" library. Cheek [status and roadmap](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Status-and-Roadmap) wiki page for more details.
 
 Physical DICOM storage is supported on both, either Windows File System or Azure Blob Storage.
-Query is currently implemented against a SQL database
+
+Query is currently implemented against a SQL database and compatible with Azure SQL Database
 
 Implementation natively support JSON and XML DICOM format.
 
-
-
-# Support
+# DICOM Support
 The code is designed to be a complete DICOM web server implementation with storage, query and retrieve capabilities.
 
-   - STOW –RS (partially supported)
-   - QIDO-RS (partially supported)
-   - WADO-RS (partially supported)
-   - WADO URI (partially supported)
-   - UPS-RS (not yet supported)
-   - RS Capabilities (not yet supported)
-
-Current support is only for storing/returning un-compressed Images due to challenges working with ClearCanvas with decoding/encoding. 
-The new library which will replace ClearCanvas will hopefully have support for other image compressions J2K, JPG... (Lossy and Lossless)
+Check the [DICOM Support](https://github.com/Zaid-Safadi/DICOMcloud/wiki/DICOM-Support) wiki page for detailed information about the supported services and features 
 
 # License
  
