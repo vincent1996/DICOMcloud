@@ -38,5 +38,11 @@ namespace DICOMcloud.Dicom
             //return new DICOMcloud.Storage.TempStream (new TempFile(tempFile));
             return null ;
         }
+
+        public fo.DicomDataset Convert ( Stream uncompressedData )
+        {
+            throw new NotImplementedException ( "Converting image data to DICOM is not supported." ) ;
+        }
+
     }
 }

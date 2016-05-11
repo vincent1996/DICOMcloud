@@ -26,6 +26,14 @@ namespace DICOMcloud.Dicom
             return new MemoryStream ( ASCIIEncoding.UTF8.GetBytes ( XmlConverter.Convert (ds)));
         }
 
+        public fo.DicomDataset Convert ( Stream xmlStream )
+        {
+            StreamReader reader    = new StreamReader (xmlStream) ;
+            string       xmlString = reader.ReadToEnd ( ) ;
+
+            return XmlConverter.Convert ( xmlString ) ;
+        }
+
         public IXmlDicomConverter XmlConverter { get; set; }
     }
 }

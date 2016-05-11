@@ -51,6 +51,11 @@ namespace DICOMcloud.Dicom
 
             return sb.ToString();
         }
+        
+        public foDicom.DicomDataset Convert( string jsonDcm )
+        {
+            throw new NotImplementedException ( "Converting JSON DICOM to Native DICOM is not supported." ) ;
+        }
 
         private void ConvertChildren(foDicom.DicomDataset ds, JsonWriter writer)
         {
@@ -80,7 +85,6 @@ namespace DICOMcloud.Dicom
 
             writer.WritePropertyName(((uint)element.Tag).ToString ("X8", null));//TODO: zaid, pass proper hex format
             //writer.WritePropertyName(element.Tag.HexString, false);
-            //writer.WritePropertyName(element.Tag.Group.ToString("D4") + element.Tag.Element.ToString("D4"), false);
             writer.WriteStartObject();
 
 

@@ -6,5 +6,7 @@ namespace DICOMcloud.Dicom
     {
         
         T Convert ( fo.DicomDataset dicom ) ;
+
+        fo.DicomDataset Convert ( T value ) ;
     }
 }
