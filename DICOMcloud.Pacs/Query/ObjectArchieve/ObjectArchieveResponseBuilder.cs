@@ -166,21 +166,23 @@ namespace DICOMcloud.Dicom.Data.Services
 
                     //TODO: fix ASAP! fo-dicom is not flixible at all with setting values
                     //TODO: need to implement a way to update/add/append value to DicomItem/DicomElement
-                    //else if (valueType == typeof(Int32))
-                    //{
-                    //    CurrentData.CurrentDs.Add<DateTime>(dicomTag, (DateTime) value);
-                    //    dicomElement.SetInt32((int)dicomElement.Count, (Int32)value);
-                    //}
-                    //else if (valueType == typeof(Int64))
-                    //{
-                    //    dicomElement.SetInt64((int)dicomElement.Count, (Int64)value);
-                    //}
-                    //else
-                    //{
-                    //    dicomElement.SetStringValue((string)value);
+                    else if (valueType == typeof(Int32))
+                    {
+                        CurrentData.CurrentDs.Add<Int32>(dicomTag, (Int32)value);
+                        //dicomElement.SetInt32((int)dicomElement.Count, (Int32)value);
+                    }
+                    else if (valueType == typeof(Int64))
+                    {
+                        CurrentData.CurrentDs.Add<Int64>(dicomTag, (Int64)value);
+                        //dicomElement.SetInt64((int)dicomElement.Count, (Int64)value);
+                    }
+                    else
+                    {
+                        CurrentData.CurrentDs.Add<string>(dicomTag, value as string);
+                        //dicomElement.SetStringValue((string)value);
 
-                    //    System.Diagnostics.Debug.Assert(false, "Unknown element db value");
-                    //}
+                        System.Diagnostics.Debug.Assert(false, "Unknown element db value");
+                    }
                 }
             }
         }
