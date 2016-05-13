@@ -50,13 +50,9 @@ namespace DICOMcloud.Dicom
 
         public fo.DicomDataset Convert ( string xmlDcm )
         {
-            fo.DicomDataset ds = new fo.DicomDataset( ) ;
-            
-            
-            XDocument document = XDocument.Parse ( xmlDcm ) ;
+            fo.DicomDataset ds       = new fo.DicomDataset( ) ;
+            XDocument       document = XDocument.Parse ( xmlDcm ) ;
 
-            
-            //WriteHeaders(writer);
 
             ReadChildren(ds, document.Root );
 
@@ -72,17 +68,8 @@ namespace DICOMcloud.Dicom
 
         private void WriteChildren ( fo.DicomDataset ds, XmlWriter writer ) 
         {
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.FileMetaInformationVersion], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.MediaStorageSopClassUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.MediaStorageSopInstanceUID], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.TransferSyntaxUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.ImplementationClassUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.ImplementationVersionName], writer ) ;
-
             foreach ( var element in ds.OfType<fo.DicomItem> ( ) )
             {
-                //TODO:
-                //WriterService.WriteElement (element,writer);
                 WriteDicomAttribute ( ds, element, writer ) ;
             }
         }
@@ -97,6 +84,7 @@ namespace DICOMcloud.Dicom
             if ( null == element ) { return ; }
 
             fo.DicomVR dicomVr = element.ValueRepresentation ;
+
 
             writer.WriteStartElement ( Constants.ATTRIBUTE_NAME ) ;
 
@@ -218,13 +206,6 @@ namespace DICOMcloud.Dicom
         
         private void ReadChildren ( fo.DicomDataset ds, XContainer document ) 
         {
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.FileMetaInformationVersion], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.MediaStorageSopClassUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.MediaStorageSopInstanceUID], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.TransferSyntaxUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.ImplementationClassUid], writer ) ;
-            //WriteDicomAttribute ( ds, ds[fo.DicomTag.ImplementationVersionName], writer ) ;
-
             foreach ( var element in document.Elements (Constants.ATTRIBUTE_NAME) ) 
             {
                 ReadDicomAttribute(ds, element);
