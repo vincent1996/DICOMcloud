@@ -16,8 +16,6 @@ namespace DICOMcloud.Dicom
 
     public class XmlDicomConverter : IXmlDicomConverter
     {
-        protected XmlDicomWriterService WriterService {get; set; }
-
         static XmlDicomConverter ( ) 
         {
             PN_Components.Add ( Constants.PN_COMP_ALPHABETIC  );
@@ -27,25 +25,40 @@ namespace DICOMcloud.Dicom
 
         public XmlDicomConverter()
         {
-            WriterService = new XmlDicomWriterService ( ) ;
+            Settings = new XmlWriterSettings ( ) ;
+            Settings.Encoding = new UTF8Encoding ( false ) ; //force utf-8! http://www.timvw.be/2007/01/08/generating-utf-8-with-systemxmlxmlwriter/
+            Settings.Indent = true ;
         }
 
+        public XmlWriterSettings Settings
+        {
+            get;
+            private set ;
+        }
         public string Convert ( fo.DicomDataset ds )
         {
-            StringBuilder sb = new StringBuilder ( ) ;
-            XmlWriter writer = XmlTextWriter.Create (sb);
-            
-            WriteHeaders(writer);
+            string result ;
 
-            writer.WriteStartElement(Constants.ROOT_ELEMENT_NAME) ;
-            
-            WriteChildren ( ds, writer ) ;
-            
-            writer.WriteEndElement ( ) ;
+            using (var ms = new MemoryStream())
+            {
+                using (XmlWriter writer = XmlTextWriter.Create(ms, Settings))
+                {
 
-            writer.Close ( ) ;
+                    WriteHeaders(writer);
 
-            return sb.ToString ( ) ;
+                    writer.WriteStartElement(Constants.ROOT_ELEMENT_NAME) ;
+            
+                    WriteChildren ( ds, writer ) ;
+            
+                    writer.WriteEndElement ( ) ;
+
+                    writer.Close ( ) ;
+                }
+
+                result = Encoding.Default.GetString ( ms.ToArray ( ) ) ;
+            }
+
+            return result ;
         }
 
         public fo.DicomDataset Convert ( string xmlDcm )
@@ -129,7 +142,7 @@ namespace DICOMcloud.Dicom
                         {
                             writer.WriteStartElement ( PN_Components[compIndex] ) ;
 
-                                fo.DicomPersonName pn = new fo.DicomPersonName ( element.Tag, pnComponents[compIndex]  ) ; //TODO: >>>Include Table 10.2-1 “Person Name Components Macro”
+                                fo.DicomPersonName pn = new fo.DicomPersonName ( element.Tag, pnComponents[compIndex]  ) ; 
                             
                                 writer.WriteElementString ( Constants.PN_Family, pn.Last ) ;
                                 writer.WriteElementString ( Constants.PN_Given, pn.First ) ;
@@ -168,8 +181,11 @@ namespace DICOMcloud.Dicom
                     
                 if ( dicomVr.Equals(fo.DicomVR.AT))
                 {
-                    //TODO: check standard
-                    writer.WriteString ( GetTrimmedString ( ds.Get<string> ( element.Tag, index, string.Empty ) ) ) ;
+                    var    atElement   = ds.Get<fo.DicomElement>    ( element.Tag, null ) ;
+                    var    tagValue    = atElement.Get<fo.DicomTag> ( ) ;
+                    string stringValue = tagValue.ToString          ( "J", null ) ;
+
+                    writer.WriteString ( stringValue ) ;
                 }
                 else
                 {
@@ -300,19 +316,19 @@ namespace DICOMcloud.Dicom
                 }
 
                 personNameValue = personNameValue.TrimEnd ( '\\' ) ;
-                ds.Add<string> ( tag, personNameValue ) ;
+                ds.Add<string> ( dicomVr, tag, personNameValue ) ;
             }
             else if ( IsBinary ( dicomVr ) )
             {
                 var data = System.Convert.FromBase64String ( element.Value ) ;
 
-                ds.Add<byte> ( tag, data ) ;
+                ds.Add<byte> ( dicomVr, tag, data ) ;
             }
             else 
             {
                 var values = ReadValue ( element );
-
-                ds.Add<string> ( tag, values.ToArray ( ) );
+                
+                ds.Add<string> ( dicomVr, tag, values.ToArray ( ) );
             }            
         }
 
@@ -362,9 +378,9 @@ namespace DICOMcloud.Dicom
 
         private bool IsBinary ( fo.DicomVR dicomVr ) 
         {
-            return dicomVr.Equals (fo.DicomVR.OB) || dicomVr.Equals(fo.DicomVR.OD) ||
-                   dicomVr.Equals (fo.DicomVR.OF) || dicomVr.Equals(fo.DicomVR.OW) ||
-                   dicomVr.Equals (fo.DicomVR.UN ) ;
+            return dicomVr == fo.DicomVR.OB || dicomVr == fo.DicomVR.OD ||
+                   dicomVr == fo.DicomVR.OF || dicomVr == fo.DicomVR.OW ||
+                   dicomVr == fo.DicomVR.OL || dicomVr.Equals (fo.DicomVR.UN ) ;
         }
 
         //trimming the padding the only allowed raw value transformation in XML
