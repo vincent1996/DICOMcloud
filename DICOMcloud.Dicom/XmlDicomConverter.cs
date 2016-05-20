@@ -16,13 +16,6 @@ namespace DICOMcloud.Dicom
 
     public class XmlDicomConverter : IXmlDicomConverter
     {
-        static XmlDicomConverter ( ) 
-        {
-            PN_Components.Add ( Constants.PN_COMP_ALPHABETIC  );
-            PN_Components.Add ( Constants.PN_COMP_IDEOGRAPHIC );
-            PN_Components.Add ( Constants.PN_COMP_PHONETIC    );
-        }
-
         public XmlDicomConverter()
         {
             Settings = new XmlWriterSettings ( ) ;
@@ -81,7 +74,7 @@ namespace DICOMcloud.Dicom
 
         private void WriteChildren ( fo.DicomDataset ds, XmlWriter writer ) 
         {
-            foreach ( var element in ds.OfType<fo.DicomItem> ( ) )
+            foreach ( var element in ds )
             {
                 WriteDicomAttribute ( ds, element, writer ) ;
             }
@@ -94,7 +87,8 @@ namespace DICOMcloud.Dicom
             XmlWriter writer 
         )
         {
-            if ( null == element ) { return ; }
+            //group length element must not be written
+            if ( null == element || element.Tag.Element == 0x0000 ) { return ; }
 
             fo.DicomVR dicomVr = element.ValueRepresentation ;
 
@@ -122,7 +116,28 @@ namespace DICOMcloud.Dicom
             writer.WriteEndElement ( ) ;
         }
 
-        private void WriteElement(fo.DicomDataset ds, fo.DicomElement element, XmlWriter writer, fo.DicomVR dicomVr)
+        private void WriteSequence(fo.DicomSequence element, XmlWriter writer )
+        {
+            for ( int index = 0; index < element.Items.Count; index++ )
+            {
+                var item = element.Items [ index ] ;
+
+                writer.WriteStartElement ( Constants.ATTRIBUTE_ITEM_NAME ) ;
+                WriteNumberAttrib(writer, index);
+                
+                WriteChildren(item, writer);
+
+                writer.WriteEndElement ( ) ;
+            }
+        }
+
+        private void WriteElement
+        (
+            fo.DicomDataset ds, 
+            fo.DicomElement element, 
+            XmlWriter writer, 
+            fo.DicomVR dicomVr
+        )
         {
             //Element value can be:
             // 1. PN
@@ -140,22 +155,22 @@ namespace DICOMcloud.Dicom
 
                         for ( int compIndex = 0; (compIndex < pnComponents.Length) && (compIndex < 3); compIndex++ )
                         {
-                            writer.WriteStartElement ( PN_Components[compIndex] ) ;
+                            writer.WriteStartElement ( Utilities.PersonNameComponents.PN_Components[compIndex] ) ;
 
                                 fo.DicomPersonName pn = new fo.DicomPersonName ( element.Tag, pnComponents[compIndex]  ) ; 
                             
-                                writer.WriteElementString ( Constants.PN_Family, pn.Last ) ;
-                                writer.WriteElementString ( Constants.PN_Given, pn.First ) ;
-                                writer.WriteElementString ( Constants.PN_Midlle, pn.Middle ) ;
-                                writer.WriteElementString ( Constants.PN_Prefix, pn.Prefix ) ;
-                                writer.WriteElementString ( Constants.PN_Suffix, pn.Suffix ) ;
+                                writer.WriteElementString ( Utilities.PersonNameParts.PN_Family, pn.Last ) ;
+                                writer.WriteElementString ( Utilities.PersonNameParts.PN_Given, pn.First ) ;
+                                writer.WriteElementString ( Utilities.PersonNameParts.PN_Midlle, pn.Middle ) ;
+                                writer.WriteElementString ( Utilities.PersonNameParts.PN_Prefix, pn.Prefix ) ;
+                                writer.WriteElementString ( Utilities.PersonNameParts.PN_Suffix, pn.Suffix ) ;
 
                             writer.WriteEndElement ( ) ;
                         }
                     writer.WriteEndElement ( ) ;
                 }
             }
-            else if ( IsBinary ( dicomVr ) )
+            else if ( Utilities.IsBinaryVR ( dicomVr ) )
             {
                 //TODO: Add BulkData element support
                 byte[] data = element.Buffer.Data;
@@ -199,21 +214,6 @@ namespace DICOMcloud.Dicom
         private static void WriteNumberAttrib(XmlWriter writer, int index)
         {
             writer.WriteAttributeString("number", (index + 1).ToString());
-        }
-
-        private void WriteSequence(fo.DicomSequence element, XmlWriter writer )
-        {
-            for ( int index = 0; index < element.Items.Count; index++ )
-            {
-                var item = element.Items [ index ] ;
-
-                writer.WriteStartElement ( Constants.ATTRIBUTE_ITEM_NAME ) ;
-                WriteNumberAttrib(writer, index);
-                
-                WriteChildren(item, writer);
-
-                writer.WriteEndElement ( ) ;
-            }
         }
 
         #endregion
@@ -294,15 +294,15 @@ namespace DICOMcloud.Dicom
                 {
                     foreach ( var personNameComponent in personNameElementValue.Elements ( ) )
                     {
-                        if ( personNameComponent.Name == Constants.PN_COMP_ALPHABETIC || 
-                             personNameComponent.Name == Constants.PN_COMP_IDEOGRAPHIC || 
-                             personNameComponent.Name == Constants.PN_COMP_PHONETIC )
+                        if ( personNameComponent.Name == Utilities.PersonNameComponents.PN_COMP_ALPHABETIC || 
+                             personNameComponent.Name == Utilities.PersonNameComponents.PN_COMP_IDEOGRAPHIC || 
+                             personNameComponent.Name == Utilities.PersonNameComponents.PN_COMP_PHONETIC )
                         {
-                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Constants.PN_Family );
-                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Constants.PN_Given );
-                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Constants.PN_Midlle );
-                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Constants.PN_Prefix );
-                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Constants.PN_Suffix, true );
+                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Utilities.PersonNameParts.PN_Family );
+                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Utilities.PersonNameParts.PN_Given );
+                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Utilities.PersonNameParts.PN_Midlle );
+                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Utilities.PersonNameParts.PN_Prefix );
+                            personNameValue = UpdatePersonName ( personNameValue, personNameComponent, Utilities.PersonNameParts.PN_Suffix, true );
 
                             personNameValue = personNameValue.TrimEnd ( '^') ; // extra cleanup 
 
@@ -318,7 +318,7 @@ namespace DICOMcloud.Dicom
                 personNameValue = personNameValue.TrimEnd ( '\\' ) ;
                 ds.Add<string> ( dicomVr, tag, personNameValue ) ;
             }
-            else if ( IsBinary ( dicomVr ) )
+            else if ( Utilities.IsBinaryVR ( dicomVr ) )
             {
                 var data = System.Convert.FromBase64String ( element.Value ) ;
 
@@ -376,13 +376,6 @@ namespace DICOMcloud.Dicom
 
         #endregion
 
-        private bool IsBinary ( fo.DicomVR dicomVr ) 
-        {
-            return dicomVr == fo.DicomVR.OB || dicomVr == fo.DicomVR.OD ||
-                   dicomVr == fo.DicomVR.OF || dicomVr == fo.DicomVR.OW ||
-                   dicomVr == fo.DicomVR.OL || dicomVr.Equals (fo.DicomVR.UN ) ;
-        }
-
         //trimming the padding the only allowed raw value transformation in XML
         //part 19 A.1.1
         private static string GetTrimmedString ( string value )
@@ -392,8 +385,7 @@ namespace DICOMcloud.Dicom
          
         //TODO: fo dicom VR has property to read padding char
         private static char[] PADDING = new char[] {'\0',' '};
-        private static List<string> PN_Components = new List<string> ( ) ;
-
+        
         private static class Constants
         {
             public const string ROOT_ELEMENT_NAME = "NativeDicomModel" ;
@@ -408,14 +400,7 @@ namespace DICOMcloud.Dicom
             public const string ATTRIBUTE_PRIVATE_CREATOR = "privateCreator" ;
 
             public const string PN_PERSON_NAME = "PersonName" ;
-            public const string PN_Family = "FamilyName" ;
-            public const string PN_Given  = "GivenName" ;
-            public const string PN_Midlle = "MiddleName" ;
-            public const string PN_Prefix = "NamePrefix" ;
-            public const string PN_Suffix = "NameSuffix" ;
-            public const string PN_COMP_ALPHABETIC  = "AlphabeticName" ;
-            public const string PN_COMP_IDEOGRAPHIC = "IdeographicName" ;
-            public const string PN_COMP_PHONETIC    = "PhoneticName" ;
+            
         }
     }
 }

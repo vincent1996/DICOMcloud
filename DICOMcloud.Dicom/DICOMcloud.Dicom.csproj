@@ -56,10 +56,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DatasetExtensions.cs" />
+    <Compile Include="DicomConstants.cs" />
     <Compile Include="DicomObjectId\IObject.cs" />
     <Compile Include="DicomObjectId\ISeriesID.cs" />
     <Compile Include="DicomObjectId\IStudyID.cs" />
     <Compile Include="DicomObjectId\ObjectID.cs" />
+    <Compile Include="BasseDicomConverter.cs" />
     <Compile Include="JsonDicomConverter.cs">
       <SubType>Code</SubType>
     </Compile>
