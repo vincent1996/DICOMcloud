@@ -41,6 +41,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Bin\Dicom.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Dicom.Json">
+      <HintPath>..\Resources\Bin\Dicom.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -57,11 +60,11 @@
   <ItemGroup>
     <Compile Include="DatasetExtensions.cs" />
     <Compile Include="DicomConstants.cs" />
+    <Compile Include="DicomConverterBase.cs" />
     <Compile Include="DicomObjectId\IObject.cs" />
     <Compile Include="DicomObjectId\ISeriesID.cs" />
     <Compile Include="DicomObjectId\IStudyID.cs" />
     <Compile Include="DicomObjectId\ObjectID.cs" />
-    <Compile Include="BasseDicomConverter.cs" />
     <Compile Include="JsonDicomConverter.cs">
       <SubType>Code</SubType>
     </Compile>
