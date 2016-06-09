@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Web.Http;
 using DICOMcloud.Core.Azure.Storage;
 using DICOMcloud.Core.Storage;
@@ -11,6 +12,8 @@ using Microsoft.Azure;
 using Microsoft.Practices.Unity;
 using Microsoft.WindowsAzure.Storage;
 using Unity.WebApi;
+using fo = Dicom;
+
 
 namespace DICOMcloud.Wado
 {
@@ -18,7 +21,13 @@ namespace DICOMcloud.Wado
     {
         private App ()
         {
+            fo.Log.LogManager.SetImplementation ( Dicom.TraceLogManager.Instance ) ;
             RegisterComponents ( ) ; 
+            var path = System.IO.Path.Combine ( System.Web.Hosting.HostingEnvironment.MapPath ( "~/"), "bin" ) ;
+
+            System.Diagnostics.Trace.TraceInformation ( "Path: " + path ) ;
+
+            fo.Imaging.Codec.TranscoderManager.LoadCodecs ( path ) ;
         }
 
         public static void Config ( ) 
@@ -31,7 +40,7 @@ namespace DICOMcloud.Wado
         public void RegisterComponents()
         {
             var container        = new UnityContainer();
-            var connectionString = ConfigurationManager.ConnectionStrings["app:PacsDataArchieve"].ConnectionString;
+            var connectionString = CloudConfigurationManager.GetSetting("app:PacsDataArchieve");
             var storageConection = CloudConfigurationManager.GetSetting("app:PacsStorageConnection");
             var dataAccess       = new DicomInstanceArchieveDataAccess(connectionString);
 

@@ -43,7 +43,7 @@ namespace DICOMcloud.Wado.Core
 
                 case CommandStatus.Failed:
                 {
-                    AddFailedItem ( result.DataSet ) ;
+                    AddFailedItem ( result.DataSet, result.Error ) ;
                 }
                 break;
 
@@ -67,7 +67,7 @@ namespace DICOMcloud.Wado.Core
             AddFailedItem ( GetReferencedInstsance ( dataSet.Dataset ) ) ;
         }
 
-        private void AddFailedItem ( fo.DicomDataset ds )
+        private void AddFailedItem ( fo.DicomDataset ds, Exception error = null )
         {
             var referencedInstance = GetReferencedInstsance ( ds ) ;
             var failedSeq          = new fo.DicomSequence ( fo.DicomTag.FailedSOPSequence ) ;
@@ -80,6 +80,12 @@ namespace DICOMcloud.Wado.Core
             failedSeq.Items.Add ( item ) ;
 
             item.Add<UInt16> (fo.DicomTag.FailureReason, 272 ) ; //TODO: for now 272 == "0110 - Processing failure", must map proper result code from org. exception
+            
+            if ( null != error )
+            {
+                //TODO: temp
+                item.Add<string> ( fo.DicomTag.RetrieveURI, error.Message );
+            }
         }
 
         private void AddSuccessItem ( fo.DicomDataset ds )

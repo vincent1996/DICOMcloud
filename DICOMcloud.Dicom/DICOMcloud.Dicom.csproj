@@ -36,6 +36,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|AnyCPU'">
+    <OutputPath>bin\Test\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dicom.Core">
       <SpecificVersion>False</SpecificVersion>
@@ -78,6 +87,7 @@
     <Compile Include="Media\Writers\DicomMediaWriter.cs" />
     <Compile Include="Media\Writers\JpegMediaWriter.cs" />
     <Compile Include="Media\Writers\XmlMediaWriter.cs" />
+    <Compile Include="TraceLogger.cs" />
     <Compile Include="UncompressedPixelData.cs" />
     <Compile Include="Writers\XmlDicomWriterService.cs" />
     <Compile Include="Media\Writers\DicomMediaWriterBase.cs" />
