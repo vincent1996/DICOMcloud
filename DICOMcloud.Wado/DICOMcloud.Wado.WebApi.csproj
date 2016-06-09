@@ -337,11 +337,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="packages.config" />
-    <None Include="Properties\PublishProfiles\dicomcloud-dev - Web Deploy %282%29.pubxml" />
     <None Include="Properties\PublishProfiles\dicomcloud-dev - Web Deploy.pubxml" />
-    <None Include="Properties\PublishProfiles\dicomcloud-dev-vm.pubxml" />
-    <None Include="Properties\PublishProfiles\dicomcloud-dev3 - Web Deploy %282%29.pubxml" />
-    <None Include="Properties\PublishProfiles\dicomcloud-dev3 - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\dicomcloud-fo - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <None Include="Scripts\jquery-2.2.0.intellisense.js" />
