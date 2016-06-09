@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using fo = Dicom ;
-using Dicom.Imaging ;
+using fo = Dicom;
+using Dicom.Imaging;
 using DICOMcloud.Core.Storage;
+using Dicom.IO.Buffer;
 
 namespace DICOMcloud.Dicom.Media
 {
@@ -33,14 +34,21 @@ namespace DICOMcloud.Dicom.Media
 
         protected override void Upload ( fo.DicomDataset dicomDataset, int frame, IStorageLocation storeLocation)
         {
-            UncompressedPixelDataWrapper uncompressedData ;
-            byte[]                       buffer           ;
-        
-        
-            uncompressedData = new UncompressedPixelDataWrapper ( dicomDataset ) ;
-            buffer           = uncompressedData.PixelData.GetFrame ( frame - 1 ).Data ;
-        
-            storeLocation.Upload ( buffer ) ;
+            var uncompressedData = new UncompressedPixelDataWrapper ( dicomDataset ) ;
+            var buffer           = uncompressedData.PixelData.GetFrame ( frame - 1 ) ;
+            var  data            = new byte[0] ;
+            
+            
+            try
+            {
+                //TODO: check fo-dicom, dicom file with no data will throw an exception althoug
+                //it is wrapped with a RangeByteBuffer but Internal is EmptyBuffer
+                //only way to find out is to ignore exception
+                data = buffer.Data ;
+            }
+            catch {}
+
+            storeLocation.Upload ( data ) ;
         }
     }
 }

@@ -207,7 +207,7 @@ namespace DICOMcloud.Dicom
             
             for ( int index = 0; index < element.Count; index++ )
             {
-                string stringValue = element.Get<string> ( index ) ;
+                string stringValue = GetTrimmedString ( element.Get<string> ( index ) ) ;
 
                 if ( _numberBasedVrs.Contains ( element.ValueRepresentation.Code ) )
                 {
@@ -215,7 +215,7 @@ namespace DICOMcloud.Dicom
                     //need to do that to remove the ' ' around the string
                     if ( _decimalBasedVrs.Contains ( element.ValueRepresentation.Code ) )
                     {
-                        writer.WriteValue ( double.Parse (stringValue, System.Globalization.NumberStyles.Number) );
+                        writer.WriteValue ( double.Parse (stringValue, System.Globalization.NumberStyles.Any) );
                     }
                     else
                     {

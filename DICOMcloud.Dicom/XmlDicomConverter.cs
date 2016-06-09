@@ -21,8 +21,6 @@ namespace DICOMcloud.Dicom
             XmlSettings = new XmlWriterSettings ( ) ;
             XmlSettings.Encoding = new UTF8Encoding ( false ) ; //force utf-8! http://www.timvw.be/2007/01/08/generating-utf-8-with-systemxmlxmlwriter/
             XmlSettings.Indent = true ;
-
-            WriteInlineBinary = true ;
         }
 
         public XmlWriterSettings XmlSettings
