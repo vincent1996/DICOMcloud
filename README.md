@@ -15,7 +15,7 @@ There is a client Demo that I open sourced and hosting:
 The code is built in .NET (currently v4.5) and Visual Studio 2015. The web services are built as ASP.NET REST WebApi Controllers.
 Check the [code and project's structure](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Code-and-Projects-Structure) wiki page for more details.
 
-Currently the project uses ClearCanvas DICOM dll for reading and writing DICOM information and image data. The plan is to replace this by another better supported "open source" library. Cheek [status and roadmap](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Status-and-Roadmap) wiki page for more details.
+Cheek [status and roadmap](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Status-and-Roadmap) wiki page for more details.
 
 Physical DICOM storage is supported on both, either Windows File System or Azure Blob Storage.
 
