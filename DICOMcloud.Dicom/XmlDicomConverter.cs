@@ -63,7 +63,7 @@ namespace DICOMcloud.Dicom
             ReadChildren(ds, document.Root );
 
             fo.DicomFile df = new fo.DicomFile ( ds ) ;
-
+            
             return ds ;
         }
 
