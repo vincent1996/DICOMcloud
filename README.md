@@ -12,10 +12,8 @@ There is a client Demo that I open sourced and hosting:
 [https://github.com/Zaid-Safadi/dicom-webJS](https://github.com/Zaid-Safadi/dicom-webJS/)
 
 # Implementation
-The code is built in .NET (currently v4.5) and Visual Studio 2015. The web services are built as ASP.NET REST WebApi Controllers.
+The code is built in .NET 4.5.2 and Visual Studio 2015. The web services are built as ASP.NET REST WebApi Controllers.
 Check the [code and project's structure](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Code-and-Projects-Structure) wiki page for more details.
-
-Cheek [status and roadmap](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Status-and-Roadmap) wiki page for more details.
 
 Physical DICOM storage is supported on both, either Windows File System or Azure Blob Storage.
 
@@ -26,7 +24,7 @@ Implementation natively support JSON and XML DICOM format.
 # DICOM Support
 The code is designed to be a complete DICOM web server implementation with storage, query and retrieve capabilities.
 
-Check the [DICOM Support](https://github.com/Zaid-Safadi/DICOMcloud/wiki/DICOM-Support) wiki page for detailed information about the supported services and features 
+For detailed information about the supported services and features, check the [DICOM Support](https://github.com/Zaid-Safadi/DICOMcloud/wiki/DICOM-Support) wiki page  
 
 # License
  
