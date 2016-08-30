@@ -9,7 +9,8 @@ namespace DICOMcloud.Dicom.Data.Services.Query
         ICollection<fo.DicomDataset> Find 
         ( 
             fo.DicomDataset request, 
-            QueryOptions options 
+            IQueryOptions options,
+            string queryLevel
         ) ;
     }
 }

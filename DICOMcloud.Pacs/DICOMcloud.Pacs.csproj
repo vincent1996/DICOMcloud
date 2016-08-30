@@ -48,8 +48,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Resources\Bin\Dicom.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -67,6 +67,7 @@
     <Compile Include="Commands\DicomCommand.cs" />
     <Compile Include="Commands\DicomCommandResult.cs" />
     <Compile Include="Commands\IStoreCommand.cs" />
+    <Compile Include="Commands\StoreCommandData.cs" />
     <Compile Include="Commands\StoreCommandResult.cs" />
     <Compile Include="IObjectIDQuery.cs" />
     <Compile Include="ObjectQueryLevel.cs" />

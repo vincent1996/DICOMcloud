@@ -24,17 +24,18 @@ namespace DICOMcloud.Dicom.Data.Services.Query
         public ICollection<fo.DicomDataset> Find 
         ( 
             fo.DicomDataset request, 
-            QueryOptions options 
+            IQueryOptions options,
+            string queryLevel
         )
         {
             StorageDbSchemaProvider         dbSchema        = new StorageDbSchemaProvider ( ) ;
             IEnumerable<IMatchingCondition> conditions      = null ;
-            ObjectArchieveResponseBuilder   responseBuilder = new ObjectArchieveResponseBuilder ( dbSchema, options.QueryLevel ) ;
+            ObjectArchieveResponseBuilder   responseBuilder = new ObjectArchieveResponseBuilder ( dbSchema, queryLevel ) ;
 
 
             conditions = BuildConditions ( request ) ;
 
-            DoFind ( request, options, conditions, responseBuilder ) ;
+            DoFind ( request, options, queryLevel, conditions, responseBuilder ) ;
 
             return responseBuilder.GetResponse ( ) ;
         }
@@ -62,7 +63,8 @@ namespace DICOMcloud.Dicom.Data.Services.Query
         protected abstract void DoFind
         (
             fo.DicomDataset request,
-            QueryOptions options, 
+            IQueryOptions options, 
+            string queryLevel,
             IEnumerable<IMatchingCondition> conditions, 
             ObjectArchieveResponseBuilder responseBuilder
         ) ;

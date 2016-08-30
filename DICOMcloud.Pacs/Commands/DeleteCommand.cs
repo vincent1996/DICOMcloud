@@ -28,27 +28,38 @@ namespace DICOMcloud.Pacs.Commands
             DataAccess     = dataAccess ;
         }
         
-        public DicomCommandResult Execute ( IObjectID instance ) 
+        public DicomCommandResult Execute ( IObjectID instance )
         {
-            string objectMetaRaw = DataAccess.GetInstanceMetadata ( instance ) ;
-            dynamic objectMeta   = objectMetaRaw.FromJson ( ) ; 
-            string media         = objectMeta.Media ;
-
-
-            foreach ( string mediaType in media.Split ( ';' ) )
-            { 
-                IStorageLocation location ;
-                DicomMediaId mediaId = new DicomMediaId ( instance, mediaType ) ;
-
-                
-                location = StorageService.GetLocation ( mediaId ) ;
-                location.Delete ( ) ;
-            }
-
-            DataAccess.DeleteInstance ( instance.SOPInstanceUID ) ;
-        
-            return new DicomCommandResult ( ) ;//TODO: currently nothing to return    
+            DataAccess.DeleteInstance ( instance.SOPInstanceUID );
+            DeleteMediaLocations      ( instance );
+            
+            return new DicomCommandResult ( );//TODO: currently nothing to return    
         }
-         
+
+        private void DeleteMediaLocations ( IObjectID instance )
+        {
+            var objectMetaRaw  = DataAccess.GetInstanceMetadata ( instance );
+            
+            
+            if ( null != objectMetaRaw )
+            {
+                var mediaLocations = objectMetaRaw.MediaLocations;
+
+
+                foreach ( var dicomMediaLocation in mediaLocations )
+                {
+                    foreach ( var locationParts in dicomMediaLocation.Locations )
+                    {
+                        IStorageLocation location;
+                        DicomMediaId mediaId = new DicomMediaId ( locationParts.Parts );
+
+
+                        location = StorageService.GetLocation ( mediaId );
+                        location.Delete ( );
+
+                    }
+                }
+            }
+        }
     }
 }

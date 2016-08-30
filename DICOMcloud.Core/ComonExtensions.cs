@@ -18,6 +18,11 @@ namespace DICOMcloud.Core.Extensions
             return Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic> ( me) ;
         }
 
+        public static T FromJson<T> ( this string me )
+        {
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T> ( me) ;
+        }
+
         public static bool IsNullOrEmpty<T>(this IEnumerable<T> enumerable) 
         {
             return enumerable == null || !enumerable.Any();

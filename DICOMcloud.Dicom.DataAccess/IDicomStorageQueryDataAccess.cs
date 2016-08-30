@@ -14,7 +14,8 @@ namespace DICOMcloud.Dicom.DataAccess
         ( 
             IEnumerable<IMatchingCondition> conditions, 
             IStorageDataReader responseBuilder,
-            QueryOptions options
+            IQueryOptions options,
+            string queryLevel
         ) ;
     }
 }

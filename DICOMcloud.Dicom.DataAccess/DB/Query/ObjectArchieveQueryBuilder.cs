@@ -42,7 +42,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             return string.Format ( SqlQueries.Table_Column_Formatted, sourceTable, destTable) ;
         }
 
-        public void BuildQuery ( IEnumerable<IMatchingCondition> conditions, string queryLevel )
+        public virtual void BuildQuery ( IEnumerable<IMatchingCondition> conditions, string queryLevel )
         {
             TableKey sourceTable = base.SchemaProvider.GetTableInfo ( queryLevel ) ;
 
@@ -96,28 +96,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             }
         }
 
-        protected virtual void ProcessColumn
-        (   
-            TableKey sourceTable,
-            IMatchingCondition condition,
-            ColumnInfo column, 
-            IList<string> columnValues
-        )
-        {
-            FillReturns ( column ) ;
-            FillJoins ( sourceTable, column ) ;
-
-            string whereCondition = AddMatching ( sourceTable, column, condition, columnValues ) ;
-        
-            if ( !string.IsNullOrWhiteSpace ( whereCondition ) )
-            { 
-                _conditions.Add ( whereCondition ) ;
-            }
-
-            //_processedColumns.Add ( column ) ;
-        }
-
-        public string GetQueryText ( string sourceTable )
+        public virtual string GetQueryText ( string sourceTable )
         {
             string selectText = string.Join ( ",", _returns  ) ;
             string joinsText  = string.Join ( " ", _joins.ToString ( ) ) ;
@@ -153,12 +132,33 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             return queryBuilder.ToString ( ) ;
         }
 
-        public IEnumerable<string> GetQueryResultTables ( ) 
+        public virtual IEnumerable<string> GetQueryResultTables ( ) 
         {
             foreach ( var table in _processedColumns )
             { 
                 yield return table.Key.Name ;
             }
+        }
+
+        protected virtual void ProcessColumn
+        (   
+            TableKey sourceTable,
+            IQueryInfo queryInfo,
+            ColumnInfo column, 
+            IList<string> columnValues
+        )
+        {
+            FillReturns ( column ) ;
+            FillJoins ( sourceTable, column ) ;
+
+            string whereCondition = AddMatching ( sourceTable, column, queryInfo, columnValues ) ;
+        
+            if ( !string.IsNullOrWhiteSpace ( whereCondition ) )
+            { 
+                _conditions.Add ( whereCondition ) ;
+            }
+
+            //_processedColumns.Add ( column ) ;
         }
 
         protected virtual string AddMatching 
@@ -253,5 +253,10 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
                 //}
             }
         }
+
+        protected List<string>   Returns { get { return _returns ; } }
+        protected List<string>   Conditions { get { return _conditions ; } }
+        protected List<string>   ColumnDefenitions { get { return _columnDefenitions ; } }
+        protected SqlJoinBuilder Joins { get { return _joins ; } }
     }
 }

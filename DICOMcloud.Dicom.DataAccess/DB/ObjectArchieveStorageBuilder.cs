@@ -87,7 +87,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
                         { 
                             column.Values = new string [] { stringValues[++index]} ;
                                 
-                            InsertColumnValue ( column, dicomParam, insertCommad ) ;
+                            InsertColumnValue ( column, insertCommad ) ;
                         }
                     }
                     
@@ -99,7 +99,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
                 { 
                     column.Values = GetValues ( dicomParam ) ;
                         
-                    InsertColumnValue ( column, dicomParam, insertCommad ) ;
+                    InsertColumnValue ( column, insertCommad ) ;
                 }
             }
         }
@@ -120,7 +120,6 @@ namespace DICOMcloud.Dicom.DataAccess.DB
         protected virtual void InsertColumnValue
         (
             ColumnInfo column, 
-            IDicomDataParameter dicomParam, 
             IDbCommand insertCommand 
         )
         {

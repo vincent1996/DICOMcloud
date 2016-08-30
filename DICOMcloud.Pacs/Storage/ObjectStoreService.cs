@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using DICOMcloud.Dicom.DataAccess;
+using DICOMcloud.Dicom.Media;
 using DICOMcloud.Pacs.Commands;
 using fo = Dicom;
 
@@ -9,27 +10,29 @@ namespace DICOMcloud.Pacs
     public class ObjectStoreService : IObjectStoreService
     {
         public IDicomInstnaceStorageDataAccess DataAccess   { get; set; }
-        public IStoreCommand                    StoreCommand { get; set; }
+        public IDicomMediaWriterFactory MediaFactory        { get; set ; }
+        
         //public ObjectStoreDataService ( ) {}
         
         public ObjectStoreService 
         ( 
             IDicomInstnaceStorageDataAccess dataAccess,
-            IStoreCommand                   storeCommand
+            IDicomMediaWriterFactory mediaFactory
         )
         {
             DataAccess   = dataAccess ;
-            StoreCommand = storeCommand ;
+            MediaFactory = mediaFactory ;
         }
         
         public StoreResult StoreDicom
         ( 
-            Stream dicomStream
+            fo.DicomDataset dataset,
+            InstanceMetadata metadata
         )
         {
-            StoreResult storeResult  = new StoreResult ( ) ;
-            fo.DicomDataset dicomObject  = null ;
-
+            StoreCommand     storeCommand = CreateStoreCommand ( ) ;
+            StoreCommandData storeData    = new StoreCommandData ( ) { Dataset = dataset, Metadata = metadata } ;
+            StoreResult      storeResult  = new StoreResult ( ) ;
 
             try
             {
@@ -37,11 +40,9 @@ namespace DICOMcloud.Pacs
                 StoreCommandResult result = new StoreCommandResult ( ) ;
 
 
-                dicomObject = GetDicom(dicomStream);
-                
-                result = StoreCommand.Execute ( dicomObject );
+                result = storeCommand.Execute ( storeData ) ;
 
-                storeResult.DataSet = dicomObject ;
+                storeResult.DataSet = dataset ;
                 storeResult.Status  = CommandStatus.Success ;
             }
             catch ( Exception ex )
@@ -50,7 +51,7 @@ namespace DICOMcloud.Pacs
                 storeResult.Status = CommandStatus.Failed ;
 
                 //TODO: must catch specific exception types and set status, message and "code" accoringely
-                storeResult.DataSet = dicomObject ;
+                storeResult.DataSet = dataset ;
                 storeResult.Status  = CommandStatus.Failed ;
                 storeResult.Error   = ex ;
                 storeResult.Message = ex.Message ;
@@ -59,14 +60,9 @@ namespace DICOMcloud.Pacs
             return storeResult ;    
         }
 
-        protected virtual fo.DicomDataset GetDicom ( Stream dicomStream )
+        protected virtual StoreCommand CreateStoreCommand ( )
         {
-            fo.DicomFile dicom ;
-
-
-            dicom = fo.DicomFile.Open ( dicomStream ) ;
-
-            return dicom.Dataset ;
+            return new StoreCommand ( DataAccess, MediaFactory ) ;
         }
     }
 }

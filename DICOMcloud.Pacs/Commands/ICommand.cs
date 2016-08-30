@@ -2,8 +2,8 @@
 
 namespace DICOMcloud.Pacs.Commands
 {
-    public interface IDicomCommand<T,R>
+    public interface IDicomCommand<T, R>
     {
-        R Execute(T dataObject );
+        R Execute ( T dataObject );
     }
 }

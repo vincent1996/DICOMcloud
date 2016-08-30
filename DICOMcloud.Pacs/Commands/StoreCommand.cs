@@ -15,7 +15,7 @@ using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Pacs.Commands
 {
-    public class StoreCommand : DicomCommand<fo.DicomDataset,StoreCommandResult>, IStoreCommand
+    public class StoreCommand : DicomCommand<StoreCommandData,StoreCommandResult>, IStoreCommand
     {
         public StoreCommand ( ) : this ( null, null ) 
         {}
@@ -31,51 +31,47 @@ namespace DICOMcloud.Pacs.Commands
             MediaFactory = mediaFactory ;
         }
 
-        public override StoreCommandResult Execute ( fo.DicomDataset dicomObject )
+        public override StoreCommandResult Execute ( StoreCommandData request )
         {
 
             //TODO: Check against supported types/association, validation, can store, return appropriate error
             
-            var media = SaveDicomMedia ( dicomObject ) ;
+            request.Metadata.MediaLocations = SaveDicomMedia ( request.Dataset ) ;
 
-            StoreQueryModel ( dicomObject ) ;
+            StoreQueryModel ( request ) ;
             
-            StoreObjectMetadata ( dicomObject, media ) ;
-
-            EventBroker.Publish ( new DicomStoreSuccessEventArgs ( media, new ObjectID ( dicomObject ) ) ) ;            
+            EventBroker.Publish ( new DicomStoreSuccessEventArgs ( request.Metadata ) ) ;            
             
             return null ;
         }
 
-        protected virtual void StoreObjectMetadata(fo.DicomDataset dicomObject, Dictionary<string, IList<IStorageLocation>> media)
-        {
-            string metadata = "{\"Media\":\"" + string.Join ( ";", media.Keys ) + "\"}" ; 
-        
-            DataAccess.StoreInstanceMetadata ( new ObjectID ( dicomObject ) , metadata ) ;
-        }
-
-        protected virtual Dictionary<string,IList<IStorageLocation>> SaveDicomMedia 
+        protected virtual DicomMediaLocations[] SaveDicomMedia 
         ( 
             fo.DicomDataset dicomObject
         )
         {
-            Dictionary<string,IList<IStorageLocation>> mediaLocations ;
+            List<DicomMediaLocations> mediaLocations = new List<DicomMediaLocations> ( ) ;
 
-
-            mediaLocations = new Dictionary<string, IList<IStorageLocation>> ( ) ;
 
             foreach ( string mediaType in Settings.MediaTypes )
             {
-                IDicomMediaWriter writer ;
+                DicomMediaLocations mediaLocation ;
+                IDicomMediaWriter   writer ;
 
 
-                writer = MediaFactory.GetMediaWriter ( mediaType ) ;
+                mediaLocation = new DicomMediaLocations ( ) { MediaType = mediaType } ;
+                writer        = MediaFactory.GetMediaWriter ( mediaType ) ;
 
                 if ( null != writer )
                 {
                     try
                     {
-                        mediaLocations.Add ( writer.MediaType, writer.CreateMedia ( dicomObject ) ) ;
+                        IList<IStorageLocation> createdMedia = writer.CreateMedia ( dicomObject ) ;
+                        
+                        
+                        mediaLocation.Locations = createdMedia.Select ( media => new MediaLocationParts { Parts = media.MediaId.GetIdParts ( ) } ).ToList ( ) ;
+                    
+                        mediaLocations.Add ( mediaLocation ) ;    
                     }
                     catch ( Exception ex )
                     {
@@ -91,23 +87,23 @@ namespace DICOMcloud.Pacs.Commands
                 }
             }
 
-            return mediaLocations ;
+            return mediaLocations.ToArray ( ) ;
         }
 
 
 
         protected virtual void StoreQueryModel
         (
-            fo.DicomDataset dicomObject
+            StoreCommandData data
         )
         {
             IDicomDataParameterFactory<StoreParameter> condFactory ;
             IEnumerable<StoreParameter>                conditions ;
 
             condFactory = new DicomStoreParameterFactory ( ) ;
-            conditions = condFactory.ProcessDataSet ( dicomObject ) ;
+            conditions = condFactory.ProcessDataSet ( data.Dataset ) ;
 
-            DataAccess.StoreInstance ( conditions, 0, 0 ) ;
+            DataAccess.StoreInstance ( new ObjectID ( data.Dataset ), conditions, data.Metadata ) ;
         }
         
 

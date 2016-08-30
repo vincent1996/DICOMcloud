@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using DICOMcloud.Dicom.DataAccess;
 using fo = Dicom;
 
 namespace DICOMcloud.Dicom.Data.Services
@@ -8,22 +9,21 @@ namespace DICOMcloud.Dicom.Data.Services
         ICollection<fo.DicomDataset> FindStudies 
         ( 
             fo.DicomDataset request, 
-            int? limit,
-            int? offset    
+            IQueryOptions options
+
         ) ;
 
         ICollection<fo.DicomDataset> FindObjectInstances
         (
             fo.DicomDataset request,
-            int? limit,
-            int? offset
+            IQueryOptions options
+
         ) ;
 
         ICollection<fo.DicomDataset> FindSeries
         (
             fo.DicomDataset request,
-            int? limit,
-            int? offset
+            IQueryOptions options
         ) ;
     }
 }

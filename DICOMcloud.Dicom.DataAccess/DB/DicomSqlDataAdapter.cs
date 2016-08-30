@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
+using DICOMcloud.Core.Extensions;
 using DICOMcloud.Dicom.DataAccess.Matching;
 using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess.DB.Query;
@@ -69,24 +70,32 @@ namespace DICOMcloud.Dicom.DataAccess.DB
         }
 
 
-        public IDbCommand CreateUpdateMetadataCommand ( IObjectID instance, string metadata )
+        public IDbCommand CreateUpdateMetadataCommand ( IObjectID objectId, InstanceMetadata data )
         {
             IDbCommand insertCommand = CreateCommand ( ) ;
+            var instance             = objectId ;
+            
 
             insertCommand = CreateCommand ( ) ;
 
             insertCommand.CommandText = string.Format ( @"
-UPDATE {0} SET {2}=@{2} WHERE {1}=@{1}
+UPDATE {0} SET {2}=@{2}, {3}=@{3} WHERE {1}=@{1}
 
 IF @@ROWCOUNT = 0
-   INSERT INTO {0} ({2}) VALUES (@{2})
-", DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName, DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn ) ;
+   INSERT INTO {0} ({2}, {3}) VALUES (@{2}, @{3})
+", 
+DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName, 
+DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, 
+DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn,
+DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn ) ;
 
              var sopParam  = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
-             var metaParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn, metadata ) ;
+             var metaParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn, data.ToJson ( ) ) ;
+             var ownerParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn, data.Owner ) ;
             
             insertCommand.Parameters.Add ( sopParam ) ;
             insertCommand.Parameters.Add ( metaParam ) ;
+            insertCommand.Parameters.Add ( ownerParam ) ;
 
             SetConnectionIfNull ( insertCommand ) ;        
             
@@ -99,8 +108,9 @@ IF @@ROWCOUNT = 0
              var       sopParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
             
              
-             command.CommandText = string.Format ( "SELECT {0} FROM {1} WHERE {2}=@{2}", 
+             command.CommandText = string.Format ( "SELECT {0}, {1} FROM {2} WHERE {3}=@{3}", 
                                                   DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn,
+                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn,
                                                   DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName,
                                                   DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn ) ;
 

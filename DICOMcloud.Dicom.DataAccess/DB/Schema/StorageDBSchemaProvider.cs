@@ -36,6 +36,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
             public static string TableName         = "ObjectInstance" ;
             public static string SopInstanceColumn = "SopInstanceUID" ;
             public static string MetadataColumn    = "Metadata" ;
+            public static string OwnerColumn       = "Owner" ;
         }
         
     }

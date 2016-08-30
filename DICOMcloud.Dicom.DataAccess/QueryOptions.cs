@@ -6,9 +6,18 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Dicom.DataAccess
 {
-    public class QueryOptions
+    public interface IQueryOptions
     {
-        public string QueryLevel { get; set; }
+        //string QueryLevel { get; set; }
+
+        int? Limit { get; set; }
+
+        int? Offset { get; set; }
+    }
+
+    public class QueryOptions : IQueryOptions
+    {
+        //public string QueryLevel { get; set; }
 
         public int? Limit { get; set; }
 

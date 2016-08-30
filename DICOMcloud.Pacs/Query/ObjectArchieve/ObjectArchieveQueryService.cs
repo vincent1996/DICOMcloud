@@ -20,42 +20,40 @@ namespace DICOMcloud.Dicom.Data.Services
         public ICollection<fo.DicomDataset> FindStudies 
         ( 
             fo.DicomDataset request, 
-            int? limit,
-            int? offset    
+            IQueryOptions options
         )
         {
-            return Find ( request, new QueryOptions() { Limit = limit, Offset = offset, QueryLevel = StorageDbSchemaProvider.StudyTableName } ) ;
+            return Find ( request, options, StorageDbSchemaProvider.StudyTableName ) ;
         }
 
         public ICollection<fo.DicomDataset> FindObjectInstances
         (
             fo.DicomDataset request,
-            int? limit,
-            int? offset
+            IQueryOptions options
         )
         {
-            return Find ( request, new QueryOptions() { Limit = limit, Offset = offset, QueryLevel = StorageDbSchemaProvider.ObjectInstanceTableName }) ;
+            return Find ( request, options, StorageDbSchemaProvider.ObjectInstanceTableName ) ;
         }
 
         public ICollection<fo.DicomDataset> FindSeries
         (
             fo.DicomDataset request,
-            int? limit,
-            int? offset
+            IQueryOptions options
         )
         {
-            return Find ( request, new QueryOptions() { Limit = limit, Offset = offset, QueryLevel = StorageDbSchemaProvider.SeriesTableName }) ;
+            return Find ( request, options, StorageDbSchemaProvider.SeriesTableName ) ;
         }
 
         protected override void DoFind
         (
            fo.DicomDataset request,
-           QueryOptions options,
+           IQueryOptions options,
+           string queryLevel,
            IEnumerable<IMatchingCondition> conditions,
            ObjectArchieveResponseBuilder responseBuilder
         )
         {
-            QueryDataAccess.Search ( conditions, responseBuilder, options ) ;
+            QueryDataAccess.Search ( conditions, responseBuilder, options, queryLevel ) ;
         }
 
 

@@ -22,8 +22,7 @@ namespace DICOMcloud.Wado.Models
         {
             get; set;
         }
-
-
+        
         QidoQuery Query
         {
             get; set;

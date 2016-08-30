@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Dicom.DataAccess.DB.Query
 {
-    class SqlJoinBuilder
+    public class SqlJoinBuilder
     {
         private static ConcurrentDictionary<DbJoin, ICollection<string>> _cachedJoins = new ConcurrentDictionary<DbJoin,ICollection<string>> ( ) ;
+        private static Random _aliasGenerator = new Random ( ) ;
         private Dictionary<int,string> _generatedJoins = new Dictionary<int,string> ( ) ;
 
         public void AddJoins ( TableKey source, TableKey destination )
@@ -29,26 +30,69 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
 
         private void CreateJoin ( DbJoin arg )
         {
-            TableKey childTable = arg.Source ;
-            TableKey parent = null ;
-
-            while ( (parent = childTable.Parent ) != null && ( arg.Destination != childTable))
-            { 
-                DbJoin join = new DbJoin ( childTable, parent ) ;
-
-                if ( !_generatedJoins.ContainsKey ( join ) )
-                { 
-                    var joins = _cachedJoins.GetOrAdd ( join, GenerateAndAddNewJoin ) ;
-                    _generatedJoins.Add ( join, joins.First ( ) ) ;
-                }
-
-                childTable = parent ;
+            if ( !AddChildToParentJoins ( arg ) )
+            {
+                AddParentToChildJoins ( arg ) ; 
             }
         }
 
-        private List<string> GenerateAndAddNewJoin(DbJoin arg)
+        private bool AddChildToParentJoins ( DbJoin arg )
+        {
+            TableKey childTable = arg.Source;
+            TableKey parent = null;
+
+            while ( ( parent = childTable.Parent ) != null && ( arg.Destination != childTable ) )
+            {
+                DbJoin join = new DbJoin ( childTable, parent );
+
+                if ( !_generatedJoins.ContainsKey ( join ) )
+                {
+                    var joins = _cachedJoins.GetOrAdd ( join, GenerateAndAddNewJoin );
+                    _generatedJoins.Add ( join, joins.First ( ) );
+                }
+
+                childTable = parent;
+            }
+
+            return childTable == arg.Destination ;
+        }
+
+        private void AddParentToChildJoins ( DbJoin arg )
+        {
+            TableKey childTable = arg.Destination;
+            TableKey parent = null;
+            Dictionary<int,string> localGeneratedJoins = new Dictionary<int, string> ( ) ;
+
+
+            while ( ( parent = childTable.Parent ) != null && ( arg.Source != childTable ) )
+            {
+                DbJoin join = new DbJoin ( parent, childTable );
+
+                if ( !_generatedJoins.ContainsKey ( join ) )
+                {
+                    var joins = _cachedJoins.GetOrAdd ( join, GenerateAndAddJoinWithChild );
+                    localGeneratedJoins.Add ( join, joins.First ( ) );
+                }
+
+                childTable = parent;
+            }
+
+            if ( arg.Source == childTable )
+            {
+                Merge ( _generatedJoins, localGeneratedJoins );
+            }
+        }
+
+        private List<string> GenerateAndAddNewJoin(DbJoin arg )
         {
             string joinText = GetJoinWithParent ( arg.Source ) ;
+        
+            return new List<string> ( new string[]{joinText} ) ;
+        }
+
+        private List<string> GenerateAndAddJoinWithChild ( DbJoin arg )
+        {
+            string joinText = GetJoinWithChild ( arg.Destination ) ;
         
             return new List<string> ( new string[]{joinText} ) ;
         }
@@ -67,7 +111,35 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
                                                 table.Parent.KeyColumn.Name ) ;
 
         }
+
+        private string GetJoinWithChild ( TableKey child )
+        {
+            return string.Format ( SqlQueries.Joins.OuterJoinFormattedTemplate,
+                                                child.Name, 
+                                                child.Parent.Name, 
+                                                child.Parent.KeyColumn.Name,
+                                                child.ForeignColumn.Name ) ;
+                                                //child.Name + _aliasGenerator.Next ( 1000 ) ) ;
+        }
+
+        public static void Merge (Dictionary<int, string> source, Dictionary<int, string> collection)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException("Collection is null");
+            }
+
+            foreach (var item in collection)
+            {
+                if(!source.ContainsKey(item.Key)){ 
+                    source.Add(item.Key, item.Value);
+                }
+            } 
+        }
     }
+
+        
+
     
     class DbJoin : IComparable<DbJoin>
     { 

@@ -28,7 +28,11 @@ namespace DICOMcloud.Dicom.DataAccess.DB
         {5} = columns
         {6} = values
          */
-
+         /// <summary>
+         /// This method is a replacment for the hard coded InsertIntoPatient/InsertInfoStudy... methods!
+         /// </summary>
+         /// <param name="table"></param>
+         /// <returns></returns>
         public static string GetInsertIntoTable 
         ( 
             TableKey table
@@ -52,12 +56,28 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             for ( int index = 0; index < whereColumns.Count; index++ )
             { 
                 ColumnInfo column = whereColumns[index] ;
-                conditions [index] = wrap(column.Name) + " = @" + column.Name ;
+
+                if ( column.IsForeign )
+                {
+                    conditions [index] = wrap(column.Name) + " = @New" + table.Parent.KeyColumn.Name ;
+                }
+                else
+                {
+                    conditions [index] = wrap(column.Name) + " = @" + column.Name ;
+                }
             }
 
             whereColumnsString = string.Join ( " AND ", conditions ) ;
 
-            return string.Format ( InsertTableFormatted, newPrimaryParam, primaryColumn, tableName, whereColumnsString, columns, values )  ;
+            if ( string.IsNullOrEmpty ( whereColumnsString ))
+            {
+                return string.Format ( InsertTableFormattedNoPrimaryKey, newPrimaryParam, tableName, columns, values )  ;
+            }
+            else
+            {
+                return string.Format ( InsertTableFormatted, newPrimaryParam, primaryColumn, tableName, whereColumnsString, columns, values )  ;            
+            }
+
         }
 
         private static string wrap(string entityName)
@@ -114,8 +134,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             return InsertObjectInstanceFormatted ;
         }
 
-        //TODO: find a better way to generate the statments from the info in the schema provider
-            
+        //These has been replaced now by the method GetInsertIntoTable with TableKey :)
         const string PatientTableName        = "Patient" ;
         const string StudyTableName          = "Study" ;
         const string SeriesTableName         = "Series" ;
@@ -140,6 +159,16 @@ IF {0} is NULL
 BEGIN
 	INSERT INTO {2} ({4})
 	VALUES ( {5} )
+
+	Select {0} = SCOPE_IDENTITY()
+END
+" ;
+
+            const string InsertTableFormattedNoPrimaryKey = 
+@"
+BEGIN
+	INSERT INTO {1} ({2})
+	VALUES ( {3} )
 
 	Select {0} = SCOPE_IDENTITY()
 END

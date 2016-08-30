@@ -10,11 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 using DICOMcloud.Dicom;
 using DICOMcloud.Dicom.Media;
-
+using DICOMcloud.Dicom.DataAccess;
 
 namespace DICOMcloud.Wado.Core.Services
 {
-    public class QidoRsService
+    public class QidoRsService : IQidoRsService
     {
         protected IObjectArchieveQueryService QueryService { get; set; }
 
@@ -34,11 +34,12 @@ namespace DICOMcloud.Wado.Core.Services
             ( 
                 IObjectArchieveQueryService queryService, 
                 fo.DicomDataset dicomRequest, 
-                int? limit, 
-                int? offset  
+                IQidoRequestModel qidoRequest 
             )
             {
-                return queryService.FindStudies ( dicomRequest, offset, limit ) ;
+                IQueryOptions queryOptions = GetQueryOptions ( qidoRequest ) ;
+
+                return queryService.FindStudies ( dicomRequest, queryOptions ) ;
             }  ) ;
         }
 
@@ -50,11 +51,10 @@ namespace DICOMcloud.Wado.Core.Services
             ( 
                 IObjectArchieveQueryService queryService, 
                 fo.DicomDataset dicomRequest, 
-                int? limit, 
-                int? offset  
+                IQidoRequestModel qidoResult
             )
             {
-                return queryService.FindSeries ( dicomRequest, offset, limit ) ;
+                return queryService.FindSeries ( dicomRequest, GetQueryOptions ( qidoResult ) ) ;
             }  ) ;
         }
 
@@ -66,14 +66,27 @@ namespace DICOMcloud.Wado.Core.Services
             ( 
                 IObjectArchieveQueryService queryService, 
                 fo.DicomDataset dicomRequest, 
-                int? limit, 
-                int? offset  
+                IQidoRequestModel qidoResult
             )
             {
-                return queryService.FindObjectInstances ( dicomRequest, offset, limit ) ;
+                return queryService.FindObjectInstances ( dicomRequest, GetQueryOptions ( qidoResult ) ) ;
             }  ) ;
         }
 
+        protected virtual IQueryOptions CreateNewQueryOptions ( ) 
+        {
+            return new QueryOptions ( ) ;
+        }
+        protected virtual IQueryOptions GetQueryOptions ( IQidoRequestModel qidoRequest )
+        {
+            var queryOptions = CreateNewQueryOptions ( ) ;
+            
+            queryOptions.Limit = qidoRequest.Limit ;
+            queryOptions.Offset = qidoRequest.Offset ;
+
+            return queryOptions ;
+        }
+        
         private HttpResponseMessage SearchForDicomEntity 
         ( 
             IQidoRequestModel request, 
@@ -98,7 +111,7 @@ namespace DICOMcloud.Wado.Core.Services
                     InsertDicomElement ( dicomSource,  returnParam, "" );
                 }
 
-                ICollection<fo.DicomDataset> results = doQuery (QueryService, dicomSource, request.Limit, request.Offset ) ; //TODO: move configuration params into their own object
+                ICollection<fo.DicomDataset> results = doQuery (QueryService, dicomSource, request) ; //TODO: move configuration params into their own object
 
                 StringBuilder jsonReturn = new StringBuilder ( "[" ) ;
 
@@ -187,8 +200,7 @@ namespace DICOMcloud.Wado.Core.Services
         ( 
             IObjectArchieveQueryService queryService, 
             fo.DicomDataset dicomRequest, 
-            int? limit, 
-            int? offset  
+            IQidoRequestModel request
         ) ;
     }
 }

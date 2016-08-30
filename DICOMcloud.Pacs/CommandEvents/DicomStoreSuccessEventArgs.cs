@@ -4,18 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DICOMcloud.Core.Storage;
+using DICOMcloud.Dicom.DataAccess;
 
 namespace DICOMcloud.Dicom.Data.Services
 {
     public class DicomStoreSuccessEventArgs : EventArgs
     {
-        public DicomStoreSuccessEventArgs ( Dictionary<string,IList<IStorageLocation>> mediaLocations, ObjectID objectId )
+        public DicomStoreSuccessEventArgs ( InstanceMetadata instanceMetadata )
         {
-            Locations = mediaLocations ;
-            ObjectID  = objectId ;
+            InstanceMetadata = instanceMetadata ;
         }
 
-        public Dictionary<string,IList<IStorageLocation>> Locations { get; private set ; }
-        public ObjectID ObjectID { get; set; }
+        public InstanceMetadata InstanceMetadata { get ; private set ; }
     }
 }

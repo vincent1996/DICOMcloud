@@ -10,10 +10,12 @@ using System.Web.Http;
 using DICOMcloud.Pacs;
 using DICOMcloud.Dicom.Media;
 using DICOMcloud.Dicom;
+using DICOMcloud.Dicom.DataAccess;
+using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Wado.Core
 {
-    public class WebObjectStoreService
+    public class WebObjectStoreService : IWebObjectStoreService
     {
         private IObjectStoreService _storageService;
 
@@ -86,6 +88,21 @@ namespace DICOMcloud.Wado.Core
             }
         }
 
+        protected virtual fo.DicomDataset GetDicom ( Stream dicomStream )
+        {
+            fo.DicomFile dicom ;
+
+
+            dicom = fo.DicomFile.Open ( dicomStream ) ;
+
+            return dicom.Dataset ;
+        }
+
+        protected virtual InstanceMetadata GetObjectMetadata ( fo.DicomDataset dataset, IWebStoreRequest request )
+        {
+            return new InstanceMetadata ( ) { } ;
+        }
+
         private async Task<fo.DicomDataset> GetResponseDataset ( IWebStoreRequest request, string studyInstanceUID )
         {
             fo.DicomDataset bodyContent = null ;
@@ -94,10 +111,10 @@ namespace DICOMcloud.Wado.Core
             foreach (var mediaContent in request.Contents)
             {
                 Stream dicomStream = await mediaContent.ReadAsStreamAsync();
-
+                var    dicomDs     = GetDicom ( dicomStream ) ;
                 try
                 {
-                    var result = _storageService.StoreDicom(dicomStream);//TODO:make this ASync??
+                    var result = _storageService.StoreDicom ( dicomDs, GetObjectMetadata ( dicomDs, request ) ) ;
 
                     response.AddResult(result);
                 }
