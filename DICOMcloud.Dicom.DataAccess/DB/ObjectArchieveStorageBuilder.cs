@@ -10,36 +10,17 @@ using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Dicom.DataAccess.DB
 {
-    public class ObjectArchieveStorageBuilder : ObjectArchieveBuilderBase
+    public class ObjectArchieveStorageBuilder
     {
         public IList<System.Data.IDbDataParameter> Parameters { get; protected set; }
         public string InsertString {  get ; protected set ; }
 
-        public ObjectArchieveStorageBuilder ( ) : this ( new DbSchemaProvider ( ) )
-        {}
-        public ObjectArchieveStorageBuilder ( DbSchemaProvider schemaprovider ) : base ( schemaprovider )
-        { 
-            Parameters = new List<System.Data.IDbDataParameter> ( ) ;
-        }
-
-        public void BuildInsert ( IEnumerable<IDicomDataParameter> conditions ) { BuildInsert ( conditions, null ) ; } 
-        public void BuildInsert ( IEnumerable<IDicomDataParameter> conditions, IDbCommand insertCommand )
+        public ObjectArchieveStorageBuilder ( ) 
         {
-            if ( null == conditions ) throw new ArgumentNullException ( ) ;
-
             Parameters = new List<System.Data.IDbDataParameter> ( ) ;
-            
-            FillParameters ( conditions, insertCommand ) ;
-            
-            InsertString = GetInsertText ( ) ;
-
-            if ( null != insertCommand )
-            { 
-                insertCommand.CommandText = InsertString ;
-            }
         }
-
-        protected virtual string GetInsertText()
+        
+        public virtual string GetInsertText()
         {
             StringBuilder result = new StringBuilder ( SqlInsertStatments.BeginTransaction ) ;
             
@@ -62,65 +43,16 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             return result.ToString ( ) ;
         }
 
-        protected virtual void FillParameters
-        (
-            IEnumerable<IDicomDataParameter> dicomParameters,
-            IDbCommand insertCommad
-        )
-        {
-            foreach ( var dicomParam in dicomParameters )
-            {
-                if ( dicomParam.VR == fo.DicomVR.PN )
-                { 
-                    List<PersonNameData> pnValues ;
-
-                         
-                    pnValues = dicomParam.GetPNValues ( ) ;
-                        
-                    foreach ( var values in pnValues )
-                    {
-                        string[] stringValues = values.ToArray ( ) ;
-                        int index = -1 ;
-                        List<string> pnConditions = new List<string> ( ) ;
-
-                        foreach ( var column in SchemaProvider.GetColumnInfo ( dicomParam.KeyTag ) )
-                        { 
-                            column.Values = new string [] { stringValues[++index]} ;
-                                
-                            InsertColumnValue ( column, insertCommad ) ;
-                        }
-                    }
-                    
-                    continue ;
-                }
-
-                
-                foreach ( var column in SchemaProvider.GetColumnInfo ( dicomParam.KeyTag ) )
-                { 
-                    column.Values = GetValues ( dicomParam ) ;
-                        
-                    InsertColumnValue ( column, insertCommad ) ;
-                }
-            }
-        }
-
         public void BuildInsertOrUpdateMetadata ( ObjectID instance, IDbCommand insertCommand )
         {
             
         }
 
-        public void BuildDelete(string sopInstanceUID, IDbCommand command)
-        {
-            string delete = SqlDeleteStatments.GetDeleteInstanceCommandText (sopInstanceUID ) ;
-            
-             command.CommandText = delete ;
-
-        }
-
-        protected virtual void InsertColumnValue
+        public virtual void ProcessColumn
         (
             ColumnInfo column, 
-            IDbCommand insertCommand 
+            IDbCommand insertCommand,
+            DataParamFactory parameterFactory
         )
         {
             InsertSections insert = GetTableInsert ( column.Table ) ;
@@ -130,7 +62,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             //insert.ParametersValueNames.Add ( column.Values[0] ) ;
 
 
-            System.Data.SqlClient.SqlParameter param ;
+            System.Data.IDbDataParameter param ;
             
             object value = DBNull.Value ;
             
@@ -144,7 +76,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
                 }
             }
             
-            param = new System.Data.SqlClient.SqlParameter ( "@" + column.Name, value ) ;
+            param = parameterFactory ( "@" + column.Name, value ) ;
             
             Parameters.Add ( param ) ;
             
@@ -154,6 +86,8 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             }
         }
 
+        public delegate IDbDataParameter DataParamFactory ( string columnName, object Value ) ; 
+        
         protected InsertSections GetTableInsert ( TableKey table )
         { 
             InsertSections result = null ;

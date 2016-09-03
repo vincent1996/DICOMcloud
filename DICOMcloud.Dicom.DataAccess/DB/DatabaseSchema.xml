@@ -8,7 +8,6 @@
    
       <table name="RequestAttributeSequence" seq="true" tag="4194933" order="70" parent="Series"/>
 
-
    </tables>
 
    <columns>
@@ -48,7 +47,6 @@
       <column name="ScheduledProcedureStepID" table="RequestAttributeSequence" modelKey="true" defenition="[ScheduledProcedureStepID] [nvarchar](16) NOT NULL" tag="4194313" />
       <column name="RequestedProcedureID" table="RequestAttributeSequence" modelKey="true" defenition="[RequestedProcedureID] [nvarchar](16) NOT NULL" tag="4198401" />
       <column name="RequestAttributeSeq_SeriesKey" table="RequestAttributeSequence" modelKey="true" foreign="true" defenition="[RequestAttributeSeq_SeriesKey] [bigint] NOT NULL" tag="" />
-
 
    </columns>
 

@@ -16,6 +16,10 @@ namespace DICOMcloud.Dicom.Data.Services
     {
         public ObjectArchieveQueryService ( IDicomStorageQueryDataAccess dataAccess ) : base ( dataAccess )
         {}
+
+        public ObjectArchieveQueryService ( IDicomStorageQueryDataAccess dataAccess, DbSchemaProvider schemaProvider ) 
+        : base ( dataAccess, schemaProvider )
+        {}
          
         public ICollection<fo.DicomDataset> FindStudies 
         ( 

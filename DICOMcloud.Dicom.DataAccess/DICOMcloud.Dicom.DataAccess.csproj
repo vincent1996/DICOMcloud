@@ -68,7 +68,7 @@
     <Compile Include="DB\Schema\DBSchemaProvider.cs" />
     <Compile Include="DB\DicomSqlDataAdapter.cs" />
     <Compile Include="DB\ObjectArchieveDsResponse.cs" />
-    <Compile Include="DB\ObjectArchieveBuilderBase.cs" />
+    <Compile Include="DB\DicomDataAdapter.cs" />
     <Compile Include="DB\Query\MatchBuilder.cs" />
     <Compile Include="DB\Query\ObjectArchieveQueryBuilder.cs" />
     <Compile Include="DB\ObjectArchieveStorageBuilder.cs" />

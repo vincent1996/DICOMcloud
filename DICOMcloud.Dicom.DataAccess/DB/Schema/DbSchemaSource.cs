@@ -18,7 +18,12 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
 
         public DbSchemaSource ( )
         {
-            Init ( ) ;
+            Init ( Path.Combine ( PathToBin ( ), "DB", "DatabaseSchema.xml") ) ;
+        }
+
+        public DbSchemaSource ( string schamePath)
+        {
+            Init ( schamePath ) ;
         }
 
         public string GetColumnKey ( string tableName, string columnName )
@@ -26,13 +31,14 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
             return string.Format ( "{0}.{1}", tableName, columnName ) ;
         }
 
-        private void Init ( )
+        private void Init ( string schemaPath )
         {
             Tables  = new ConcurrentDictionary<string, TableKey>   ( ) ;
             Columns = new ConcurrentDictionary<string, ColumnInfo> ( ) ;
             Tags    = new ConcurrentDictionary<uint, IList<ColumnInfo>>   ( ) ;
 
-            string schemaPath = GetSchemaFile ( ) ;
+            SchemaPath = schemaPath ;
+            
             XDocument schemaDoc = XDocument.Load ( schemaPath ) ;
 
             foreach ( var parentElement in schemaDoc.Root.Elements ( ) )
@@ -191,9 +197,10 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
             return (null != multiAttrib) ? bool.Parse(multiAttrib.Value) : false ;
         }
 
-        private string GetSchemaFile()
+        public virtual string SchemaPath
         {
-            return Path.Combine ( PathToBin ( ), "DB", "DatabaseSchema.xml") ;
+            get; 
+            set;
         }
 
         private static string PathToBin()

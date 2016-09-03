@@ -14,11 +14,18 @@ namespace DICOMcloud.Dicom.Data.Services.Query
     //TODO: base class for query services
     public abstract class DicomQueryServiceBase : IDicomQueryService
     {
-        protected IDicomStorageQueryDataAccess QueryDataAccess { get; set; }
+        public IDicomStorageQueryDataAccess QueryDataAccess { get; protected set; }
+        public DbSchemaProvider             SchemaProvider  { get; protected set; }
         
         public DicomQueryServiceBase ( IDicomStorageQueryDataAccess queryDataAccess )
+        : this ( queryDataAccess, new StorageDbSchemaProvider ( ) )
+        {
+        }
+
+        public DicomQueryServiceBase ( IDicomStorageQueryDataAccess queryDataAccess, DbSchemaProvider schemaProvider )
         {
             QueryDataAccess = queryDataAccess ;
+            SchemaProvider  = schemaProvider ;
         }
 
         public ICollection<fo.DicomDataset> Find 
@@ -28,16 +35,24 @@ namespace DICOMcloud.Dicom.Data.Services.Query
             string queryLevel
         )
         {
-            StorageDbSchemaProvider         dbSchema        = new StorageDbSchemaProvider ( ) ;
-            IEnumerable<IMatchingCondition> conditions      = null ;
-            ObjectArchieveResponseBuilder   responseBuilder = new ObjectArchieveResponseBuilder ( dbSchema, queryLevel ) ;
+
+            IEnumerable<IMatchingCondition> conditions = null;
+            ObjectArchieveResponseBuilder responseBuilder = CreateResponseBuilder ( queryLevel ) ;
 
 
-            conditions = BuildConditions ( request ) ;
+            conditions = BuildConditions ( request );
 
-            DoFind ( request, options, queryLevel, conditions, responseBuilder ) ;
+            DoFind ( request, options, queryLevel, conditions, responseBuilder );
 
-            return responseBuilder.GetResponse ( ) ;
+            return responseBuilder.GetResponse ( );
+        }
+
+        protected virtual ObjectArchieveResponseBuilder CreateResponseBuilder 
+        ( 
+            string queryLevel
+        )
+        {
+            return new ObjectArchieveResponseBuilder ( SchemaProvider, queryLevel );
         }
 
         protected virtual IEnumerable<IMatchingCondition> BuildConditions
@@ -68,21 +83,5 @@ namespace DICOMcloud.Dicom.Data.Services.Query
             IEnumerable<IMatchingCondition> conditions, 
             ObjectArchieveResponseBuilder responseBuilder
         ) ;
-
-        //protected virtual DicomInstanceArchieveDataAccess CreateDataAccess()
-        //{
-        //    DicomInstanceArchieveDataAccess dataAccess = new DicomInstanceArchieveDataAccess(connectionString);
-        //    return dataAccess;
-        //}
-
-        protected virtual ObjectArchieveResponseBuilder CreateResponseBuilder ( string queryLevel )
-        {
-            StorageDbSchemaProvider         dbSchema        = new StorageDbSchemaProvider ( ) ;
-            ObjectArchieveResponseBuilder responseBuilder = new ObjectArchieveResponseBuilder( dbSchema, queryLevel);
-
-            responseBuilder.QueryLevel = queryLevel ;
-
-            return responseBuilder;
-        }
     }
 }

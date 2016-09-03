@@ -36,85 +36,13 @@ namespace DICOMcloud.Dicom.DataAccess
             string queryLevel
         )
         {
-            Search ( conditions, responseBuilder, CreateDataAdapter ( ) );
-        }
-
-        public virtual void StoreInstance 
-        ( 
-            IObjectID objectId,  
-            IEnumerable<IDicomDataParameter> parameters, 
-            InstanceMetadata data = null
-        )
-        {
-            StoreInstance ( objectId, parameters, CreateDataAdapter ( ), data );
-        }
-
-        public virtual void StoreInstanceMetadata ( IObjectID objectId, InstanceMetadata data )
-        {
-            StoreInstanceMetadata ( objectId, data, CreateDataAdapter ( ) );
-        }
-
-        public virtual InstanceMetadata GetInstanceMetadata( IObjectID instance ) 
-        {
-            DicomSqlDataAdapter dbAdapter = CreateDataAdapter ( ) ;
-            
-            
-            var cmd = dbAdapter.CreateGetMetadataCommand ( instance ) ;
-        
-            cmd.Connection.Open ( ) ;
-
-            try
-            {
-                InstanceMetadata metadata      = null ;
-                object           metadataValue = cmd.ExecuteScalar     ( ) ;
-                
-
-                if ( null != metadataValue && DBNull.Value != metadataValue )
-                {   
-                    string metaDataString = (string) metadataValue ;
+            string[]         tables ;
+            DicomDataAdapter dbAdapter ;
+            IDbCommand       cmd ;
 
 
-                    metadata = metaDataString.FromJson<InstanceMetadata> ( ) ;
-                }
-
-                return metadata ;
-            }
-            finally
-            { 
-                cmd.Connection.Close ( ) ;
-            }
-        }
-
-        public virtual void DeleteInstance ( string instance )
-        {
-            DicomSqlDataAdapter dbAdapter = CreateDataAdapter ( ) ;
-            IDbCommand cmd ;
-            
-            dbAdapter.CreateConnection ( ) ;
-            
-            cmd = dbAdapter.CreateDeleteInstanceCommand ( instance ) ;
-        
-            cmd.Connection.Open ( ) ;
-
-            try
-            { 
-                cmd.ExecuteScalar ( ) ;
-            }
-            finally
-            { 
-                cmd.Connection.Close ( ) ;
-            }
-        }
-
-        protected virtual void Search 
-        ( 
-            IEnumerable<IMatchingCondition> conditions, 
-            IStorageDataReader responseBuilder, 
-            DicomSqlDataAdapter dbAdapter 
-        )
-        {
-            string queryLevel = responseBuilder.QueryLevel;
-            var cmd = dbAdapter.CreateSelectCommand ( queryLevel, conditions );
+            dbAdapter = CreateDataAdapter ( ) ;
+            cmd       = dbAdapter.CreateSelectCommand ( queryLevel, conditions, options, out tables );
 
             cmd.Connection.Open ( );
 
@@ -124,7 +52,6 @@ namespace DICOMcloud.Dicom.DataAccess
 
                 using ( var reader = cmd.ExecuteReader ( ) )
                 {
-                    var tables = dbAdapter.GetCurrentQueryTables ( );
                     int currentTableIndex = -1;
 
 
@@ -165,18 +92,17 @@ namespace DICOMcloud.Dicom.DataAccess
             }
         }
 
-        protected virtual void StoreInstance 
+        public virtual void StoreInstance 
         ( 
-            IObjectID objectId, 
+            IObjectID objectId,  
             IEnumerable<IDicomDataParameter> parameters, 
-            DicomSqlDataAdapter dbAdapter, 
-            InstanceMetadata data = null 
+            InstanceMetadata data = null
         )
         {
             //TODO: use transation
             //dbAdapter.CreateTransation ( ) 
 
-            var cmd = dbAdapter.CreateInsertCommand ( parameters );
+            var cmd = CreateDataAdapter ( ).CreateInsertCommand ( parameters, data );
 
             cmd.Connection.Open ( );
 
@@ -200,11 +126,68 @@ namespace DICOMcloud.Dicom.DataAccess
             }
         }
 
+        public virtual void StoreInstanceMetadata ( IObjectID objectId, InstanceMetadata data )
+        {
+            StoreInstanceMetadata ( objectId, data, CreateDataAdapter ( ) );
+        }
+
+        public virtual InstanceMetadata GetInstanceMetadata( IObjectID instance ) 
+        {
+            DicomDataAdapter dbAdapter = CreateDataAdapter ( ) ;
+            
+            
+            var cmd = dbAdapter.CreateGetMetadataCommand ( instance ) ;
+        
+            cmd.Connection.Open ( ) ;
+
+            try
+            {
+                InstanceMetadata metadata      = null ;
+                object           metadataValue = cmd.ExecuteScalar     ( ) ;
+                
+
+                if ( null != metadataValue && DBNull.Value != metadataValue )
+                {   
+                    string metaDataString = (string) metadataValue ;
+
+
+                    metadata = metaDataString.FromJson<InstanceMetadata> ( ) ;
+                }
+
+                return metadata ;
+            }
+            finally
+            { 
+                cmd.Connection.Close ( ) ;
+            }
+        }
+
+        public virtual void DeleteInstance ( string instance )
+        {
+            DicomDataAdapter dbAdapter = CreateDataAdapter ( ) ;
+            IDbCommand cmd ;
+            
+            dbAdapter.CreateConnection ( ) ;
+            
+            cmd = dbAdapter.CreateDeleteInstanceCommand ( instance ) ;
+        
+            cmd.Connection.Open ( ) ;
+
+            try
+            { 
+                cmd.ExecuteScalar ( ) ;
+            }
+            finally
+            { 
+                cmd.Connection.Close ( ) ;
+            }
+        }
+
         protected virtual void StoreInstanceMetadata 
         ( 
             IObjectID objectId,
             InstanceMetadata data, 
-            DicomSqlDataAdapter dbAdapter 
+            DicomDataAdapter dbAdapter 
         )
         {
             //TODO: use transaction
@@ -229,7 +212,7 @@ namespace DICOMcloud.Dicom.DataAccess
             }
         }
 
-        protected virtual DicomSqlDataAdapter CreateDataAdapter ( )
+        protected virtual DicomDataAdapter CreateDataAdapter ( )
         {
             return new DicomSqlDataAdapter ( ConnectionString ) ;
         }

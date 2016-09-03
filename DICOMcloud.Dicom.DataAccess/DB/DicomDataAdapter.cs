@@ -6,12 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
+using DICOMcloud.Core.Extensions;
+using DICOMcloud.Dicom.DataAccess.DB.Query;
+using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Dicom.DataAccess.DB
 {
-    public class ObjectArchieveBuilderBase
+    public abstract class DicomDataAdapter
     {
-        public ObjectArchieveBuilderBase ( DbSchemaProvider schemaProvider )
+        public DicomDataAdapter ( DbSchemaProvider schemaProvider )
         {
             SchemaProvider = schemaProvider ;
         }
@@ -20,6 +24,255 @@ namespace DICOMcloud.Dicom.DataAccess.DB
         {
             get;
             protected set;
+        }
+
+
+        public IDbCommand CreateSelectCommand 
+        ( 
+            string sourceTable, 
+            IEnumerable<IMatchingCondition> conditions, 
+            IQueryOptions options,
+            out string[] tables 
+        )
+        {
+            var queryBuilder  = BuildQuery ( conditions, options, sourceTable ) ;
+            string queryText  = queryBuilder.GetQueryText ( sourceTable ) ;
+            var SelectCommand = CreateCommand ( ) ;
+
+
+            tables = queryBuilder.GetQueryResultTables ( ).ToArray ( ) ;
+
+            SelectCommand.CommandText = queryText ;
+            
+            SetConnectionIfNull ( SelectCommand ) ;
+        
+            return SelectCommand ;
+        }
+
+        public IDbCommand CreateInsertCommand 
+        ( 
+            IEnumerable<IDicomDataParameter> conditions,
+            InstanceMetadata data = null
+        )
+        {
+            IDbCommand insertCommand = CreateCommand ( ) ;
+
+            BuildInsert ( conditions, data, insertCommand ) ;
+
+            SetConnectionIfNull ( insertCommand ) ;
+            
+            return insertCommand ;
+        
+        }
+        
+        public IDbCommand CreateDeleteInstanceCommand ( string sopInstanceUID )
+        {
+            IDbCommand command  = CreateCommand ( ) ;
+
+            BuildDelete ( sopInstanceUID, command ) ;
+
+            SetConnectionIfNull ( command ) ;
+
+            return command ;
+        }
+
+        public IDbCommand CreateUpdateMetadataCommand ( IObjectID objectId, InstanceMetadata data )
+        {
+            IDbCommand insertCommand = CreateCommand ( ) ;
+            var instance             = objectId ;
+            
+
+            insertCommand = CreateCommand ( ) ;
+
+            insertCommand.CommandText = string.Format ( @"
+UPDATE {0} SET {2}=@{2}, {3}=@{3} WHERE {1}=@{1}
+
+IF @@ROWCOUNT = 0
+   INSERT INTO {0} ({2}, {3}) VALUES (@{2}, @{3})
+", 
+DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName, 
+DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, 
+DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn,
+DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn ) ;
+
+             var sopParam   = CreateParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
+             var metaParam  = CreateParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn, data.ToJson ( ) ) ;
+             var ownerParam = CreateParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn, data.Owner ) ;
+            
+            insertCommand.Parameters.Add ( sopParam ) ;
+            insertCommand.Parameters.Add ( metaParam ) ;
+            insertCommand.Parameters.Add ( ownerParam ) ;
+
+            SetConnectionIfNull ( insertCommand ) ;        
+            
+            return insertCommand ; 
+        }
+
+        public IDbCommand CreateGetMetadataCommand ( IObjectID instance )
+        {
+            IDbCommand command  = CreateCommand ( ) ;
+            var        sopParam = CreateParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
+            
+             
+             command.CommandText = string.Format ( "SELECT {0}, {1} FROM {2} WHERE {3}=@{3}", 
+                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn,
+                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn,
+                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName,
+                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn ) ;
+
+            command.Parameters.Add ( sopParam );
+
+            SetConnectionIfNull ( command ) ;
+            
+            return command ;
+        }
+
+        public abstract IDbConnection CreateConnection ( ) ;
+        
+        protected abstract IDbCommand  CreateCommand ( ) ;
+
+        protected abstract IDbDataParameter CreateParameter ( string columnName, object Value ) ;
+
+        protected virtual ObjectArchieveQueryBuilder BuildQuery 
+        ( 
+            IEnumerable<IMatchingCondition> conditions, 
+            IQueryOptions options,
+            string queryLevel 
+        )
+        {
+            ObjectArchieveQueryBuilder queryBuilder = CreateQueryBuilder ( ) ;
+            TableKey                   sourceTable  = SchemaProvider.GetTableInfo ( queryLevel ) ;
+
+
+            if ( sourceTable == null )
+            { 
+                throw new ArgumentException ( "querylevel not supported" ) ;
+            }
+
+            if ( null != conditions )
+            {
+                foreach ( var condition in conditions )
+                {
+                    if ( condition.VR == fo.DicomVR.PN )
+                    { 
+                        List<PersonNameData> pnValues = new List<PersonNameData> ( ) ;
+
+                         
+                        pnValues = condition.GetPNValues ( ) ;
+                        
+                        foreach ( var values in pnValues )
+                        {
+                            int          index = -1 ;
+                            string[]     stringValues = values.ToArray ( ) ;
+                            List<string> pnConditions = new List<string> ( ) ;
+
+                            foreach ( var column in SchemaProvider.GetColumnInfo ( condition.KeyTag ) )
+                            { 
+                                var columnValues = new string [] { stringValues[++index]} ;
+                                
+                                queryBuilder.ProcessColumn ( sourceTable, condition, column, columnValues ) ;
+                            }
+                        }
+                    }
+                    else
+                    { 
+                        IList<string> columnValues = GetValues ( condition )  ;
+
+                        foreach ( var column in SchemaProvider.GetColumnInfo ( condition.KeyTag ) )
+                        { 
+                            queryBuilder.ProcessColumn ( sourceTable, condition, column, columnValues ) ;
+                        }
+                    }
+                }
+            }
+        
+            return queryBuilder ;
+        }
+
+        protected virtual void BuildInsert 
+        ( 
+            IEnumerable<IDicomDataParameter> conditions, 
+            InstanceMetadata data, 
+            IDbCommand insertCommand 
+        )
+        {
+            if ( null == conditions ) throw new ArgumentNullException ( ) ;
+
+            var stroageBuilder = CreateStorageBuilder ( ) ;
+            
+            FillParameters ( conditions, data, insertCommand, stroageBuilder ) ;
+            
+            insertCommand.CommandText = stroageBuilder.GetInsertText ( ) ;
+        }
+
+        protected virtual void BuildDelete ( string sopInstanceUID, IDbCommand command)
+        {
+            string delete = SqlDeleteStatments.GetDeleteInstanceCommandText (sopInstanceUID ) ;
+            
+             command.CommandText = delete ;
+
+        }
+        
+        protected virtual void SetConnectionIfNull ( IDbCommand command )
+        {
+            if (command !=null && command.Connection == null)
+            {
+                command.Connection = CreateConnection ( ) ;
+            }
+        }
+
+        protected virtual void FillParameters
+        (
+            IEnumerable<IDicomDataParameter> dicomParameters,
+            InstanceMetadata data, 
+            IDbCommand insertCommad,
+            ObjectArchieveStorageBuilder stroageBuilder
+        )
+        {
+            foreach ( var dicomParam in dicomParameters )
+            {
+                if ( dicomParam.VR == fo.DicomVR.PN )
+                { 
+                    List<PersonNameData> pnValues ;
+
+                         
+                    pnValues = dicomParam.GetPNValues ( ) ;
+                        
+                    foreach ( var values in pnValues )
+                    {
+                        string[] stringValues = values.ToArray ( ) ;
+                        int index = -1 ;
+                        List<string> pnConditions = new List<string> ( ) ;
+
+                        foreach ( var column in SchemaProvider.GetColumnInfo ( dicomParam.KeyTag ) )
+                        { 
+                            column.Values = new string [] { stringValues[++index]} ;
+                                
+                            stroageBuilder.ProcessColumn ( column, insertCommad, CreateParameter ) ;
+                        }
+                    }
+                    
+                    continue ;
+                }
+
+                
+                foreach ( var column in SchemaProvider.GetColumnInfo ( dicomParam.KeyTag ) )
+                { 
+                    column.Values = GetValues ( dicomParam ) ;
+                        
+                    stroageBuilder.ProcessColumn ( column, insertCommad, CreateParameter ) ;
+                }
+            }
+        }
+
+        protected virtual ObjectArchieveQueryBuilder CreateQueryBuilder ( ) 
+        {
+            return new ObjectArchieveQueryBuilder ( ) ;
+        }
+
+        protected virtual ObjectArchieveStorageBuilder CreateStorageBuilder ( ) 
+        {
+            return new ObjectArchieveStorageBuilder ( ) ;
         }
 
         protected virtual IList<string> GetValues ( IDicomDataParameter condition )

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Dicom.DataAccess.DB.Query
 {
-    public partial class ObjectArchieveQueryBuilder : ObjectArchieveBuilderBase
+    public partial class ObjectArchieveQueryBuilder    
     {
         private List<string> _returns = new List<string> ( ) ;
         private List<string> _conditions = new List<string> ( ) ;
@@ -18,10 +18,12 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
         private SortedDictionary<TableKey, List<string> > _processedColumns = new SortedDictionary<TableKey, List<string> > ( ) ;
         
 
-        public ObjectArchieveQueryBuilder ( ) : this ( new DbSchemaProvider ( ) )
-        {}
-        public ObjectArchieveQueryBuilder ( DbSchemaProvider schemaprovider ) : base ( schemaprovider )
-        {}
+        public ObjectArchieveQueryBuilder ( ) 
+        {
+            _returns    = new List<string>   ( ) ;
+            _conditions = new List<string>   ( ) ;
+            _joins      = new SqlJoinBuilder ( ) ;
+        }
 
         //static ObjectArchieveQueryBuilder ( )
         //{
@@ -40,60 +42,6 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
         private static string GetJoinKey(string sourceTable, string destTable)
         {
             return string.Format ( SqlQueries.Table_Column_Formatted, sourceTable, destTable) ;
-        }
-
-        public virtual void BuildQuery ( IEnumerable<IMatchingCondition> conditions, string queryLevel )
-        {
-            TableKey sourceTable = base.SchemaProvider.GetTableInfo ( queryLevel ) ;
-
-
-            if ( sourceTable == null )
-            { 
-                throw new ArgumentException ( "querylevel not supported" ) ;
-            }
-
-            if ( null != conditions )
-            {
-                _returns    = new List<string>   ( ) ;
-                _conditions = new List<string>   ( ) ;
-                _joins      = new SqlJoinBuilder ( ) ;
-
-                foreach ( var condition in conditions )
-                {
-                    //string[] values = GetValues ( condition ) ;
-
-                    if ( condition.VR == fo.DicomVR.PN )
-                    { 
-                        List<PersonNameData> pnValues = new List<PersonNameData> ( ) ;
-
-                         
-                        pnValues = condition.GetPNValues ( ) ;
-                        
-                        foreach ( var values in pnValues )
-                        {
-                            int          index = -1 ;
-                            string[]     stringValues = values.ToArray ( ) ;
-                            List<string> pnConditions = new List<string> ( ) ;
-
-                            foreach ( var column in SchemaProvider.GetColumnInfo ( condition.KeyTag ) )
-                            { 
-                                var columnValues = new string [] { stringValues[++index]} ;
-                                
-                                ProcessColumn ( sourceTable, condition, column, columnValues ) ;
-                            }
-                        }
-                    }
-                    else
-                    { 
-                        IList<string> columnValues = GetValues ( condition )  ;
-
-                        foreach ( var column in SchemaProvider.GetColumnInfo ( condition.KeyTag ) )
-                        { 
-                            ProcessColumn ( sourceTable, condition, column, columnValues ) ;
-                        }
-                    }
-                }
-            }
         }
 
         public virtual string GetQueryText ( string sourceTable )
@@ -140,7 +88,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             }
         }
 
-        protected virtual void ProcessColumn
+        public virtual void ProcessColumn
         (   
             TableKey sourceTable,
             IQueryInfo queryInfo,

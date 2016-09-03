@@ -19,6 +19,15 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
             ObjectInstanceTable = GetTableInfo ( ObjectInstanceTableName ) ;
         }
 
+        public StorageDbSchemaProvider ( DbSchemaSource source ) 
+        : base ( source )
+        {
+            PatientTable        = GetTableInfo ( PatientTableName) ;
+            StudyTable          = GetTableInfo ( StudyTableName ) ;
+            SeriesTable         = GetTableInfo ( SeriesTableName ) ;
+            ObjectInstanceTable = GetTableInfo ( ObjectInstanceTableName ) ;
+        }
+
         public  readonly TableKey PatientTable ;
         public  readonly TableKey StudyTable ;
         public  readonly TableKey SeriesTable ;
@@ -34,7 +43,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
         public class MetadataTable
         {
             public static string TableName         = "ObjectInstance" ;
-            public static string SopInstanceColumn = "SopInstanceUID" ;
+            public static string SopInstanceColumn = "SopInstanceUid" ;
             public static string MetadataColumn    = "Metadata" ;
             public static string OwnerColumn       = "Owner" ;
         }

@@ -5,162 +5,45 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.SqlClient;
-using DICOMcloud.Core.Extensions;
 using DICOMcloud.Dicom.DataAccess.Matching;
 using fo = Dicom;
 using DICOMcloud.Dicom.DataAccess.DB.Query;
 using DICOMcloud.Dicom.Data;
+using DICOMcloud.Dicom.DataAccess.DB.Schema;
 
 namespace DICOMcloud.Dicom.DataAccess.DB
 {
-    public class DicomSqlDataAdapter
+    public class DicomSqlDataAdapter : DicomDataAdapter
     {
-        public DicomSqlDataAdapter ( string connectionString ) : this ( connectionString, new ObjectArchieveQueryBuilder ( ), new ObjectArchieveStorageBuilder ( ) )
+        public DicomSqlDataAdapter ( string connectionString ) 
+        :  this ( connectionString, new DbSchemaProvider ( ) )
         { 
         }
 
-        public DicomSqlDataAdapter ( string connectionString, ObjectArchieveQueryBuilder queryBuilder, ObjectArchieveStorageBuilder storageBuilder )
+        public DicomSqlDataAdapter 
+        (   
+            string connectionString, 
+            DbSchemaProvider schemaProvider 
+        ) : base ( schemaProvider )
         { 
             ConnectionString = connectionString ;
-            QueryBuilder     = queryBuilder ;
-            StorageBuilder   = storageBuilder ;
         }
 
-        public IDbCommand CreateSelectCommand ( string sourceTable, IEnumerable<IMatchingCondition> conditions )
+        public override IDbConnection CreateConnection ( )
         {
-            QueryBuilder.BuildQuery ( conditions, sourceTable ) ;
-
-            string queryText = QueryBuilder.GetQueryText ( sourceTable ) ;
+            return new SqlConnection ( ConnectionString ) ;
+        }
         
-            var SelectCommand = CreateCommand ( ) ;
-
-            SelectCommand.CommandText = queryText ;
-            
-            SetConnectionIfNull ( SelectCommand ) ;
-        
-            return SelectCommand ;
-        }
-
-        public IDbCommand CreateInsertCommand ( IEnumerable<IDicomDataParameter> conditions )
-        {
-            IDbCommand insertCommand = CreateCommand ( ) ;
-
-            StorageBuilder.BuildInsert ( conditions, insertCommand ) ;
-
-            SetConnectionIfNull ( insertCommand ) ;
-            
-            return insertCommand ;
-        
-        }
-
-        public string[] GetCurrentQueryTables ( )
-        { 
-            return QueryBuilder.GetQueryResultTables ( ).ToArray ( ) ;
-        }
-
-        //TODO: thread safety??
-        //TODO: replace this with passing the proper "Database" provider
-        public virtual void CreateConnection()
-        {
-            if ( null == Connection )
-            { 
-                Connection = new System.Data.SqlClient.SqlConnection ( ) ;
-                Connection.ConnectionString = ConnectionString ;
-            }
-        }
-
-
-        public IDbCommand CreateUpdateMetadataCommand ( IObjectID objectId, InstanceMetadata data )
-        {
-            IDbCommand insertCommand = CreateCommand ( ) ;
-            var instance             = objectId ;
-            
-
-            insertCommand = CreateCommand ( ) ;
-
-            insertCommand.CommandText = string.Format ( @"
-UPDATE {0} SET {2}=@{2}, {3}=@{3} WHERE {1}=@{1}
-
-IF @@ROWCOUNT = 0
-   INSERT INTO {0} ({2}, {3}) VALUES (@{2}, @{3})
-", 
-DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName, 
-DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, 
-DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn,
-DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn ) ;
-
-             var sopParam  = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
-             var metaParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn, data.ToJson ( ) ) ;
-             var ownerParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn, data.Owner ) ;
-            
-            insertCommand.Parameters.Add ( sopParam ) ;
-            insertCommand.Parameters.Add ( metaParam ) ;
-            insertCommand.Parameters.Add ( ownerParam ) ;
-
-            SetConnectionIfNull ( insertCommand ) ;        
-            
-            return insertCommand ; 
-        }
-
-        public IDbCommand CreateGetMetadataCommand ( IObjectID instance )
-        {
-            IDbCommand command  = CreateCommand ( ) ;
-             var       sopParam = new System.Data.SqlClient.SqlParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
-            
-             
-             command.CommandText = string.Format ( "SELECT {0}, {1} FROM {2} WHERE {3}=@{3}", 
-                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.MetadataColumn,
-                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn,
-                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.TableName,
-                                                  DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn ) ;
-
-            command.Parameters.Add ( sopParam );
-
-            SetConnectionIfNull ( command ) ;
-            
-            return command ;
-        }
-
-        public IDbCommand CreateDeleteInstanceCommand ( string sopInstanceUID )
-        {
-            IDbCommand command  = CreateCommand ( ) ;
-
-            StorageBuilder.BuildDelete ( sopInstanceUID, command ) ;
-
-            SetConnectionIfNull ( command ) ;
-
-            return command ;
-        }
-
-        public IDbConnection Connection { get ; set ; }
-
         public string ConnectionString {  get; protected set ; }
 
-        protected virtual ObjectArchieveQueryBuilder   QueryBuilder {  get; set ;}
-        protected virtual ObjectArchieveStorageBuilder StorageBuilder { get; set; }
-
-        protected virtual IDbCommand CreateCommand ( )
+        protected override IDbCommand CreateCommand ( )
         { 
             return new System.Data.SqlClient.SqlCommand ( ) ;
         }
-
-        protected virtual System.Data.SqlClient.SqlConnection CreateNewConnection ()
+        
+        protected override IDbDataParameter CreateParameter ( string parameterName, object value )
         {
-            return new System.Data.SqlClient.SqlConnection ( ) ;
+            return new SqlParameter (  parameterName, value ) ;
         }
-
-        private void SetConnectionIfNull ( IDbCommand command )
-        {
-            if (command !=null && command.Connection == null)
-            {
-                if ( Connection == null )
-                {
-                    CreateConnection ( ) ;
-                }
-
-                command.Connection = Connection;
-            }
-        }
-
     }
 }
