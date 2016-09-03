@@ -3,7 +3,7 @@ using DICOMcloud.Wado.Models;
 
 namespace DICOMcloud.Wado.Core
 {
-    public interface IWadoRsSerivce
+    public interface IWadoRsService
     {
         HttpResponseMessage RetrieveBulkData(IWadoRsStudiesRequest request);
         HttpResponseMessage RetrieveFrames(IWadoRSFramesRequest request);

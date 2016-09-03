@@ -23,7 +23,7 @@ namespace DICOMcloud.Wado.Core
             RetrieveService = retrieveService ;
         }
 
-        public HttpResponseMessage GetInstance ( IWadoUriRequest request )
+        public virtual HttpResponseMessage GetInstance ( IWadoUriRequest request )
         {
             //validation code should go in here
             if (null == request || string.Compare(request.RequestType, "WADO", true ) != 0 )

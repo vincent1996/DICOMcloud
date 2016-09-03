@@ -12,13 +12,13 @@ using System.IO;
 
 namespace DICOMcloud.Wado.Core
 {
-    public class WadoRsSerivce : IWadoRsSerivce
+    public class WadoRsService : IWadoRsService
     {
         IObjectRetrieveDataService RetrieveService     { get; set;  }
         //IWadoRsMimeResponseCreator MimeResponseHandler { get; set;  }
         IWadoResponseService       ResponseService     { get; set;  }
 
-        public WadoRsSerivce ( IObjectRetrieveDataService retrieveService )
+        public WadoRsService ( IObjectRetrieveDataService retrieveService )
         {
             RetrieveService = retrieveService ;
         

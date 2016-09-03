@@ -52,7 +52,7 @@ namespace DICOMcloud.Wado
             container.RegisterType<IObjectRetrieveDataService, ObjectRetrieveDataService>();
 
             container.RegisterType<IStoreCommand, StoreCommand>();
-            container.RegisterType<IWadoRsSerivce, WadoRsSerivce>();
+            container.RegisterType<IWadoRsService, WadoRsService>();
             
             container.RegisterInstance<IDicomInstnaceStorageDataAccess>(dataAccess);
             container.RegisterInstance<IDicomStorageQueryDataAccess>(dataAccess);

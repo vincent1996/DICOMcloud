@@ -8,12 +8,11 @@ using DICOMcloud.Wado.Models;
 
 namespace DICOMcloud.Wado.Controllers
 {
-    //[Authorize]
     public class WadoRSController : ApiController
     {
-        IWadoRsSerivce WadoService { get; set;  }
+        IWadoRsService WadoService { get; set;  }
 
-        public WadoRSController ( IWadoRsSerivce wadoService )
+        public WadoRSController ( IWadoRsService wadoService )
         {
             WadoService = wadoService ;
         }

@@ -367,9 +367,6 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\UserProfile.cshtml" />
     <Content Include="Service References\Application Insights\ConnectedService.json" />
-    <None Include="Web.Test.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DICOMcloud.Core.Azure\DICOMcloud.Core.Azure.csproj">
