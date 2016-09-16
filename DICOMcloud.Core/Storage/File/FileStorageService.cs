@@ -43,6 +43,11 @@ namespace DICOMcloud.Core.Storage
 
         protected override IEnumerable<IStorageContainer> GetContainers ( string containerKey ) 
         {
+            if ( !Directory.Exists ( BaseStorePath ) )
+            {
+                yield return null ;
+            }
+
             foreach ( string folder in Directory.EnumerateDirectories ( BaseStorePath, containerKey, SearchOption.TopDirectoryOnly ))
             {
                 yield return GetContainer ( folder ) ;
@@ -52,6 +57,13 @@ namespace DICOMcloud.Core.Storage
         protected virtual string GetStoragePath ( string folderName )
         {
             return Path.Combine (BaseStorePath, folderName ) ; 
+        }
+
+        protected override bool ContainerExists ( string containerKey )
+        {
+            LocalStorageContainer storage = new LocalStorageContainer ( GetStoragePath ( containerKey ) ) ;
+
+            return Directory.Exists ( storage.FolderPath ) ;
         }
 
         public string BaseStorePath { get; set; }

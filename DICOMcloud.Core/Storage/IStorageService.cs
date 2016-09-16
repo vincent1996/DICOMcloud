@@ -22,5 +22,6 @@ namespace DICOMcloud.Core.Storage
         Stream Read                      ( IMediaId key ) ;
         IStorageLocation GetLocation     ( IMediaId key ) ;
         IEnumerable<IStorageLocation> EnumerateLocation ( IMediaId key ) ;
+        bool                          Exists ( IMediaId key ) ;
     }
 }

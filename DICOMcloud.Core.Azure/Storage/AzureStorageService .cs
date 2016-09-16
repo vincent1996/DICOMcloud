@@ -83,5 +83,12 @@ namespace DICOMcloud.Core.Azure.Storage
         {
             return new AzureKeyProvider ( ) ;
         }
+
+        protected override bool ContainerExists ( string containerKey )
+        {
+            CloudBlobContainer cloudContainer = __CloudClient.GetContainerReference ( containerKey ) ;
+
+            return cloudContainer.Exists ( ) ;
+        }
     }
 }

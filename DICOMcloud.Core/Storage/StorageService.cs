@@ -57,7 +57,24 @@ namespace DICOMcloud.Core.Storage
 
         }
 
-        //public abstract IStorageLocation GetTempLocation ( ) ;
+        public bool Exists ( IMediaId id )
+        {
+            string key           = KeyProvider.GetStorageKey ( id ) ;
+            string containerName = KeyProvider.GetContainerName ( key) ;
+            IStorageContainer container ;
+
+
+            if ( ContainerExists ( containerName ) )
+            {
+                container = GetContainer ( containerName ) ;
+
+                return container.LocationExists ( KeyProvider.GetLocationName ( key ) ) ;
+            }
+
+            return false ;
+        }
+
+
 
         protected virtual IKeyProvider KeyProvider 
         { 
@@ -70,7 +87,7 @@ namespace DICOMcloud.Core.Storage
         protected abstract IKeyProvider                   CreateKeyProvider ( ) ;
         protected abstract IStorageContainer              GetContainer      ( string containerKey ) ;
         protected abstract IEnumerable<IStorageContainer> GetContainers     ( string containerKey ) ;
-        
+        protected abstract bool                           ContainerExists   ( string containerName );        
         private IKeyProvider GetKeyProvider ( ) 
         {
             if ( null != _keyProvider )

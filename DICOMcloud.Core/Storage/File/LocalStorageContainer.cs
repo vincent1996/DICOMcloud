@@ -87,5 +87,10 @@ namespace DICOMcloud.Core.Storage
                 }
             }
         }
+
+        public bool LocationExists ( string name )
+        {
+            return File.Exists ( Path.Combine ( FolderPath, name) ) ;
+        }
     }
 }

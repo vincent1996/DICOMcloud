@@ -50,5 +50,12 @@ namespace DICOMcloud.Core.Azure.Storage
                 yield return new AzureLocation(blob);
             }
         }
+
+        public bool LocationExists ( string key )
+        {
+            var blob = __Container.GetBlockBlobReference ( key ) ;
+
+            return blob.Exists ( ) ;
+        }
     }
 }
