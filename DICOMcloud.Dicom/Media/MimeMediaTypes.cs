@@ -13,12 +13,21 @@ namespace DICOMcloud.Dicom.Media
 
         public const string DICOM = "application/dicom";
         public const string xmlDicom = "application/dicom+xml" ;
+        public const string Json = "application/dicom+json"; //TODO: this is now updated to DICOM 2016, no more application/json
+        public const string UncompressedData = "application/octet-stream" ; //uncompressed bulk data
         public const string Jpeg  = "image/jpeg";
         public const string WebP  = "image/webp";
-        public const string Json = "application/json";
-        public const string UncompressedData = "application/octec-stream" ;
+        
         public const string PlainText = "text/plain" ;
         public const string MultipartRelated = "multipart/related" ;
+        
+        public const string Rle = "image/x-dicom-rle";
+        public const string Jls = "image/x-jls" ;
+        public const string Jp2 = "image/jp2" ;
+        public const string Jpx = "image/jpx" ;
+
+        public const string Mpeg2 = "video/mpeg2" ;
+        public const string Mp4   = "video/mp4" ;
     }
 
     public class MimeMediaType

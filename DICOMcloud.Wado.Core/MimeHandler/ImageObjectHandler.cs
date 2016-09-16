@@ -33,7 +33,7 @@ namespace DICOMcloud.Wado.Core
       //TODO: I should be able to replace this with the media readers now
         protected override WadoResponse DoProcess(IWadoUriRequest request, string mimeType)
         {
-            var dcmLocation = MediaStorage.GetLocation ( new DicomMediaId ( request, MimeMediaTypes.DICOM) ) ;
+            var dcmLocation = MediaStorage.GetLocation ( new DicomMediaId ( request, MimeMediaTypes.DICOM, (request.ImageRequestInfo != null ) ? request.ImageRequestInfo.TransferSyntax : "") ) ;
             //var dcmLocation = RetrieveService.RetrieveSopInstances ( request, mimeType ).FirstOrDefault();
 
 

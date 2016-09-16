@@ -102,6 +102,7 @@
     <Compile Include="MimeHandler\TextObjectHandler.cs" />
     <Compile Include="Services\WebObjectStoreService.cs" />
     <Compile Include="Types\DefaultDicomQueryElements.cs" />
+    <Compile Include="Types\DefaultMediaTransferSyntax.cs" />
     <Compile Include="Types\IWadoResponseService.cs" />
     <Compile Include="Types\WadoRequestHeader.cs" />
     <Compile Include="Types\IWadoService.cs" />

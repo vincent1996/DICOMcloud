@@ -76,12 +76,14 @@
     </Compile>
     <Compile Include="Media\Factories\DicomMediaReaderFactory.cs" />
     <Compile Include="Media\Factories\IDicomMediaReaderFactory.cs" />
+    <Compile Include="Media\DicomMediaProperties.cs" />
     <Compile Include="Media\Readers\BulkDataMediaReader.cs" />
     <Compile Include="Media\Readers\DicomMediaReaderBase.cs" />
     <Compile Include="Media\Readers\IDicomMediaReader.cs" />
     <Compile Include="Media\MimeMediaTypes.cs" />
     <Compile Include="Media\DicomMediaId.cs" />
     <Compile Include="Media\Writers\DicomMediaWriter.cs" />
+    <Compile Include="Media\Writers\DicomMediaWriterParameters.cs" />
     <Compile Include="Media\Writers\JpegMediaWriter.cs" />
     <Compile Include="Media\Writers\XmlMediaWriter.cs" />
     <Compile Include="TraceLogger.cs" />

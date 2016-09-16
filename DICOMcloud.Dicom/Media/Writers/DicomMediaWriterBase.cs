@@ -27,28 +27,29 @@ namespace DICOMcloud.Dicom.Media
             get ;
         }
 
-        public IList<IStorageLocation> CreateMedia(fo.DicomDataset data)
+        public IList<IStorageLocation> CreateMedia(DicomMediaWriterParameters mediaParameters )
         {
             if (null != MediaStorage)
             {
-                string                 key          = null;
-                int                    framesCount  = 1;
-                List<IStorageLocation> locations    = new List<IStorageLocation> ( ) ;
+                int                    framesCount    = 1;
+                List<IStorageLocation> locations      = new List<IStorageLocation> ( ) ;
+                var                    dataset        = GetMediaDataset ( mediaParameters.Dataset, mediaParameters.MediaInfo ) ;
+                string                 transferSyntax = ( !string.IsNullOrWhiteSpace (mediaParameters.MediaInfo.TransferSyntax ) ) ? ( mediaParameters.MediaInfo.TransferSyntax ) : "" ;
 
                 if ( StoreMultiFrames )
                 {
                     DicomPixelData pd ;
 
 
-                    pd          = DicomPixelData.Create ( data ) ;
+                    pd          = DicomPixelData.Create ( mediaParameters.Dataset ) ;
                     framesCount = pd.NumberOfFrames ;
                 }
                 
                 for ( int frame = 1; frame <= framesCount; frame++ )
                 {
-                    var storeLocation = MediaStorage.GetLocation(new DicomMediaId ( data, frame, MediaType));
+                    var storeLocation = MediaStorage.GetLocation ( new DicomMediaId ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
 
-                    Upload ( data, frame, storeLocation ) ;
+                    Upload ( mediaParameters.Dataset, frame, storeLocation ) ;
                 
                     locations.Add ( storeLocation ) ;
                 }
@@ -57,6 +58,11 @@ namespace DICOMcloud.Dicom.Media
             }
 
             throw new InvalidOperationException ( "No MediaStorage service found") ;
+        }
+
+        protected virtual fo.DicomDataset GetMediaDataset ( fo.DicomDataset data, DicomMediaProperties mediaInfo )
+        {
+            return data ;
         }
 
         protected abstract bool StoreMultiFrames { get; }

@@ -2,6 +2,6 @@
 {
     public interface IDicomMediaWriterFactory
     {
-        IDicomMediaWriter GetMediaWriter(string mimeType);
+        IDicomMediaWriter GetMediaWriter( string mediaType );
     }
 }

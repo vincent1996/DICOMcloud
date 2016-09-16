@@ -26,7 +26,7 @@ namespace DICOMcloud.Wado.Core
         {
             //base class that has the logic to get the DICOM file
 
-            Location = MediaStorage.GetLocation ( new DicomMediaId (request, mimeType) ) ;
+            Location = MediaStorage.GetLocation ( new DicomMediaId (request, mimeType, (request.ImageRequestInfo != null ) ? request.ImageRequestInfo.TransferSyntax : "" ) ) ;
          
             if ( Location.Exists ( ) )
             {

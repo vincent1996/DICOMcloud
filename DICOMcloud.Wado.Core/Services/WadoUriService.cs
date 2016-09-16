@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net;
 using DICOMcloud.Pacs;
+using fo = Dicom;
+using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Wado.Core
 {
@@ -32,11 +34,35 @@ namespace DICOMcloud.Wado.Core
             }
 
             List<MediaTypeHeaderValue> mimeType = GetRequestedMimeType ( request );
+            string     transferSyntax = "" ;
 
+
+            if ( null != request.ImageRequestInfo && null != request.ImageRequestInfo.TransferSyntax )
+            {
+                transferSyntax = request.ImageRequestInfo.TransferSyntax  ;
+            }
 
             foreach (MediaTypeHeaderValue mediaType in mimeType)
             {
-                var dcmLocation = RetrieveService.RetrieveSopInstance ( request, mediaType.MediaType ) ;
+                string  currentTransfer ;
+                IStorageLocation dcmLocation;
+
+
+                if ( null == transferSyntax ) 
+                {
+                    currentTransfer = transferSyntax ;
+                }
+                else
+                {
+                    string transferString ;
+                    DefaultMediaTransferSyntax.Instance.TryGetValue ( mediaType.MediaType, out transferString ) ;
+
+
+                    currentTransfer = !string.IsNullOrWhiteSpace (transferString ) ? transferString : "" ;
+                }
+
+                dcmLocation = RetrieveService.RetrieveSopInstance ( request,  
+                                                                    new Dicom.Media.DicomMediaProperties ( mediaType.MediaType,  currentTransfer ) ) ;
 
 
                 if ( null != dcmLocation && dcmLocation.Exists ( ) )
@@ -53,13 +79,13 @@ namespace DICOMcloud.Wado.Core
 
                     return msg;
                 }
-                
-                return new HttpResponseMessage ( HttpStatusCode.NotFound ) ;
             }
 
-            return null;
+            return new HttpResponseMessage ( HttpStatusCode.NotFound ) ;
         }
 
+        //TODO: there is more into this now in part 18 2016 version, reference section 6.1.1.5 and 6.1.1.6
+        //exact method to tp determine "SelectedMediaType" is detailed in 6.1.1.7
         protected virtual List<MediaTypeHeaderValue> GetRequestedMimeType(IWadoUriRequest request)
         {
             List<MediaTypeHeaderValue> acceptTypes = new List<MediaTypeHeaderValue>();
@@ -67,24 +93,24 @@ namespace DICOMcloud.Wado.Core
 
             if (!string.IsNullOrEmpty(request.ContentType))
             {
-            string[] mimeTypes = request.ContentType.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] mimeTypes = request.ContentType.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (string mime in mimeTypes)
-            {
-                MediaTypeWithQualityHeaderValue mediaType;
-
-                if (MediaTypeWithQualityHeaderValue.TryParse(mime, out mediaType))
+                foreach (string mime in mimeTypes)
                 {
-                    if (acceptAll || request.AcceptHeader.Contains(mediaType, new MediaTypeHeaderComparer()))
+                    MediaTypeWithQualityHeaderValue mediaType;
+
+                    if (MediaTypeWithQualityHeaderValue.TryParse(mime, out mediaType))
                     {
-                        acceptTypes.Add(mediaType);
+                        if (acceptAll || request.AcceptHeader.Contains(mediaType, new MediaTypeHeaderComparer()))
+                        {
+                            acceptTypes.Add(mediaType);
+                        }
+                    }
+                    else
+                    { 
+                        //TODO: throw excpetion?
                     }
                 }
-                else
-                { 
-                    //TODO: throw excpetion?
-                }
-            }
             }
 
             return acceptTypes;

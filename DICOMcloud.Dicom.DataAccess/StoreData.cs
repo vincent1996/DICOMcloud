@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DICOMcloud.Dicom.Data;
+using DICOMcloud.Dicom.Media;
 
 namespace DICOMcloud.Dicom.DataAccess
 {
@@ -37,6 +38,11 @@ namespace DICOMcloud.Dicom.DataAccess
         public string MediaType
         {
             get; set;
+        }
+
+        public string TransferSyntax
+        {
+            get ; set ;
         }
 
         public List<MediaLocationParts> Locations

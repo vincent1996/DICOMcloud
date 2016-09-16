@@ -33,16 +33,26 @@ namespace DICOMcloud.Dicom.Media
             }
         }
 
+
+        protected override fo.DicomDataset GetMediaDataset ( fo.DicomDataset data, DicomMediaProperties mediaInfo )
+        {
+            //TODO: this is still not working with fo-dicom 
+            //when images are not compatible from one Transfer to the other
+            if ( !string.IsNullOrWhiteSpace ( mediaInfo.TransferSyntax ) )
+            {
+                return data.ChangeTransferSyntax ( fo.DicomTransferSyntax.Parse ( mediaInfo.TransferSyntax ) ) ;
+            }
+            else if (data.InternalTransferSyntax != fo.DicomTransferSyntax.JPEGProcess1)
+            {
+                return data.ChangeTransferSyntax ( fo.DicomTransferSyntax.JPEGProcess1 ) ;
+            }
+
+            return base.GetMediaDataset ( data, mediaInfo ) ;
+        }
+
         protected override void Upload ( fo.DicomDataset dicomObject, int frame, IStorageLocation storeLocation )
         {
             var frameIndex = frame - 1 ;
-            
-            //TODO: this is still not working with fo-dicom 
-            //when images are not compatible from one Transfer to the other
-            if (dicomObject.InternalTransferSyntax != fo.DicomTransferSyntax.JPEGProcess1)
-            {
-                dicomObject = dicomObject.ChangeTransferSyntax ( fo.DicomTransferSyntax.JPEGProcess1 ) ;
-            }
             
             DicomPixelData pd = DicomPixelData.Create(dicomObject) ;
 

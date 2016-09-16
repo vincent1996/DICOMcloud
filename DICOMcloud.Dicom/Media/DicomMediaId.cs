@@ -10,9 +10,10 @@ namespace DICOMcloud.Dicom.Media
     //types in the constructor (e.g. json, XML...)
     public class DicomMediaId : IMediaId
     {
-        public virtual string MediaType { get; set ; }
-        public virtual IObjectID DicomObject { get; set; }
-        
+        public virtual string    MediaType      { get; set ; }
+        public virtual IObjectID DicomObject    { get; set; }
+        public virtual string    TransferSyntax { get; set ; }
+                
         public DicomMediaId ( ) {}
 
         public DicomMediaId ( string [] parts ) 
@@ -23,41 +24,88 @@ namespace DICOMcloud.Dicom.Media
             DicomObject = new ObjectID ( ) { StudyInstanceUID = parts[1], SeriesInstanceUID = parts[2], SOPInstanceUID = parts[3], Frame = int.Parse(parts[4]) };
         }
 
-        public DicomMediaId ( fo.DicomDataset dataset, string mediaType ) : this (dataset, 0, mediaType )
-        {}
+        //public DicomMediaId 
+        //( 
+        //    fo.DicomDataset dataset, 
+        //    string mediaType 
+        //) 
+        //: this (dataset, 0, mediaType )
+        //{}
 
-        public DicomMediaId ( fo.DicomDataset dataset, int frame, string mediaType )
+        public DicomMediaId 
+        ( 
+            fo.DicomDataset dataset, 
+            int frame, 
+            string mediaType,
+            string transferSyntax
+        )
         {
-            DicomObject       = new ObjectID ( ) {
+            var dicomObject   = new ObjectID ( ) {
             StudyInstanceUID  = dataset.Get<string> ( fo.DicomTag.StudyInstanceUID, 0, "" ),
             SeriesInstanceUID = dataset.Get<string> ( fo.DicomTag.SeriesInstanceUID, 0,""), 
             SOPInstanceUID    = dataset.Get<string> ( fo.DicomTag.SOPInstanceUID, 0, ""),
             Frame             = frame } ;
             
-            MediaType = mediaType ;
+            Init ( dicomObject, mediaType, transferSyntax ) ;
         }
 
-        public DicomMediaId ( IStudyID studyId, string mediaType ) : this ( new ObjectID ( ) { StudyInstanceUID = studyId.StudyInstanceUID }, mediaType  )
-        {}
+        public DicomMediaId ( IObjectID objectId, DicomMediaProperties mediaInfo )
+        : this ( objectId, mediaInfo.MediaType, GetTransferSyntax ( mediaInfo.TransferSyntax ) )
+        {
+        }
 
-        public DicomMediaId ( ISeriesID seriesId, string mediaType ) : this ( new ObjectID ( ) { StudyInstanceUID = seriesId.StudyInstanceUID,
-                                                                                                 SeriesInstanceUID = seriesId.SeriesInstanceUID }, 
-                                                                              mediaType  )
-        {}
-        
-        public DicomMediaId ( IObjectID objectId, string mediaType )
+        public DicomMediaId ( IObjectID objectId, string mediaType, string transferSyntax )
+        {
+            Init ( objectId, mediaType, transferSyntax );
+        }
+
+        private void Init  ( IObjectID objectId, string mediaType, string transferSyntax )
         {
             DicomObject = objectId ;
             MediaType   = mediaType ;
+
+            TransferSyntax = transferSyntax?? "" ;
         }
 
-        public string[] GetIdParts()
+        //public DicomMediaId ( IStudyID studyId, string mediaType ) 
+        //: this 
+        //( 
+        //    new ObjectID ( ) 
+        //    { 
+        //        StudyInstanceUID = studyId.StudyInstanceUID 
+        //    }, 
+        //    mediaType
+        //)
+        //{}
+
+        //public DicomMediaId ( ISeriesID seriesId, string mediaType ) 
+        //: this 
+        //( 
+        //    new ObjectID ( ) 
+        //    { 
+        //        StudyInstanceUID = seriesId.StudyInstanceUID,
+        //        SeriesInstanceUID = seriesId.SeriesInstanceUID }, 
+        //        mediaType  
+        //    )
+        //{}
+
+        private static string GetTransferSyntax ( string transferSyntax )
+        {
+            return (!string.IsNullOrWhiteSpace ( transferSyntax ) ) ? transferSyntax : "" ;
+        }
+
+        public string[] GetIdParts ( )
         {
             //TODO: sanitize all parts..... on storage NOT here!
             List<string> parts = new List<string> ( )  ;
+            string mediaType = MediaType.Replace ("/", "-").Replace ( "+", "" ) ;
 
+            if ( !string.IsNullOrWhiteSpace(TransferSyntax) )
+            {
+                mediaType += ";" + TransferSyntax ;
+            }
 
-            parts.Add ( MediaType.Replace ("/", "-").Replace ( "+", "" ) ) ;
+            parts.Add ( mediaType ) ;
 
             if( string.IsNullOrWhiteSpace ( DicomObject.StudyInstanceUID ) )
             {
@@ -90,7 +138,6 @@ namespace DICOMcloud.Dicom.Media
             }
 
             return parts.ToArray ( ) ;
-            
         }
         
         private const string FIRST_FRAME_NUMER = "1" ;

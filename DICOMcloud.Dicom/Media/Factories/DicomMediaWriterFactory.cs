@@ -4,39 +4,51 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Dicom.Media
 {
     public class DicomMediaWriterFactory : IDicomMediaWriterFactory
     {
         protected Func<string, IDicomMediaWriter> MediaFactory { get; private set; }
+        protected IMediaStorageService StorageService { get; private set ; }
 
-        public DicomMediaWriterFactory ( ) 
+
+        public DicomMediaWriterFactory ( IMediaStorageService storageService ) 
         {
-            Init ( CreateDefualtWriters ) ;
+            Init ( CreateDefualtWriters, storageService ) ;
         }
 
-        public DicomMediaWriterFactory ( Func<string, IDicomMediaWriter> mediaFactory ) 
+        public DicomMediaWriterFactory 
+        ( 
+            Func<string, IDicomMediaWriter> mediaFactory, 
+            IMediaStorageService storageService 
+        ) 
         {
-            Init ( mediaFactory ) ;
+            Init ( mediaFactory, storageService ) ;
         }
 
-        private void Init ( Func<string, IDicomMediaWriter> mediaFactory )
+        private void Init 
+        ( 
+            Func<string, IDicomMediaWriter> mediaFactory, 
+            IMediaStorageService storageService 
+        )
         {
-            MediaFactory = mediaFactory ;
+            MediaFactory   = mediaFactory ;
+            StorageService = storageService ;
         }
 
-        public virtual IDicomMediaWriter GetMediaWriter ( string mimeType )
+        public virtual IDicomMediaWriter GetMediaWriter ( string mediaType )
         {
             try
             {
                 IDicomMediaWriter writer = null ;
             
-                writer = MediaFactory ( mimeType ) ;
+                writer = MediaFactory ( mediaType ) ;
             
                 if ( null == writer )
                 {
-                    Trace.TraceInformation ( "Requested media writer not registered: " + mimeType ) ;
+                    Trace.TraceInformation ( "Requested media writer not registered: " + mediaType ) ;
                 }
                 
                 return writer ;
@@ -51,7 +63,7 @@ namespace DICOMcloud.Dicom.Media
         {
             if ( mimeType == MimeMediaTypes.DICOM )
             {
-                return new NativeMediaWriter ( ) ;
+                return new NativeMediaWriter ( StorageService ) ;
             }
 
             return null ;

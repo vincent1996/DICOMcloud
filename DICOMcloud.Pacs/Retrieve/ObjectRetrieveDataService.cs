@@ -14,14 +14,14 @@ namespace DICOMcloud.Pacs
             __Storage = mediaStorage ;
         }
         
-        public IStorageLocation RetrieveSopInstance ( IObjectID query, string mimeType = null ) 
+        public IStorageLocation RetrieveSopInstance ( IObjectID query, DicomMediaProperties mediaInfo ) 
         {
-            return __Storage.GetLocation ( new DicomMediaId ( query, mimeType )) ;
+            return __Storage.GetLocation ( new DicomMediaId ( query, mediaInfo )) ;
         }
         
-        public IEnumerable<IStorageLocation> RetrieveSopInstances ( IObjectID query, string mimeType = null ) 
+        public IEnumerable<IStorageLocation> RetrieveSopInstances ( IObjectID query, DicomMediaProperties mediaInfo ) 
         {
-            return __Storage.EnumerateLocation ( new DicomMediaId ( query, mimeType )) ;
+            return __Storage.EnumerateLocation ( new DicomMediaId ( query, mediaInfo )) ;
         }
     }
 }

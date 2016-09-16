@@ -12,6 +12,8 @@ using System.Diagnostics;
 using DICOMcloud.Core.Messaging;
 using DICOMcloud.Dicom.Data.Services;
 using DICOMcloud.Dicom.Data;
+using Dicom.Imaging.Codec ;
+
 
 namespace DICOMcloud.Pacs.Commands
 {
@@ -51,46 +53,59 @@ namespace DICOMcloud.Pacs.Commands
         )
         {
             List<DicomMediaLocations> mediaLocations = new List<DicomMediaLocations> ( ) ;
+            fo.DicomDataset storageDataset = dicomObject.ChangeTransferSyntax ( fo.DicomTransferSyntax.ExplicitVRLittleEndian ) ;
 
 
-            foreach ( string mediaType in Settings.MediaTypes )
+            foreach ( var mediaType in Settings.MediaTypes )
             {
-                DicomMediaLocations mediaLocation ;
-                IDicomMediaWriter   writer ;
+                CreateMedia ( mediaLocations, storageDataset, mediaType ) ;
+            }
 
+            var mediaInfo = Settings.MediaTypes.Where ( n=>n.MediaType == MimeMediaTypes.DICOM && 
+                                                        n.TransferSyntax == dicomObject.InternalTransferSyntax.UID.UID ).FirstOrDefault ( ) ;
 
-                mediaLocation = new DicomMediaLocations ( ) { MediaType = mediaType } ;
-                writer        = MediaFactory.GetMediaWriter ( mediaType ) ;
-
-                if ( null != writer )
-                {
-                    try
-                    {
-                        IList<IStorageLocation> createdMedia = writer.CreateMedia ( dicomObject ) ;
-                        
-                        
-                        mediaLocation.Locations = createdMedia.Select ( media => new MediaLocationParts { Parts = media.MediaId.GetIdParts ( ) } ).ToList ( ) ;
-                    
-                        mediaLocations.Add ( mediaLocation ) ;    
-                    }
-                    catch ( Exception ex )
-                    {
-                        Trace.TraceError ( "Error creating media: " + ex.ToString ( ) ) ;
-
-                        throw ;
-                    }
-                }
-                else
-                {
-                    //TODO: log something
-                    Trace.TraceWarning ( "Media writer not found for mediaType: " + mediaType ) ;
-                }
+            if ( mediaInfo == null )
+            {
+                CreateMedia ( mediaLocations, dicomObject, new DicomMediaProperties ( MimeMediaTypes.DICOM, dicomObject.InternalTransferSyntax.UID.UID ) ) ;
             }
 
             return mediaLocations.ToArray ( ) ;
         }
 
+        private void CreateMedia ( List<DicomMediaLocations> mediaLocations, fo.DicomDataset storageDataset, DicomMediaProperties mediaInfo )
+        {
+            DicomMediaLocations mediaLocation;
+            IDicomMediaWriter   writer;
+            string transferSytax  = (!string.IsNullOrWhiteSpace (mediaInfo.TransferSyntax ) ) ? mediaInfo.TransferSyntax : "" ;
 
+            mediaLocation = new DicomMediaLocations ( ) { MediaType = mediaInfo.MediaType, TransferSyntax = transferSytax };
+            writer = MediaFactory.GetMediaWriter ( mediaInfo.MediaType );
+
+            if ( null != writer )
+            {
+                try
+                {
+                    IList<IStorageLocation> createdMedia = writer.CreateMedia ( new DicomMediaWriterParameters ( ) { Dataset = storageDataset, 
+                                                                                                                     MediaInfo = mediaInfo } );
+
+
+                    mediaLocation.Locations = createdMedia.Select ( media => new MediaLocationParts { Parts = media.MediaId.GetIdParts ( ) } ).ToList ( );
+
+                    mediaLocations.Add ( mediaLocation );
+                }
+                catch ( Exception ex )
+                {
+                    Trace.TraceError ( "Error creating media: " + ex.ToString ( ) );
+
+                    throw;
+                }
+            }
+            else
+            {
+                //TODO: log something
+                Trace.TraceWarning ( "Media writer not found for mediaType: " + mediaInfo );
+            }
+        }
 
         protected virtual void StoreQueryModel
         (
@@ -115,15 +130,16 @@ namespace DICOMcloud.Pacs.Commands
     {
         public StorageSettings ( ) 
         {
-            MediaTypes = new List<string> ( ) ;
+            MediaTypes = new List<DicomMediaProperties> ( ) ;
         
-            MediaTypes.Add ( MimeMediaTypes.DICOM ) ;
-            MediaTypes.Add ( MimeMediaTypes.Json ) ;
-            MediaTypes.Add ( MimeMediaTypes.UncompressedData ) ;
-            MediaTypes.Add ( MimeMediaTypes.xmlDicom ) ;
-            //MediaTypes.Add ( MimeMediaTypes.Jpeg ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.ExplicitVRLittleEndian.UID.UID ) ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Json ) ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.UncompressedData, fo.DicomTransferSyntax.ExplicitVRLittleEndian.UID.UID ) ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.xmlDicom ) ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Jpeg, fo.DicomTransferSyntax.JPEGProcess14SV1.UID.UID ) ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Jpeg, fo.DicomTransferSyntax.JPEGProcess1.UID.UID ) ) ;
         }
 
-        public IList<string> MediaTypes ;
+        public IList<DicomMediaProperties> MediaTypes ;
     }
 }

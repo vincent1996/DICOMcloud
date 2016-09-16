@@ -5,6 +5,7 @@ using DICOMcloud.Core.Azure.Storage;
 using DICOMcloud.Core.Storage;
 using DICOMcloud.Dicom.Data.Services;
 using DICOMcloud.Dicom.DataAccess;
+using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using DICOMcloud.Pacs;
 using DICOMcloud.Pacs.Commands;
 using DICOMcloud.Wado.Core;
@@ -47,6 +48,8 @@ namespace DICOMcloud.Wado
 
             GlobalConfiguration.Configuration.DependencyResolver = new UnityDependencyResolver(container);
             
+            container.RegisterType<DbSchemaProvider> ( new InjectionConstructor() ) ; //default constructor
+
             container.RegisterType<IObjectArchieveQueryService, ObjectArchieveQueryService>();
             container.RegisterType<IObjectStoreService, ObjectStoreService>();
             container.RegisterType<IObjectRetrieveDataService, ObjectRetrieveDataService>();

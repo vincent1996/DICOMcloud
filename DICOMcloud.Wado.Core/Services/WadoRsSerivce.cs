@@ -8,6 +8,7 @@ using DICOMcloud.Dicom.Media;
 using System.Net.Http.Headers;
 using DICOMcloud.Core.Storage;
 using DICOMcloud.Dicom.Data;
+using fo = Dicom ;
 using System.IO;
 
 namespace DICOMcloud.Wado.Core
@@ -178,15 +179,21 @@ namespace DICOMcloud.Wado.Core
             //}
 
             //return json metadata by default
-            if ( null == mimeType )
+            if ( null == mimeType ) //json is default, only need to check other formats... XML//|| 
             { 
-                mimeType = ProcessJsonRequest ( objectID, responses ) ;
+                mediaType = header.AcceptHeader.Where ( n=>n.MediaType == MimeMediaTypes.Json ).FirstOrDefault ( ) ;
+                mimeType = ProcessJsonRequest ( objectID, responses, mediaType ) ;
             }
             
             return responses ;
         }
 
-        private MimeMediaType ProcessJsonRequest ( IObjectID objectID, List<IWadoRsResponse> responses)
+        private MimeMediaType ProcessJsonRequest 
+        ( 
+            IObjectID objectID, 
+            List<IWadoRsResponse> responses, 
+            MediaTypeWithQualityHeaderValue mediaType
+        )
         {
             //IDicomConverter<string> jsonConverter = CreateDicomConverter<string> (MimeMediaTypes.Json) ;
             IWadoRsResponse response = new WadoResponse ( ) ;
@@ -194,28 +201,42 @@ namespace DICOMcloud.Wado.Core
             StringBuilder jsonArray = new StringBuilder ( ) ;
             bool exists = false ;
             
-            foreach ( IStorageLocation storage in GetLocations (objectID, MimeMediaTypes.Json) )
-            {
-                exists = true ;
 
-                using (var memoryStream = new MemoryStream())
+            IEnumerable<NameValueHeaderValue> transferSyntaxHeader = null ;
+            List<string> transferSyntaxes = new List<string> ( ) ;
+            var defaultTransfer = "" ;
+            
+            if ( null != mediaType )
+            {
+                transferSyntaxHeader = mediaType.Parameters.Where (n=>n.Name == "transfer-syntax") ;
+            }
+
+            if ( null == transferSyntaxHeader || 0 == transferSyntaxHeader.Count ( ) )
+            {
+                transferSyntaxes.Add ( defaultTransfer ) ;
+            }
+            else
+            {
+                transferSyntaxes.AddRange ( transferSyntaxHeader.Select ( n=>n.Value ) ) ;
+            }
+
+            foreach ( var transfer in transferSyntaxes )
+            {
+                foreach ( IStorageLocation storage in GetLocations (objectID, new DicomMediaProperties ( MimeMediaTypes.Json, transfer == "*" ? defaultTransfer : transfer ) ) )
                 {
-                    storage.Download ( memoryStream ) ;
-                    jsonArray.Append ( System.Text.Encoding.UTF8.GetString(memoryStream.ToArray ( ) ) ) ;
-                    jsonArray.Append (",") ;
+                    exists = true ;
+
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        storage.Download ( memoryStream ) ;
+                        jsonArray.Append ( System.Text.Encoding.UTF8.GetString(memoryStream.ToArray ( ) ) ) ;
+                        jsonArray.Append (",") ;
+                    }
                 }
             }
 
             fullJsonResponse.Append(jsonArray.ToString().TrimEnd(','));
             fullJsonResponse.Append ("]") ;
-
-            //TEST CODE
-            //dynamic jsonObj = fullJsonResponse.ToString().FromJson ( ) ;
-
-            //var fff = jsonObj[0];
-
-            //var attrib = fff["00080008"];
-            //TEST CODE
 
             if ( exists ) 
             {
@@ -228,6 +249,12 @@ namespace DICOMcloud.Wado.Core
             return MimeMediaTypes.Json ;
         }
 
+
+        /// <Examples>
+        /// Accept: multipart/related; type="image/jpx"; transfer-syntax=1.2.840.10008.1.2.4.92,
+        /// Accept: multipart/related; type="image/jpx"; transfer-syntax=1.2.840.10008.1.2.4.93
+        /// Accept: multipart/related; type="image/jpeg"
+        /// </Examples>
         private string ProcessMultipartRequest
         (
             IObjectID objectID,
@@ -235,36 +262,62 @@ namespace DICOMcloud.Wado.Core
             MediaTypeWithQualityHeaderValue mediaType
         )
         {
-            var mediaTypeHeader =  mediaType.Parameters.Where (n=>n.Name == "type").FirstOrDefault() ;
-                
+            var mediaTypeHeader             = mediaType.Parameters.Where (n=>n.Name == "type").FirstOrDefault() ;
+            var transferSyntaxHeader        = mediaType.Parameters.Where (n=>n.Name == "transfer-syntax") ;
             MimeMediaType requestedMimeType = (mediaTypeHeader != null) ? mediaTypeHeader.Value.Trim('"') : MimeMediaTypes.UncompressedData ;
+            List<string> transferSyntaxes   = new List<string> ( ) ;
+            string        defaultTransfer ;
+            
 
-                
-            foreach ( IStorageLocation location in GetLocations ( objectID, requestedMimeType) )
+            DefaultMediaTransferSyntax.Instance.TryGetValue ( requestedMimeType, out defaultTransfer ) ;
+
+            if ( 0 == transferSyntaxHeader.Count ( ) )
             {
-                IWadoRsResponse response = new WadoResponse (location, requestedMimeType) ;
+                transferSyntaxes.Add ( defaultTransfer ) ;
+            }
+            else
+            {
+                transferSyntaxes.AddRange ( transferSyntaxHeader.Select ( n=>n.Value ) ) ;
+            }
+
+            foreach ( var transfer in transferSyntaxes )
+            {
+                foreach ( IStorageLocation location in GetLocations ( objectID, new DicomMediaProperties ( requestedMimeType, (transfer == "*") ? defaultTransfer : transfer) ) )
+                {
+                    IWadoRsResponse response = new WadoResponse (location, requestedMimeType) { TransferSyntax = transfer } ;
                     
 
-                responses.Add (response) ;
+                    responses.Add ( response ) ;
+                }
+
+                if ( responses.Count > 0 )
+                {
+                    break ;//transfer found
+                }
+            }
+
+            if ( responses.Count == 0 ) //TODO: generate on the fly!
+            {
+                
             }
             
             return requestedMimeType ;
         }
 
-        protected virtual IEnumerable<IStorageLocation> GetLocations ( IObjectID request, string mediaType )
+        protected virtual IEnumerable<IStorageLocation> GetLocations ( IObjectID request, DicomMediaProperties mediaInfo )
         {
             if ( null != request.Frame )
             {
                 List<IStorageLocation> result = new List<IStorageLocation> ( ) ;
 
                 
-                result.Add ( RetrieveService.RetrieveSopInstance ( request, mediaType ) ) ;
+                result.Add ( RetrieveService.RetrieveSopInstance ( request, mediaInfo ) ) ;
 
                 return result ;
             }
             else
             {
-                return RetrieveService.RetrieveSopInstances ( request, mediaType ) ;
+                return RetrieveService.RetrieveSopInstances ( request, mediaInfo ) ;
             }
         }
     }
