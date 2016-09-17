@@ -43,7 +43,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
         
         protected override IDbDataParameter CreateParameter ( string parameterName, object value )
         {
-            return new SqlParameter (  parameterName, value ) ;
+            return new SqlParameter (  parameterName, value?? System.DBNull.Value ) ;
         }
     }
 }
