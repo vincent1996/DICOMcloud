@@ -158,7 +158,7 @@ namespace DICOMcloud.Wado.Core.Services
         {
             uint tag = uint.Parse (tagString, System.Globalization.NumberStyles.HexNumber) ;
 
-            dicomRequest.Add(tag, value ) ;
+            dicomRequest.AddOrUpdate(tag, value ) ;
         }
 
         private void CreateSequence(List<string> elements, int currentElementIndex, fo.DicomDataset dicomRequest, string value)
@@ -168,7 +168,7 @@ namespace DICOMcloud.Wado.Core.Services
             fo.DicomSequence sequence ;
             fo.DicomDataset  item ;
             
-            dicomRequest.Add ( new fo.DicomSequence ( dicEntry.Tag ) ) ;
+            dicomRequest.AddOrUpdate ( new fo.DicomSequence ( dicEntry.Tag ) ) ;
             sequence = dicomRequest.Get<fo.DicomSequence>(dicEntry.Tag);
 
 
@@ -191,7 +191,7 @@ namespace DICOMcloud.Wado.Core.Services
                 }
                 else
                 {
-                    item.Add<string> ( tag, value) ;
+                    item.AddOrUpdate<string> ( tag, value) ;
                 }
             }
         }

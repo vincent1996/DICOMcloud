@@ -157,28 +157,26 @@ namespace DICOMcloud.Dicom.Data.Services
                     
                     if (valueType == typeof(String)) //shortcut
                     {
-                        CurrentData.CurrentDs.Add<string>(dicomTag, (string) value);
+                        CurrentData.CurrentDs.AddOrUpdate<string>(dicomTag, (string) value);
                     }
                     else if (valueType == typeof(DateTime))
                     {
-                        CurrentData.CurrentDs.Add<DateTime>(dicomTag, (DateTime) value);
+                        CurrentData.CurrentDs.AddOrUpdate<DateTime>(dicomTag, (DateTime) value);
                     }
 
-                    //TODO: fix ASAP! fo-dicom is not flixible at all with setting values
-                    //TODO: need to implement a way to update/add/append value to DicomItem/DicomElement
-                    else if (valueType == typeof(Int32))
+                   else if (valueType == typeof(Int32))
                     {
-                        CurrentData.CurrentDs.Add<Int32>(dicomTag, (Int32)value);
+                        CurrentData.CurrentDs.AddOrUpdate<Int32>(dicomTag, (Int32)value);
                         //dicomElement.SetInt32((int)dicomElement.Count, (Int32)value);
                     }
                     else if (valueType == typeof(Int64))
                     {
-                        CurrentData.CurrentDs.Add<Int64>(dicomTag, (Int64)value);
+                        CurrentData.CurrentDs.AddOrUpdate<Int64>(dicomTag, (Int64)value);
                         //dicomElement.SetInt64((int)dicomElement.Count, (Int64)value);
                     }
                     else
                     {
-                        CurrentData.CurrentDs.Add<string>(dicomTag, value as string);
+                        CurrentData.CurrentDs.AddOrUpdate<string>(dicomTag, value as string);
                         //dicomElement.SetStringValue((string)value);
 
                         System.Diagnostics.Debug.Assert(false, "Unknown element db value");
@@ -198,7 +196,7 @@ namespace DICOMcloud.Dicom.Data.Services
             {
                 foreach (var personName in CurrentData.CurrentPersonNames)
                 {
-                    CurrentData.CurrentDs.Add ( personName.Key, personName.Value.ToString());
+                    CurrentData.CurrentDs.AddOrUpdate( personName.Key, personName.Value.ToString());
                 }
             }
 

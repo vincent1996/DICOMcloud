@@ -71,7 +71,7 @@ namespace DICOMcloud.Dicom
 
         protected virtual void WriteHeaders ( fo.DicomDataset ds, XmlWriter writer)
         {
-            ds.Add(fo.DicomTag.TransferSyntaxUID, ds.InternalTransferSyntax) ;
+            ds.AddOrUpdate(fo.DicomTag.TransferSyntaxUID, ds.InternalTransferSyntax) ;
 //            WriteDicomAttribute ( ds, ds.Get<fo.DicomElement> ( fo.DicomTag.TransferSyntaxUID, null ), writer );
             
         }
@@ -321,7 +321,7 @@ namespace DICOMcloud.Dicom
                 seq.Items.Add ( itemDs ) ;
             }
 
-            ds.Add ( seq ) ;
+            ds.AddOrUpdate ( seq ) ;
         }
         
         private void ReadElement ( fo.DicomDataset ds, XElement element, fo.DicomTag tag, fo.DicomVR dicomVr )
@@ -356,7 +356,7 @@ namespace DICOMcloud.Dicom
                 }
 
                 personNameValue = personNameValue.TrimEnd ( '\\' ) ;
-                ds.Add<string> ( dicomVr, tag, personNameValue ) ;
+                ds.AddOrUpdate<string> ( dicomVr, tag, personNameValue ) ;
             }
             else if ( Utilities.IsBinaryVR ( dicomVr ) )
             {
@@ -382,14 +382,14 @@ namespace DICOMcloud.Dicom
                         data = new fo.IO.Buffer.MemoryByteBuffer ( base64 ) ;
                     }
                     
-                    ds.Add<fo.IO.Buffer.IByteBuffer> ( dicomVr, tag, data ) ;
+                    ds.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( dicomVr, tag, data ) ;
                 }
             }
             else 
             {
                 var values = ReadValue ( element );
                 
-                ds.Add<string> ( dicomVr, tag, values.ToArray ( ) );
+                ds.AddOrUpdate<string> ( dicomVr, tag, values.ToArray ( ) );
             }            
         }
 

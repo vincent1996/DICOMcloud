@@ -14,7 +14,7 @@ namespace DICOMcloud.Dicom
             
             foreach ( var element in source )
             { 
-                destination.Add ( element ) ;
+                destination.AddOrUpdate ( element ) ;
             }
         }
     }

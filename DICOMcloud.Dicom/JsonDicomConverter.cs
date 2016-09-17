@@ -378,7 +378,7 @@ namespace DICOMcloud.Dicom
                 }
             }
 
-            dataset.Add<fo.IO.Buffer.IByteBuffer> ( vr, tag, data ) ;
+            dataset.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( vr, tag, data ) ;
         }
 
         private void ReadInlineBinary
@@ -403,7 +403,7 @@ namespace DICOMcloud.Dicom
                 }
             }
             
-            dataset.Add<fo.IO.Buffer.IByteBuffer> ( vr, tag, new fo.IO.Buffer.MemoryByteBuffer ( data ) ) ;
+            dataset.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( vr, tag, new fo.IO.Buffer.MemoryByteBuffer ( data ) ) ;
         }
 
         protected virtual void ReadDefaultVr
@@ -445,7 +445,7 @@ namespace DICOMcloud.Dicom
                         break;
                     }
 
-                    dataset.Add<string> ( vr, tag, values.ToArray ( ) );                
+                    dataset.AddOrUpdate<string> ( vr, tag, values.ToArray ( ) );                
                 }
                 break ;
             }
@@ -485,7 +485,7 @@ namespace DICOMcloud.Dicom
                     personName.Add ( pnReader );
                 }
 
-                dataset.Add<string> ( tag, personName.ToString ( ) );
+                dataset.AddOrUpdate<string> ( tag, personName.ToString ( ) );
 
                 break;
             }
@@ -513,7 +513,7 @@ namespace DICOMcloud.Dicom
                 }
             }
 
-            dataset.Add ( seq ) ;
+            dataset.AddOrUpdate ( seq ) ;
         }
 
         #endregion

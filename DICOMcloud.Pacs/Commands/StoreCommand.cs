@@ -53,7 +53,7 @@ namespace DICOMcloud.Pacs.Commands
         )
         {
             List<DicomMediaLocations> mediaLocations = new List<DicomMediaLocations> ( ) ;
-            fo.DicomDataset storageDataset = dicomObject.ChangeTransferSyntax ( fo.DicomTransferSyntax.ExplicitVRLittleEndian ) ;
+            fo.DicomDataset storageDataset = dicomObject.Clone ( fo.DicomTransferSyntax.ExplicitVRLittleEndian ) ;
 
 
             foreach ( var mediaType in Settings.MediaTypes )

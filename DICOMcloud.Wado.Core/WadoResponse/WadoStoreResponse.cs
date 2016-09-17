@@ -55,7 +55,7 @@ namespace DICOMcloud.Wado.Core
 
         public fo.DicomDataset GetResponseContent ( )
         {
-            _dataset.Add<string>(fo.DicomTag.RetrieveURI, UrlProvider.GetStudyUrl ( StudyInstanceUID ) ) ;
+            _dataset.AddOrUpdate<string>(fo.DicomTag.RetrieveURI, UrlProvider.GetStudyUrl ( StudyInstanceUID ) ) ;
         
             return _dataset ;
         }
@@ -76,15 +76,15 @@ namespace DICOMcloud.Wado.Core
 
             referencedInstance.Merge ( item ) ;
 
-            _dataset.Add (failedSeq);
+            _dataset.AddOrUpdate (failedSeq);
             failedSeq.Items.Add ( item ) ;
 
-            item.Add<UInt16> (fo.DicomTag.FailureReason, 272 ) ; //TODO: for now 272 == "0110 - Processing failure", must map proper result code from org. exception
+            item.AddOrUpdate<UInt16> (fo.DicomTag.FailureReason, 272 ) ; //TODO: for now 272 == "0110 - Processing failure", must map proper result code from org. exception
             
             if ( null != error )
             {
                 //TODO: temp
-                item.Add<string> ( fo.DicomTag.RetrieveURI, error.Message );
+                item.AddOrUpdate<string> ( fo.DicomTag.RetrieveURI, error.Message );
             }
         }
 
@@ -97,18 +97,18 @@ namespace DICOMcloud.Wado.Core
 
             referencedInstance.Merge ( item ) ;
 
-            _dataset.Add ( referencedSeq ) ;
+            _dataset.AddOrUpdate ( referencedSeq ) ;
             referencedSeq.Items.Add ( item ) ;
             
-            item.Add<string> (fo.DicomTag.RetrieveURI, UrlProvider.GetInstanceUrl ( new ObjectID ( ds ) ) ) ; 
+            item.AddOrUpdate<string> (fo.DicomTag.RetrieveURI, UrlProvider.GetInstanceUrl ( new ObjectID ( ds ) ) ) ; 
         }
 
         private fo.DicomDataset GetReferencedInstsance ( fo.DicomDataset ds )
         {
             fo.DicomDataset dataset = new fo.DicomDataset ( ) ;
 
-            dataset.Add ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPClassUID) ) ;
-            dataset.Add ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPInstanceUID) ) ;
+            dataset.AddOrUpdate ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPClassUID) ) ;
+            dataset.AddOrUpdate ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPInstanceUID) ) ;
 
             return dataset ;
         }
