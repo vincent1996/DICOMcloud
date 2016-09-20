@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOMcloud.Wado.WebApi", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOMcloud.Dicom.DataAccess", "DICOMcloud.Dicom.DataAccess\DICOMcloud.Dicom.DataAccess.csproj", "{1B7C024B-F1B9-4B41-B6F9-FB26F7135EF0}"
 EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "DICOMcloud.SqlServerDatabase", "DICOMcloud.SqlServerDatabase\DICOMcloud.SqlServerDatabase.sqlproj", "{DB3743B7-A6FB-4138-95BD-E0823758B9F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -176,6 +178,33 @@ Global
 		{1B7C024B-F1B9-4B41-B6F9-FB26F7135EF0}.Test|x64.Build.0 = Test|Any CPU
 		{1B7C024B-F1B9-4B41-B6F9-FB26F7135EF0}.Test|x86.ActiveCfg = Test|Any CPU
 		{1B7C024B-F1B9-4B41-B6F9-FB26F7135EF0}.Test|x86.Build.0 = Test|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x64.Build.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x64.Deploy.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x86.Build.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x86.Deploy.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|x64.ActiveCfg = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|x64.Build.0 = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|x64.Deploy.0 = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|x86.Build.0 = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Release|x86.Deploy.0 = Release|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|Any CPU.Build.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|Any CPU.Deploy.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|x64.ActiveCfg = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|x64.Build.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|x64.Deploy.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|x86.ActiveCfg = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|x86.Build.0 = Debug|Any CPU
+		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Test|x86.Deploy.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
