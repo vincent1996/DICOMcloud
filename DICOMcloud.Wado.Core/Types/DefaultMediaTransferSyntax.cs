@@ -27,6 +27,8 @@ namespace DICOMcloud.Wado.Core
             Add ( MimeMediaTypes.Jpx, "1.2.840.10008.1.2.4.92") ;
             Add ( MimeMediaTypes.Mpeg2, "1.2.840.10008.1.2.4.101") ;
             Add ( MimeMediaTypes.Mp4, "1.2.840.10008.1.2.4.102" ) ;
+            Add ( MimeMediaTypes.Json, "" ) ;
+            Add ( MimeMediaTypes.xmlDicom, "" ) ;
         }
 
         public static DefaultMediaTransferSyntax Instance 

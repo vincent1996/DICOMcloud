@@ -5,13 +5,16 @@ namespace DICOMcloud.Wado.Core
 {
     public interface IWadoRsService
     {
-        HttpResponseMessage RetrieveBulkData(IWadoRsStudiesRequest request);
-        HttpResponseMessage RetrieveFrames(IWadoRSFramesRequest request);
-        HttpResponseMessage RetrieveInstance(IWadoRSInstanceRequest request);
-        HttpResponseMessage RetrieveInstanceMetadata(IWadoRSInstanceRequest request);
-        HttpResponseMessage RetrieveSeries(IWadoRsSeriesRequest request);
-        HttpResponseMessage RetrieveSeriesMetadata(IWadoRsSeriesRequest request);
         HttpResponseMessage RetrieveStudy(IWadoRsStudiesRequest request);
+        HttpResponseMessage RetrieveSeries(IWadoRsSeriesRequest request);
+        HttpResponseMessage RetrieveInstance(IWadoRSInstanceRequest request);
+        HttpResponseMessage RetrieveFrames(IWadoRSFramesRequest request);
+
+        HttpResponseMessage RetrieveBulkData(IWadoRSInstanceRequest request);
+        HttpResponseMessage RetrieveBulkData(IWadoRSFramesRequest request);
+        
         HttpResponseMessage RetrieveStudyMetadata(IWadoRsStudiesRequest request);
+        HttpResponseMessage RetrieveSeriesMetadata(IWadoRsSeriesRequest request);
+        HttpResponseMessage RetrieveInstanceMetadata(IWadoRSInstanceRequest request);
     }
 }

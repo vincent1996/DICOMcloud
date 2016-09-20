@@ -57,7 +57,7 @@ namespace DICOMcloud.Pacs
                 storeResult.Message = ex.Message ;
             }
             
-            return storeResult ;    
+            return storeResult ;
         }
 
         protected virtual StoreCommand CreateStoreCommand ( )

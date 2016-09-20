@@ -30,7 +30,7 @@ namespace DICOMcloud.Wado.Core
          
             if ( Location.Exists ( ) )
             {
-                WadoResponse response = new WadoResponse ( Location, mimeType ) ;
+                WadoResponse response = new WadoResponse ( Location.GetReadStream ( ), mimeType ) ;
                 
                 return response ;
             }

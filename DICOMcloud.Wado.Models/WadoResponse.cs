@@ -12,11 +12,9 @@ namespace DICOMcloud.Wado.Models
     public class WadoResponse : IWadoRsResponse
     {
         public WadoResponse () {} 
-        public WadoResponse ( IStorageLocation location, string mimeType )
+        public WadoResponse ( Stream content, string mimeType )
         {
-            StorageLocation = location ; 
-        
-            Content       = StorageLocation.GetReadStream ( ) ;
+            Content       = content ;
             ContentLength = Content.Length ;    
             MimeType      = mimeType ;
         }

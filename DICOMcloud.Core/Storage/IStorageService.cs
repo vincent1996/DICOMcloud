@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Core.Storage
 {
-    public interface IMediaStorageService
+    public interface IMediaStorageService : ILocationProvider
     {
         //IStorageContainer CreateContainer ( string containerKey ) ;
 
@@ -18,10 +18,10 @@ namespace DICOMcloud.Core.Storage
         //2. methods to search/enumerate keys 
         //4. methods to search/enumerate streams
 
-        void   Write                     ( Stream stream, IMediaId key ) ;
-        Stream Read                      ( IMediaId key ) ;
-        IStorageLocation GetLocation     ( IMediaId key ) ;
+        void   Write  ( Stream stream, IMediaId key ) ;
+        Stream Read   ( IMediaId key ) ;
+        bool   Exists ( IMediaId key ) ;
+
         IEnumerable<IStorageLocation> EnumerateLocation ( IMediaId key ) ;
-        bool                          Exists ( IMediaId key ) ;
     }
 }

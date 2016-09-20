@@ -79,6 +79,9 @@
     <Compile Include="Storage\IStorageContainer.cs" />
     <Compile Include="Storage\IStorageLocation.cs" />
     <Compile Include="Storage\File\LocalStorageContainer.cs" />
+    <Compile Include="Storage\ILocationProvider.cs" />
+    <Compile Include="Storage\Memory\MemoryStorageService.cs" />
+    <Compile Include="Storage\Memory\MemoryStorageLocation.cs" />
     <Compile Include="Storage\StorageLifetime.cs" />
     <Compile Include="Storage\File\TempFile.cs" />
     <Compile Include="Storage\TempStream.cs" />

@@ -11,7 +11,7 @@ namespace DICOMcloud.Dicom.Media
     public class DicomMediaWriterFactory : IDicomMediaWriterFactory
     {
         protected Func<string, IDicomMediaWriter> MediaFactory { get; private set; }
-        protected IMediaStorageService StorageService { get; private set ; }
+        protected IMediaStorageService StorageService { get; set ; }
 
 
         public DicomMediaWriterFactory ( IMediaStorageService storageService ) 

@@ -44,7 +44,7 @@ namespace DICOMcloud.Wado.Core
 
             //if (string.Compare(mimeType, MimeMediaTypes.DICOM, true) == 0)
             {
-                return new WadoResponse(Location, mimeType);
+                return new WadoResponse(Location.GetReadStream ( ), mimeType);
             }
 
             fo.DicomFile file = fo.DicomFile.Open ( dcmLocation.GetReadStream ( ) ) ;

@@ -12,14 +12,14 @@ namespace DICOMcloud.Dicom.Media
 {
     public abstract class DicomMediaWriterBase : IDicomMediaWriter
     {
-        public IMediaStorageService MediaStorage { get; set; }
+        public ILocationProvider MediaStorage { get; set; }
 
         public DicomMediaWriterBase() : this(new FileStorageService())
         { }
 
-        public DicomMediaWriterBase ( IMediaStorageService mediaStorage )
+        public DicomMediaWriterBase ( ILocationProvider storageProvider )
         {
-            MediaStorage = mediaStorage ;
+            MediaStorage = storageProvider ;
         }
 
         public abstract string MediaType
@@ -27,9 +27,21 @@ namespace DICOMcloud.Dicom.Media
             get ;
         }
 
-        public IList<IStorageLocation> CreateMedia(DicomMediaWriterParameters mediaParameters )
+        public IList<IStorageLocation> CreateMedia
+        (
+            DicomMediaWriterParameters mediaParameters
+        )
         {
-            if (null != MediaStorage)
+            return CreateMedia ( mediaParameters, MediaStorage ) ;
+        }
+
+        public IList<IStorageLocation> CreateMedia
+        (
+            DicomMediaWriterParameters mediaParameters, 
+            ILocationProvider sotrageProvider 
+        )
+        {
+            if (null != sotrageProvider )
             {
                 int                    framesCount    = 1;
                 List<IStorageLocation> locations      = new List<IStorageLocation> ( ) ;
@@ -47,9 +59,10 @@ namespace DICOMcloud.Dicom.Media
                 
                 for ( int frame = 1; frame <= framesCount; frame++ )
                 {
-                    var storeLocation = MediaStorage.GetLocation ( new DicomMediaId ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
-
-                    Upload ( mediaParameters.Dataset, frame, storeLocation ) ;
+                    var storeLocation = sotrageProvider.GetLocation ( new DicomMediaId ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
+                    
+                    
+                    Upload ( dataset, frame, storeLocation ) ;
                 
                     locations.Add ( storeLocation ) ;
                 }
@@ -58,6 +71,40 @@ namespace DICOMcloud.Dicom.Media
             }
 
             throw new InvalidOperationException ( "No MediaStorage service found") ;
+        }
+
+
+        public IList<IStorageLocation> CreateMedia
+        (
+            DicomMediaWriterParameters mediaParameters, 
+            ILocationProvider storageProvider,
+            int[] frameList
+        )
+        {
+            if ( null == storageProvider ) { throw new InvalidOperationException ( "No MediaStorage service found") ; }
+
+            List<IStorageLocation> locations      = new List<IStorageLocation> ( ) ;
+            var                    dataset        = GetMediaDataset ( mediaParameters.Dataset, mediaParameters.MediaInfo ) ;
+            string                 transferSyntax = ( !string.IsNullOrWhiteSpace (mediaParameters.MediaInfo.TransferSyntax ) ) ? ( mediaParameters.MediaInfo.TransferSyntax ) : "" ;
+
+
+            if ( !StoreMultiFrames )
+            {
+                throw new InvalidOperationException ( "Media writer doesn't support generating frames" ) ;
+            }
+
+            foreach ( int frame in frameList )
+            {
+                var storeLocation = storageProvider.GetLocation ( new DicomMediaId ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
+                    
+                    
+                Upload ( mediaParameters.Dataset, frame, storeLocation ) ;
+                
+                locations.Add ( storeLocation ) ;
+            }
+
+            return locations ;
+        
         }
 
         protected virtual fo.DicomDataset GetMediaDataset ( fo.DicomDataset data, DicomMediaProperties mediaInfo )

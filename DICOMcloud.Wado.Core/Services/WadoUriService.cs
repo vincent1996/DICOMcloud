@@ -11,6 +11,7 @@ using System.Net;
 using DICOMcloud.Pacs;
 using fo = Dicom;
 using DICOMcloud.Core.Storage;
+using DICOMcloud.Dicom.Media;
 
 namespace DICOMcloud.Wado.Core
 {
@@ -33,47 +34,27 @@ namespace DICOMcloud.Wado.Core
                 throw new Exception("Request Type must be set to WADO");//TODO
             }
 
-            List<MediaTypeHeaderValue> mimeType = GetRequestedMimeType ( request );
-            string     transferSyntax = "" ;
+            List<MediaTypeHeaderValue> mediaTypeHeader = GetRequestedMimeType ( request );
+            string  currentTransfer = null ;
 
 
-            if ( null != request.ImageRequestInfo && null != request.ImageRequestInfo.TransferSyntax )
+            foreach (MediaTypeHeaderValue mediaType in mediaTypeHeader)
             {
-                transferSyntax = request.ImageRequestInfo.TransferSyntax  ;
-            }
 
-            foreach (MediaTypeHeaderValue mediaType in mimeType)
-            {
-                string  currentTransfer ;
                 IStorageLocation dcmLocation;
 
 
-                if ( null == transferSyntax ) 
-                {
-                    currentTransfer = transferSyntax ;
-                }
-                else
-                {
-                    string transferString ;
-                    DefaultMediaTransferSyntax.Instance.TryGetValue ( mediaType.MediaType, out transferString ) ;
+                currentTransfer = GetRequestedMediaTransferSyntax ( request, mediaType );
 
-
-                    currentTransfer = !string.IsNullOrWhiteSpace (transferString ) ? transferString : "" ;
-                }
-
-                dcmLocation = RetrieveService.RetrieveSopInstance ( request,  
-                                                                    new Dicom.Media.DicomMediaProperties ( mediaType.MediaType,  currentTransfer ) ) ;
+                dcmLocation = RetrieveService.RetrieveSopInstance ( request,
+                                                                    new Dicom.Media.DicomMediaProperties ( mediaType.MediaType, currentTransfer ) );
 
 
                 if ( null != dcmLocation && dcmLocation.Exists ( ) )
                 {
-                    //TODO: use this for on the fly generation
-                    //IWadoRsResponse response = imageHandler.Process ( request, mediaType.MediaType ) ;
-
-                
-                    StreamContent sc        = new StreamContent        (  dcmLocation.GetReadStream ( ) ) ;
-                    sc.Headers.ContentType  = new MediaTypeHeaderValue ( mediaType.MediaType ) ;
-                    HttpResponseMessage msg = new HttpResponseMessage  ( HttpStatusCode.OK ) ;
+                    StreamContent sc = new StreamContent ( dcmLocation.GetReadStream ( ) );
+                    sc.Headers.ContentType = new MediaTypeHeaderValue ( mediaType.MediaType );
+                    HttpResponseMessage msg = new HttpResponseMessage ( HttpStatusCode.OK );
 
                     msg.Content = sc;
 
@@ -81,7 +62,83 @@ namespace DICOMcloud.Wado.Core
                 }
             }
 
-            return new HttpResponseMessage ( HttpStatusCode.NotFound ) ;
+            HttpResponseMessage responseMessage ;
+
+            if ( TryOnDemandTransform ( request, mediaTypeHeader, out responseMessage ) )
+            {
+                return responseMessage ;
+            }
+
+
+            if ( mediaTypeHeader.Where ( n=>n.MediaType == MimeMediaTypes.DICOM ).FirstOrDefault ( ) != null )
+            {
+                return new HttpResponseMessage ( HttpStatusCode.NotFound ) ;
+            }
+            else
+            {
+                //6.3.2 Body of Non-DICOM Media Type Response
+                //The HTTP behavior is that an error (406 - Not Acceptable) is returned if the required media type cannot be served.
+                return new HttpResponseMessage ( HttpStatusCode.NotAcceptable ) ;
+            }
+        }
+
+        private static string GetRequestedMediaTransferSyntax ( IWadoUriRequest request, MediaTypeHeaderValue mediaType )
+        {
+            string currentTransfer ;
+
+
+            if ( null != request.ImageRequestInfo && !string.IsNullOrWhiteSpace ( request.ImageRequestInfo.TransferSyntax ) )
+            {
+                currentTransfer = request.ImageRequestInfo.TransferSyntax;
+            }
+            else
+            {
+                string transferString;
+
+
+                DefaultMediaTransferSyntax.Instance.TryGetValue ( mediaType.MediaType, out transferString );
+
+                currentTransfer = !string.IsNullOrWhiteSpace ( transferString ) ? transferString : "";
+            }
+
+            return currentTransfer;
+        }
+
+        protected virtual bool TryOnDemandTransform 
+        ( 
+            IWadoUriRequest request, 
+            List<MediaTypeHeaderValue> mediaTypeHeaderList, 
+            out HttpResponseMessage responseMessage 
+        )
+        {
+            string defaultDicomTransfer ;
+
+
+            DefaultMediaTransferSyntax.Instance.TryGetValue ( MimeMediaTypes.DICOM, out defaultDicomTransfer ) ; 
+                
+            foreach ( var mediaTypeHeader in mediaTypeHeaderList )
+            {
+                string transferSyntax ;
+                
+                
+                transferSyntax = GetRequestedMediaTransferSyntax ( request, mediaTypeHeader );
+
+                //should return only one for URI service
+                foreach ( var result in RetrieveService.GetTransformedSopInstances ( request, MimeMediaTypes.DICOM, defaultDicomTransfer, mediaTypeHeader.MediaType, transferSyntax ) )
+                {
+                    StreamContent sc        = new StreamContent        (  result.Location.GetReadStream ( ) ) ;
+                    sc.Headers.ContentType  = new MediaTypeHeaderValue ( mediaTypeHeader.MediaType ) ;
+                    responseMessage         = new HttpResponseMessage  ( HttpStatusCode.OK ) ;
+
+                    responseMessage.Content = sc;
+
+                    return true ;
+                }
+            }
+
+            responseMessage = null ;
+
+            return false ;
         }
 
         //TODO: there is more into this now in part 18 2016 version, reference section 6.1.1.5 and 6.1.1.6

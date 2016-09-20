@@ -45,6 +45,7 @@ namespace DICOMcloud.Dicom
 
                 writer.WriteStartObject ( );
 
+                WriteHeaders  ( ds, writer ) ;
                 WriteChildren ( ds, writer );
 
                 writer.WriteEndObject ( );
@@ -84,6 +85,11 @@ namespace DICOMcloud.Dicom
         }
 
         #region Write Methods
+
+        protected virtual void WriteHeaders ( fo.DicomDataset ds, JsonWriter writer)
+        {
+            ds.AddOrUpdate(fo.DicomTag.TransferSyntaxUID, ds.InternalTransferSyntax) ;
+        }
 
         protected virtual void WriteChildren ( fo.DicomDataset ds, JsonWriter writer )
         {

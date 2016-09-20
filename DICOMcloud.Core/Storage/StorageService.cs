@@ -43,7 +43,7 @@ namespace DICOMcloud.Core.Storage
 
         public IEnumerable<IStorageLocation> EnumerateLocation ( IMediaId id )
         {
-            string  key = KeyProvider.GetStorageKey ( id ) ;
+            string  key          = KeyProvider.GetStorageKey ( id ) ;
             string containerName = KeyProvider.GetContainerName ( key) ;
             
             

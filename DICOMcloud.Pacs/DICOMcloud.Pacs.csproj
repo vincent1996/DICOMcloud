@@ -80,6 +80,7 @@
     <Compile Include="Query\ObjectArchieve\ObjectArchieveQueryService.cs" />
     <Compile Include="Retrieve\IObjectRetrieveDataService.cs" />
     <Compile Include="Retrieve\ObjectRetrieveDataService.cs" />
+    <Compile Include="Retrieve\ObjectRetrieveResult.cs" />
     <Compile Include="Storage\IObjectStoreDataService.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Storage\ObjectStoreService.cs" />
@@ -105,9 +106,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="bin\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

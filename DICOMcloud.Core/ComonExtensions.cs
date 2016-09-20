@@ -27,5 +27,14 @@ namespace DICOMcloud.Core.Extensions
         {
             return enumerable == null || !enumerable.Any();
         }
+
+        //http://stackoverflow.com/questions/7265315/replace-multiple-characters-in-a-string
+        public static string Replace(this string s, char[] separators, string newVal)
+        {
+           string[] temp;
+
+           temp = s.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+           return String.Join( newVal, temp );
+        }
     }
 }

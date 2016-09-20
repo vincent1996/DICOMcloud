@@ -45,7 +45,7 @@ namespace DICOMcloud.Dicom.Media
 
             if ( !string.IsNullOrWhiteSpace ( mediaInfo.TransferSyntax ) )
             {
-                return data.ChangeTransferSyntax ( fo.DicomTransferSyntax.Parse ( mediaInfo.TransferSyntax ) ) ;
+                return data.Clone ( fo.DicomTransferSyntax.Parse ( mediaInfo.TransferSyntax ) ) ;
             }
 
             return base.GetMediaDataset ( data, mediaInfo );

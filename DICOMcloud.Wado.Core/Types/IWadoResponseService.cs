@@ -52,12 +52,6 @@ namespace DICOMcloud.Wado.Core
             HttpResponseMessage response = new HttpResponseMessage ( ) ;
             
             
-            if ( wadoResponses == null || wadoResponses.FirstOrDefault ( ) == null )
-            {
-                response.StatusCode = System.Net.HttpStatusCode.NotAcceptable ;
-
-                return response ;            
-            }
             if ( !IsValidResponse ( wadoResponses, out response ))
             { 
                 return response ;

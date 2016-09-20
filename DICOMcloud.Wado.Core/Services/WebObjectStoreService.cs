@@ -31,15 +31,14 @@ namespace DICOMcloud.Wado.Core
             string studyInstanceUID 
         )
         {
-            fo.DicomDataset bodyContent = null ;
-            
-            
+            WadoStoreResponse storeResult = null  ;
+
             switch ( request.MediaType )
             {
                 //TODO: build the response here, { Successes.Add(objectMetadata), Failures.Add(objectMetadata), Create
                 case MimeMediaTypes.DICOM:
                 {
-                    bodyContent = await GetResponseDataset (request, studyInstanceUID );
+                    storeResult = await GetResponseDataset (request, studyInstanceUID );
                 }
                 break ;
 
@@ -61,9 +60,9 @@ namespace DICOMcloud.Wado.Core
                 }
             }
 
-            if ( null != bodyContent )
+            if ( null != storeResult )
             {
-                var result = new HttpResponseMessage (HttpStatusCode.OK) ;
+                var result = new HttpResponseMessage ( storeResult.HttpStatus) ;
 
                 
                 if ( new MimeMediaType ( MimeMediaTypes.Json ).IsIn ( request.AcceptHeader ) ) //this is not taking the "q" parameter
@@ -71,13 +70,15 @@ namespace DICOMcloud.Wado.Core
                     JsonDicomConverter converter = new JsonDicomConverter ( ) ;
                     
                     
-                    result.Content = new StringContent (  converter.Convert ( bodyContent ), System.Text.Encoding.UTF8, MimeMediaTypes.Json ) ;
+                    result.Content = new StringContent (  converter.Convert ( storeResult.GetResponseContent ( ) ), 
+                                                          System.Text.Encoding.UTF8, MimeMediaTypes.Json ) ;
                 }
                 else
                 {
                     XmlDicomConverter xmlConverter = new XmlDicomConverter ( ) ;
                     
-                    result.Content = new StringContent (  xmlConverter.Convert ( bodyContent ), System.Text.Encoding.UTF8, MimeMediaTypes.xmlDicom ) ;
+                    result.Content = new StringContent (  xmlConverter.Convert ( storeResult.GetResponseContent ( ) ), 
+                                                          System.Text.Encoding.UTF8, MimeMediaTypes.xmlDicom ) ;
                 }
 
                 return result ;    
@@ -103,9 +104,8 @@ namespace DICOMcloud.Wado.Core
             return new InstanceMetadata ( ) { } ;
         }
 
-        private async Task<fo.DicomDataset> GetResponseDataset ( IWebStoreRequest request, string studyInstanceUID )
+        private async Task<WadoStoreResponse> GetResponseDataset ( IWebStoreRequest request, string studyInstanceUID )
         {
-            fo.DicomDataset bodyContent = null ;
             WadoStoreResponse response = new WadoStoreResponse(studyInstanceUID);
 
             foreach (var mediaContent in request.Contents)
@@ -125,8 +125,7 @@ namespace DICOMcloud.Wado.Core
 
             }
 
-            bodyContent = response.GetResponseContent();
-            return bodyContent;
+            return response;
         }
     }
 }

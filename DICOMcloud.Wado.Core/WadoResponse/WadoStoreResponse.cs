@@ -9,6 +9,7 @@ using DICOMcloud.Dicom;
 using DICOMcloud.Dicom.Data;
 using DICOMcloud.Pacs;
 using DICOMcloud.Pacs.Commands;
+using System.Net;
 
 namespace DICOMcloud.Wado.Core
 {
@@ -17,6 +18,10 @@ namespace DICOMcloud.Wado.Core
         private fo.DicomDataset _dataset ;
         public RetieveUrlProvider UrlProvider { get; set; }
         public string StudyInstanceUID { get; private set; }
+        public HttpStatusCode HttpStatus { get; private set ; }
+
+        private bool _successAdded = false ;
+        private bool _failureAdded = false ;
 
         public WadoStoreResponse ( )
         : this ( "" )
@@ -29,6 +34,7 @@ namespace DICOMcloud.Wado.Core
             _dataset         = new fo.DicomDataset ( ) ;
             UrlProvider      = new RetieveUrlProvider ( ) ;
             StudyInstanceUID = studyInstanceUID ;
+            HttpStatus       = HttpStatusCode.Unused ;
         }
 
         public void AddResult ( StoreResult result ) 
@@ -64,7 +70,7 @@ namespace DICOMcloud.Wado.Core
         {
             fo.DicomFile dataSet = fo.DicomFile.Open ( dicomStream ) ;
             
-            AddFailedItem ( GetReferencedInstsance ( dataSet.Dataset ) ) ;
+            AddFailedItem ( GetReferencedInstsance ( dataSet.Dataset ), ex ) ;
         }
 
         private void AddFailedItem ( fo.DicomDataset ds, Exception error = null )
@@ -86,6 +92,18 @@ namespace DICOMcloud.Wado.Core
                 //TODO: temp
                 item.AddOrUpdate<string> ( fo.DicomTag.RetrieveURI, error.Message );
             }
+
+            if ( _successAdded )
+            {
+                HttpStatus = HttpStatusCode.Accepted ;
+            }
+            else
+            {
+                HttpStatus = HttpStatusCode.Conflict ; //should figure out the true reason from a wrapped exception code
+            }
+
+            _failureAdded = true ;
+
         }
 
         private void AddSuccessItem ( fo.DicomDataset ds )
@@ -101,7 +119,21 @@ namespace DICOMcloud.Wado.Core
             referencedSeq.Items.Add ( item ) ;
             
             item.AddOrUpdate<string> (fo.DicomTag.RetrieveURI, UrlProvider.GetInstanceUrl ( new ObjectID ( ds ) ) ) ; 
+
+
+            if ( _failureAdded )
+            {
+                HttpStatus = HttpStatusCode.Accepted ; 
+            }
+            else
+            {
+                HttpStatus = HttpStatusCode.OK ;
+            }
+
+            _successAdded = true ;
         }
+
+        
 
         private fo.DicomDataset GetReferencedInstsance ( fo.DicomDataset ds )
         {

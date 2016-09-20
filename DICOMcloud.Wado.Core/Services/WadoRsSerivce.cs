@@ -8,105 +8,67 @@ using DICOMcloud.Dicom.Media;
 using System.Net.Http.Headers;
 using DICOMcloud.Core.Storage;
 using DICOMcloud.Dicom.Data;
-using fo = Dicom ;
+using fo = Dicom;
 using System.IO;
+using System;
 
 namespace DICOMcloud.Wado.Core
 {
     public class WadoRsService : IWadoRsService
     {
         IObjectRetrieveDataService RetrieveService     { get; set;  }
-        //IWadoRsMimeResponseCreator MimeResponseHandler { get; set;  }
         IWadoResponseService       ResponseService     { get; set;  }
+        
+        public string DicomDataBoundary
+        {
+            get;
+            set;
+        }
 
         public WadoRsService ( IObjectRetrieveDataService retrieveService )
         {
-            RetrieveService = retrieveService ;
-        
-            //MimeResponseHandler = new WadoRsMimeResponseCreator ( ) ;
-            ResponseService = new WadoResponseService ( ) ; 
+            RetrieveService   = retrieveService ;
+            ResponseService   = new WadoResponseService ( ) ; 
+            DicomDataBoundary =  "DICOM DATA BOUNDARY" ;
         }
 
         //DICOM Instances are returned in either DICOM or Bulk data format
-        //DICOM format is part10 native, Buld data is based on the accept:
-        //octect-stream, jpeg, jp2....
+        //DICOM format is part10 native, Bulk data is based on the accept:
+        //octet-stream, jpeg, jp2....
         public virtual HttpResponseMessage RetrieveStudy ( IWadoRsStudiesRequest request )
         {
-            return RetrieveInstance ( request, new WadoRSInstanceRequest ( request ) ) ;
+            return RetrieveMultipartInstance ( request, new WadoRSInstanceRequest ( request ) ) ;
         }
 
         public virtual HttpResponseMessage RetrieveSeries ( IWadoRsSeriesRequest request )
         {
-            return RetrieveInstance ( request, new WadoRSInstanceRequest ( request ) ) ;
+            return RetrieveMultipartInstance ( request, new WadoRSInstanceRequest ( request ) ) ;
         }
 
         public virtual HttpResponseMessage RetrieveInstance ( IWadoRSInstanceRequest request )
         {
-            return RetrieveInstance ( request, request ) ;
+            return RetrieveMultipartInstance ( request, request ) ;
         }
 
-        public virtual HttpResponseMessage RetrieveInstance ( IWadoRequestHeader header, IObjectID request )
+        public virtual HttpResponseMessage RetrieveFrames ( IWadoRSFramesRequest request )
         {
-            //IWadoRsMimeResponseCreator mimeResponseHandler = new WadoRsMimeResponseCreator ( ) ;
-            IWadoResponseService responseService = new WadoResponseService ( ) ; 
-            HttpResponseMessage response         = new HttpResponseMessage ( ) ;
-            string    mimeType                   = null ;
-            var wadoResponses                    = CreateRetrieveInstanceResponse ( header, request, out mimeType ) ;
-            
-            //System.Net.Http.Headers.MediaTypeWithQualityHeaderValue mediaType ;
-            //if ( ((MimeMediaType)MimeMediaTypes.MultipartRelated).IsIn ( request.AcceptHeader, out mediaType ))
-            
-            MultipartContent multiContent = new MultipartContent ( "related", "DICOM DATA BOUNDARY") ;
-            multiContent.Headers.ContentType.Parameters.Add ( new System.Net.Http.Headers.NameValueHeaderValue ( "type", "\"" + mimeType + "\"" ) );
+            return RetrieveMultipartInstance ( request, request ) ;
+        }
 
-            response.Content = multiContent ;
-            
+        public virtual HttpResponseMessage RetrieveBulkData ( IWadoRSInstanceRequest request )
+        {
+            //TODO: validation accept header is not dicom...
+
+            return RetrieveMultipartInstance ( request, request ) ;
+        }
         
-            foreach ( var wadoResponse in wadoResponses )
-            { 
-                StreamContent sContent = new StreamContent ( wadoResponse.Content ) ;
-                sContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue (wadoResponse.MimeType ) ;
-
-                multiContent.Add ( sContent ) ;
-            }
-
-            if ( wadoResponses.Count ( ) == 0 )
-            {
-                response.StatusCode = System.Net.HttpStatusCode.NotFound;
-            }
-
-
-            return response ;
-        }
-
-        public HttpResponseMessage RetrieveFrames ( IWadoRSFramesRequest request )
+        public virtual HttpResponseMessage RetrieveBulkData ( IWadoRSFramesRequest request )
         {
-            List<IWadoRsResponse> wadoResponses   = new List<IWadoRsResponse> ( ) ;
-            string mimeType = null ;
+            //TODO: validation accept header is not dicom...
 
-
-            foreach ( int frame in request.Frames )
-            {
-                request.Frame = frame ;
-
-                wadoResponses.AddRange ( CreateRetrieveInstanceResponse ( request, request, 
-                                                                          out mimeType ) ) ;
-            }
-
-            return ResponseService.CreateWadoRsResponse ( request, wadoResponses, mimeType ) ;
+            return RetrieveMultipartInstance ( request, request ) ;
         }
-
-        public HttpResponseMessage RetrieveBulkData ( IWadoRsStudiesRequest request )
-        {
-            string mimeType = null ;
-
-            var wadoResponses = CreateRetrieveInstanceResponse ( request, new WadoRSInstanceRequest ( request ), 
-                                                                 out mimeType ) ;
-
-            return ResponseService.CreateWadoRsResponse ( request, wadoResponses, mimeType ) ;
-        }
-
-
+        
         //Metadata can be XML (Required) or Json (optional) only. DICOM Instances are returned with no bulk data
         //Bulk data URL can be returned (which we should) 
         public virtual HttpResponseMessage RetrieveStudyMetadata(IWadoRsStudiesRequest request)
@@ -121,94 +83,111 @@ namespace DICOMcloud.Wado.Core
 
         public virtual HttpResponseMessage RetrieveInstanceMetadata(IWadoRSInstanceRequest request)
         {
-            IWadoResponseService responseService = new WadoResponseService ( ) ; 
-            string mimeType = null ;
+            if ( IsMultiPartRequest ( request ) )
+            {
+                var subMediaHeader = request.AcceptHeader.FirstOrDefault ( ) ;
 
-            var wadoResponses = CreateRetrieveInstanceResponse(request, request, out mimeType);
+                if ( null == subMediaHeader || subMediaHeader.MediaType != MimeMediaTypes.xmlDicom ) 
+                {
+                    return new HttpResponseMessage ( System.Net.HttpStatusCode.BadRequest ) ;
+                }
 
-
-            return responseService.CreateWadoRsResponse ( request, wadoResponses, mimeType ) ;
+                return RetrieveMultipartInstance ( request, request ) ; //should be an XML request!
+            }
+            else //must be json, or just return json anyway (*/*)
+            {
+                return ProcessJsonRequest ( request, request ) ;
+            }
         }
 
-        protected virtual IEnumerable<IWadoRsResponse> CreateRetrieveInstanceResponse 
+        public virtual HttpResponseMessage RetrieveMultipartInstance ( IWadoRequestHeader header, IObjectID request )
+        {
+            IWadoResponseService responseService ; 
+            HttpResponseMessage response ;
+            MultipartContent multiContent ;
+            MediaTypeWithQualityHeaderValue selectedMediaTypeHeader ;
+            
+
+            if ( !IsMultiPartRequest ( header ) )
+            {
+                return  new HttpResponseMessage ( System.Net.HttpStatusCode.NotAcceptable ) ; //TODO: check error code in standard
+            }
+
+            responseService = new WadoResponseService ( ) ; 
+            response        = new HttpResponseMessage ( ) ;
+            multiContent    = new MultipartContent ( "related", DicomDataBoundary ) ;           
+            selectedMediaTypeHeader = null ;
+
+            response.Content = multiContent ;
+
+            foreach ( var mediaTypeHeader in header.AcceptHeader ) 
+            {
+
+                if ( request is IWadoRSFramesRequest )
+                {
+                    var frames = ((IWadoRSFramesRequest) request ).Frames ;
+                    foreach ( int frame in frames )
+                    {
+                        request.Frame = frame ;
+
+                        foreach ( var wadoResponse in ProcessMultipartRequest ( request, mediaTypeHeader ) )
+                        { 
+                            AddMultipartContent ( multiContent, wadoResponse );
+
+                            selectedMediaTypeHeader = mediaTypeHeader;
+                        }
+                    }
+                }
+                else
+                {
+                    foreach ( var wadoResponse in ProcessMultipartRequest ( request, mediaTypeHeader ) )
+                    { 
+                        AddMultipartContent ( multiContent, wadoResponse );
+
+                        selectedMediaTypeHeader = mediaTypeHeader;
+                    }
+                }
+
+                if (selectedMediaTypeHeader!= null) { break ; }
+            }
+
+
+
+            if ( selectedMediaTypeHeader != null )
+            {
+                multiContent.Headers.ContentType.Parameters.Add ( new System.Net.Http.Headers.NameValueHeaderValue ( "type", "\"" + GetSubMediaType (selectedMediaTypeHeader) + "\"" ) ) ;
+            }
+            else
+            {
+                response.StatusCode = System.Net.HttpStatusCode.NotFound; //check error code
+            }
+
+
+            return response ;
+        }
+
+        protected virtual HttpResponseMessage ProcessJsonRequest 
         ( 
             IWadoRequestHeader header, 
-            IObjectID objectID,
-            out string mimeType 
+            IObjectID objectID
         )
         {
             List<IWadoRsResponse> responses = new List<IWadoRsResponse> ( ) ;
-            MediaTypeWithQualityHeaderValue mediaType = null ;
-            
-
-            mimeType = null ;
-
-            MimeMediaType jsMime = MimeMediaTypes.MultipartRelated ;
-            if ( jsMime.IsIn ( header.AcceptHeader, out mediaType ))
-            {
-                mimeType = ProcessMultipartRequest ( objectID, responses, mediaType ) ;
-            }
-            //TODO: all requests for retrieve is multipart except for "metadata in json format"
-            //e.g: 
-            //Instances:
-            //Accept - A comma-separated list of representation schemes, in preference order, which will be accepted by the service in theresponse to this request. The types allowed for this request header are as follows:
-            //multipart/related; type=application/dicom; [transfer-syntax={TransferSyntaxUID}]
-            //Specifies that the response can be DICOM Instances encoded in PS3.10 format. If transfer-syntax is not specified the servercan freely choose which Transfer Syntax to use for each Instance.
-            //multipart/related; type=application/octet-stream
-            //Specifies that the response can be Little Endian uncompressed bulk data.
-            //multipart/related; type={MediaType}
-            //Specifies that the response can be pixel data encoded using a {MediaType} listed in Table 6.5-1 (including parameters).
-            
-            //Bulk Data:
-            //multipart/related; type=application/octet-stream
-            //multipart/related; type={MediaType}
-            
-            //metadata:
-            //multipart/related; type=application/dicom+xml
-            //application/json
-
-            //else
-            //if ( ((MimeMediaType)MimeMediaTypes.Json).IsIn (header.AcceptHeader, out mediaType))
-            //{
-            //    mimeType = ProcessJsonRequest ( objectID, responses ) ;
-            //}
-            //else
-            //if ( ((MimeMediaType)MimeMediaTypes.Jpeg).IsIn (header.AcceptHeader, out mediaType))
-            //{ 
-            //    //.... and so on
-            //}
-
-            //return json metadata by default
-            if ( null == mimeType ) //json is default, only need to check other formats... XML//|| 
-            { 
-                mediaType = header.AcceptHeader.Where ( n=>n.MediaType == MimeMediaTypes.Json ).FirstOrDefault ( ) ;
-                mimeType = ProcessJsonRequest ( objectID, responses, mediaType ) ;
-            }
-            
-            return responses ;
-        }
-
-        private MimeMediaType ProcessJsonRequest 
-        ( 
-            IObjectID objectID, 
-            List<IWadoRsResponse> responses, 
-            MediaTypeWithQualityHeaderValue mediaType
-        )
-        {
-            //IDicomConverter<string> jsonConverter = CreateDicomConverter<string> (MimeMediaTypes.Json) ;
-            IWadoRsResponse response = new WadoResponse ( ) ;
+            HttpResponseMessage response = new HttpResponseMessage ( ) ;
             StringBuilder fullJsonResponse = new StringBuilder ("[") ;
             StringBuilder jsonArray = new StringBuilder ( ) ;
+            string selectedTransfer = "" ;
             bool exists = false ;
-            
+            var mediaTypeHeader = header.AcceptHeader.FirstOrDefault ( ) ;
 
             IEnumerable<NameValueHeaderValue> transferSyntaxHeader = null ;
             List<string> transferSyntaxes = new List<string> ( ) ;
             var defaultTransfer = "" ;
+
             
-            if ( null != mediaType )
+            if ( null != mediaTypeHeader )
             {
-                transferSyntaxHeader = mediaType.Parameters.Where (n=>n.Name == "transfer-syntax") ;
+                transferSyntaxHeader = mediaTypeHeader.Parameters.Where (n=>n.Name == "transfer-syntax") ;
             }
 
             if ( null == transferSyntaxHeader || 0 == transferSyntaxHeader.Count ( ) )
@@ -222,10 +201,12 @@ namespace DICOMcloud.Wado.Core
 
             foreach ( var transfer in transferSyntaxes )
             {
-                foreach ( IStorageLocation storage in GetLocations (objectID, new DicomMediaProperties ( MimeMediaTypes.Json, transfer == "*" ? defaultTransfer : transfer ) ) )
+                selectedTransfer = transfer == "*" ? defaultTransfer : transfer ;
+
+                foreach ( IStorageLocation storage in GetLocations (objectID, new DicomMediaProperties ( MimeMediaTypes.Json, selectedTransfer ) ) )
                 {
                     exists = true ;
-
+                    
                     using (var memoryStream = new MemoryStream())
                     {
                         storage.Download ( memoryStream ) ;
@@ -233,6 +214,8 @@ namespace DICOMcloud.Wado.Core
                         jsonArray.Append (",") ;
                     }
                 }
+
+                if ( exists ) { break ; }
             }
 
             fullJsonResponse.Append(jsonArray.ToString().TrimEnd(','));
@@ -240,13 +223,23 @@ namespace DICOMcloud.Wado.Core
 
             if ( exists ) 
             {
-                response.Content =  new MemoryStream (System.Text.Encoding.UTF8.GetBytes(fullJsonResponse.ToString()));
-                response.MimeType = MimeMediaTypes.Json ;
+                var content  = new StreamContent ( new MemoryStream (System.Text.Encoding.UTF8.GetBytes(fullJsonResponse.ToString())) ) ;
             
-                responses.Add (response) ;
+                content.Headers.ContentType= new System.Net.Http.Headers.MediaTypeHeaderValue (MimeMediaTypes.Json);
+            
+                if ( !string.IsNullOrWhiteSpace ( selectedTransfer ) )
+                {
+                    content.Headers.ContentType.Parameters.Add ( new NameValueHeaderValue ( "transfer-syntax", "\"" + selectedTransfer + "\""));
+                }
+
+                response.Content =  content ;
+            }
+            else
+            {
+                response = new HttpResponseMessage ( System.Net.HttpStatusCode.NotFound ) ;
             }
             
-            return MimeMediaTypes.Json ;
+            return response ;
         }
 
 
@@ -255,53 +248,44 @@ namespace DICOMcloud.Wado.Core
         /// Accept: multipart/related; type="image/jpx"; transfer-syntax=1.2.840.10008.1.2.4.93
         /// Accept: multipart/related; type="image/jpeg"
         /// </Examples>
-        private string ProcessMultipartRequest
+        protected virtual IEnumerable<IWadoRsResponse> ProcessMultipartRequest
         (
             IObjectID objectID,
-            List<IWadoRsResponse> responses, 
-            MediaTypeWithQualityHeaderValue mediaType
+            MediaTypeWithQualityHeaderValue mediaTypeHeader
+            
         )
         {
-            var mediaTypeHeader             = mediaType.Parameters.Where (n=>n.Name == "type").FirstOrDefault() ;
-            var transferSyntaxHeader        = mediaType.Parameters.Where (n=>n.Name == "transfer-syntax") ;
-            MimeMediaType requestedMimeType = (mediaTypeHeader != null) ? mediaTypeHeader.Value.Trim('"') : MimeMediaTypes.UncompressedData ;
-            List<string> transferSyntaxes   = new List<string> ( ) ;
-            string        defaultTransfer ;
-            
+            string              subMediaType;
+            IEnumerable<string> transferSyntaxes ;
+            string              defaultTransfer = null;
+            bool                instancesFound = false ;
 
-            DefaultMediaTransferSyntax.Instance.TryGetValue ( requestedMimeType, out defaultTransfer ) ;
+            subMediaType = GetSubMediaType(mediaTypeHeader) ;
 
-            if ( 0 == transferSyntaxHeader.Count ( ) )
+            DefaultMediaTransferSyntax.Instance.TryGetValue ( subMediaType, out defaultTransfer );
+
+            transferSyntaxes = GetRequestedTransferSyntax ( mediaTypeHeader, defaultTransfer );
+
+            foreach ( var result in RetrieveService.FindSopInstances ( objectID, subMediaType, transferSyntaxes, defaultTransfer ) )
             {
-                transferSyntaxes.Add ( defaultTransfer ) ;
-            }
-            else
-            {
-                transferSyntaxes.AddRange ( transferSyntaxHeader.Select ( n=>n.Value ) ) ;
-            }
+                instancesFound = true ;
 
-            foreach ( var transfer in transferSyntaxes )
-            {
-                foreach ( IStorageLocation location in GetLocations ( objectID, new DicomMediaProperties ( requestedMimeType, (transfer == "*") ? defaultTransfer : transfer) ) )
-                {
-                    IWadoRsResponse response = new WadoResponse (location, requestedMimeType) { TransferSyntax = transfer } ;
-                    
-
-                    responses.Add ( response ) ;
-                }
-
-                if ( responses.Count > 0 )
-                {
-                    break ;//transfer found
-                }
+                yield return new WadoResponse ( result.Location.GetReadStream ( ), subMediaType ) { TransferSyntax = result.TransferSyntax };
             }
 
-            if ( responses.Count == 0 ) //TODO: generate on the fly!
+            if ( !instancesFound )
             {
+                string defaultDicomTransfer ;
+
+
+                DefaultMediaTransferSyntax.Instance.TryGetValue ( MimeMediaTypes.DICOM, out defaultDicomTransfer ) ; 
                 
+
+                foreach ( var result in RetrieveService.GetTransformedSopInstances ( objectID, MimeMediaTypes.DICOM, defaultDicomTransfer, subMediaType, transferSyntaxes.FirstOrDefault ( ) ) )
+                {
+                    yield return new WadoResponse ( result.Location.GetReadStream ( ), subMediaType ) { TransferSyntax = result.TransferSyntax };
+                }
             }
-            
-            return requestedMimeType ;
         }
 
         protected virtual IEnumerable<IStorageLocation> GetLocations ( IObjectID request, DicomMediaProperties mediaInfo )
@@ -319,6 +303,51 @@ namespace DICOMcloud.Wado.Core
             {
                 return RetrieveService.RetrieveSopInstances ( request, mediaInfo ) ;
             }
+        }
+
+        protected virtual bool IsMultiPartRequest ( IWadoRequestHeader header )
+        {
+            return ( (MimeMediaType) MimeMediaTypes.MultipartRelated ).IsIn ( header.AcceptHeader ) ;
+        }
+
+        
+        private static void AddMultipartContent ( MultipartContent multiContent, IWadoRsResponse wadoResponse )
+        {
+            StreamContent sContent = new StreamContent ( wadoResponse.Content );
+
+            sContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue ( wadoResponse.MimeType );
+
+            multiContent.Add ( sContent );
+        }
+
+        private static IEnumerable<string> GetRequestedTransferSyntax  (  MediaTypeWithQualityHeaderValue mediaTypeHeader, string defaultTransfer )
+        {
+            //TODO: this should be extended to include query parameters in the request?
+            List<string> transferSyntaxes ;
+            IEnumerable<NameValueHeaderValue> transferSyntaxHeader ;
+
+            
+            transferSyntaxes     = new List<string> ( ) ;
+            transferSyntaxHeader = mediaTypeHeader.Parameters.Where ( n => n.Name == "transfer-syntax" );
+
+            if ( 0 == transferSyntaxHeader.Count ( ) )
+            {
+                transferSyntaxes.Add ( defaultTransfer );
+            }
+            else
+            {
+                transferSyntaxes.AddRange ( transferSyntaxHeader.Select ( n => n.Value ) );
+            }
+
+            return transferSyntaxes ;
+        }
+
+        private static string GetSubMediaType ( MediaTypeWithQualityHeaderValue mediaTypeHeader )
+        {
+        
+            var subMediaTypeHeader = mediaTypeHeader.Parameters.Where ( n => n.Name == "type" ).FirstOrDefault ( );
+
+            return subMediaTypeHeader.Value.Trim ( '"' ) ;
         }
     }
 }

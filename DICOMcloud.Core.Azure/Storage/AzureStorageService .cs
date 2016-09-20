@@ -8,9 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DICOMcloud.Core.Storage;
+using DICOMcloud.Core.Extensions;
 using System.Collections;
 using System.IO;
 using Microsoft.Azure;
+using System.Text.RegularExpressions;
 
 namespace DICOMcloud.Core.Azure.Storage
 {
@@ -49,15 +51,19 @@ namespace DICOMcloud.Core.Azure.Storage
 
         protected override IStorageContainer GetContainer(string containerKey)
         {
-            CloudBlobContainer cloudContainer = __CloudClient.GetContainerReference(containerKey);
+            containerKey = GetValidContainerKey ( containerKey );
 
-            cloudContainer.CreateIfNotExists();
+            CloudBlobContainer cloudContainer = __CloudClient.GetContainerReference ( containerKey );
 
-            return new AzureContainer(cloudContainer);
+            cloudContainer.CreateIfNotExists ( );
+
+            return new AzureContainer ( cloudContainer );
         }
-        
+
         protected override IEnumerable<IStorageContainer> GetContainers ( string containerKey ) 
         {
+            containerKey = GetValidContainerKey ( containerKey );
+
             foreach ( var container in __CloudClient.ListContainers ( containerKey, ContainerListingDetails.None ) )
             {
                 yield return GetContainer ( containerKey ) ;
@@ -77,8 +83,6 @@ namespace DICOMcloud.Core.Azure.Storage
         //            }
         //        }
 
-        private CloudBlobClient __CloudClient { get; set; }
-        
         protected override IKeyProvider CreateKeyProvider()
         {
             return new AzureKeyProvider ( ) ;
@@ -86,9 +90,24 @@ namespace DICOMcloud.Core.Azure.Storage
 
         protected override bool ContainerExists ( string containerKey )
         {
+            containerKey = GetValidContainerKey ( containerKey );
+
             CloudBlobContainer cloudContainer = __CloudClient.GetContainerReference ( containerKey ) ;
 
             return cloudContainer.Exists ( ) ;
         }
+
+        private static string GetValidContainerKey ( string containerKey )
+        {
+            containerKey = containerKey.ToLower ( );
+
+
+            containerKey = containerKey.Replace ( __Separators, "a" );
+            return containerKey;
+        }
+
+        private CloudBlobClient __CloudClient { get; set; }
+
+        private static char[] __Separators = "!@#$%^&*()+=[]{}\\|;':\",.<>/?~`".ToCharArray ( )  ;
     }
 }
