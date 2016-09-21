@@ -217,3 +217,4 @@ ModelManifest.xml
 /DICOMcloud.Wado/Web.config
 /DICOMcloud.VC.VC.opendb
 /DICOMcloud.VC.db
+/DICOMcloud.Wado/Properties/PublishProfiles/dicomcloud - Web Deploy.pubxml
