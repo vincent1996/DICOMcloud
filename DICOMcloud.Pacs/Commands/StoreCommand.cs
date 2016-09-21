@@ -136,8 +136,8 @@ namespace DICOMcloud.Pacs.Commands
             MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Json ) ) ;
             MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.UncompressedData, fo.DicomTransferSyntax.ExplicitVRLittleEndian.UID.UID ) ) ;
             MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.xmlDicom ) ) ;
-            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.JPEG2000Lossless.UID.UID ) ) ;
-            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.JPEG2000Lossy.UID.UID ) ) ;
+            //MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.JPEG2000Lossless.UID.UID ) ) ;
+            //MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.JPEG2000Lossy.UID.UID ) ) ;
             //MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Jpeg, fo.DicomTransferSyntax.JPEGProcess14SV1.UID.UID ) ) ;
             //MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Jpeg, fo.DicomTransferSyntax.JPEGProcess1.UID.UID ) ) ;
         }
