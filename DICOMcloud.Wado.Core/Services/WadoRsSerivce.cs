@@ -85,9 +85,9 @@ namespace DICOMcloud.Wado.Core
         {
             if ( IsMultiPartRequest ( request ) )
             {
-                var subMediaHeader = request.AcceptHeader.FirstOrDefault ( ) ;
+                var subMediaHeader = GetSubMediaType ( request.AcceptHeader.FirstOrDefault ( ) ) ;
 
-                if ( null == subMediaHeader || subMediaHeader.MediaType != MimeMediaTypes.xmlDicom ) 
+                if ( null == subMediaHeader || subMediaHeader != MimeMediaTypes.xmlDicom ) 
                 {
                     return new HttpResponseMessage ( System.Net.HttpStatusCode.BadRequest ) ;
                 }

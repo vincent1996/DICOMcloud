@@ -47,15 +47,17 @@ namespace DICOMcloud.Pacs
 
                 var    mediaProperties = new DicomMediaProperties ( mediaType, instanceTransfer ) ;
                 var    mediaID         = new DicomMediaId ( query, mediaProperties ) ;
-
+                var    found           = false ;
                 
-                if ( StorageService.Exists ( mediaID ) )
+                foreach ( IStorageLocation location in StorageService.EnumerateLocation ( mediaID ) )
                 {
-                    foreach ( IStorageLocation location in StorageService.EnumerateLocation ( mediaID ) )
-                    {
-                        yield return new ObjectRetrieveResult ( location, transfer ) ;
-                    }
+                    found = true ;
+
+                    yield return new ObjectRetrieveResult ( location, transfer ) ;
+                }
                 
+                if (found)
+                {
                     break ;
                 }
             }
