@@ -12,7 +12,7 @@ There is a client Demo that I open sourced and hosting:
 [https://github.com/Zaid-Safadi/dicom-webJS](https://github.com/Zaid-Safadi/dicom-webJS/)
 
 # Implementation
-The code is built with .NET 4.5.2 and Visual Studio 2015. The web services are built as ASP.NET REST WebApi Controllers.
+The server code is written in C# .NET 4.5.2 and Visual Studio 2015. The web services are built as ASP.NET REST WebApi Controllers.
 Check the [code and project's structure](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Code-and-Projects-Structure) wiki page for more details.
 
 Physical DICOM storage is supported on both, either Windows File System or Azure Blob Storage.
