@@ -327,12 +327,12 @@ DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn ) ;
 
                 if (dateTimeIndex < dateValuesCount)
                 {
-                    dateString = dateElement == null ? null : dateElement.Get<string>(0); //TODO: test - original code returns "" as default
+                    dateString = dateElement == null || dateElement.Count == 0 ? null : dateElement.Get<string>(0); //TODO: test - original code returns "" as default
                 }
 
                 if (dateTimeIndex < dateValuesCount)
                 {
-                    timeString = timeElement == null ? null : timeElement.Get<string>(0); //TODO: test - original code returns "" as default
+                    timeString = timeElement == null || timeElement.Count == 0 ? null : timeElement.Get<string>(0); //TODO: test - original code returns "" as default
                 }
 
                 values.AddRange(GetDateTimeValues(dateString, timeString));
