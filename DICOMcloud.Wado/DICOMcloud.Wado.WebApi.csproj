@@ -244,6 +244,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Swagger\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\App.cs" />
@@ -284,6 +285,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\QidoRSController.cs" />
     <Compile Include="Controllers\StowRSController.cs" />
+    <Compile Include="Controllers\SwaggerController.cs" />
     <Compile Include="Controllers\WadoUriController.cs" />
     <Compile Include="Controllers\WadoRSController.cs" />
     <Compile Include="Global.asax.cs">
