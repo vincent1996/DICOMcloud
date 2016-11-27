@@ -333,6 +333,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="logo.png" />
     <Content Include="packages.config">
       <SubType>Designer</SubType>
     </Content>
