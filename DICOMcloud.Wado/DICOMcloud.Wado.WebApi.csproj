@@ -70,32 +70,32 @@
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AI.Agent.Intercept, Version=1.2.0.1011, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.1.2.0\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
+    <Reference Include="Microsoft.AI.Agent.Intercept, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Agent.Intercept.2.0.1\lib\net45\Microsoft.AI.Agent.Intercept.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AI.DependencyCollector, Version=1.2.3.246, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.1.2.3\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
+    <Reference Include="Microsoft.AI.DependencyCollector, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.DependencyCollector.2.2.0-beta2\lib\net45\Microsoft.AI.DependencyCollector.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=1.2.3.246, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.1.2.3\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
+    <Reference Include="Microsoft.AI.PerfCounterCollector, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.PerfCounterCollector.2.2.0-beta2\lib\net45\Microsoft.AI.PerfCounterCollector.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=1.2.3.246, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.1.2.3\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
+    <Reference Include="Microsoft.AI.ServerTelemetryChannel, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.TelemetryChannel.2.2.0-beta2\lib\net45\Microsoft.AI.ServerTelemetryChannel.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AI.Web, Version=1.2.3.246, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.1.2.3\lib\net45\Microsoft.AI.Web.dll</HintPath>
+    <Reference Include="Microsoft.AI.Web, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.Web.2.2.0-beta2\lib\net45\Microsoft.AI.Web.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AI.WindowsServer, Version=1.2.3.246, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.1.2.3\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
+    <Reference Include="Microsoft.AI.WindowsServer, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.WindowsServer.2.2.0-beta2\lib\net45\Microsoft.AI.WindowsServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.ApplicationInsights, Version=1.2.3.490, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.ApplicationInsights.1.2.3\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
+    <Reference Include="Microsoft.ApplicationInsights, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.ApplicationInsights.2.2.0-beta2\lib\net45\Microsoft.ApplicationInsights.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Azure.KeyVault.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -151,14 +151,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Swashbuckle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cd1bb07a5ac7c7bc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Swashbuckle.Core.Net45.5.2.1\lib\net45\Swashbuckle.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Swashbuckle.WebHost, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Swashbuckle.Net45.5.2.1\lib\net45\Swashbuckle.WebHost.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -259,7 +251,6 @@
     <Compile Include="App_Start\DicomWritersConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
-    <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\UnityConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -340,6 +331,7 @@
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="packages.config">
       <SubType>Designer</SubType>
@@ -361,6 +353,56 @@
     <Content Include="Scripts\respond.matchmedia.addListener.js" />
     <Content Include="Scripts\respond.matchmedia.addListener.min.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="swagger\css\print.css" />
+    <Content Include="swagger\css\reset.css" />
+    <Content Include="swagger\css\screen.css" />
+    <Content Include="swagger\css\style.css" />
+    <Content Include="swagger\css\typography.css" />
+    <Content Include="swagger\images\collapse.gif" />
+    <Content Include="swagger\images\expand.gif" />
+    <Content Include="swagger\images\explorer_icons.png" />
+    <Content Include="swagger\images\favicon-16x16.png" />
+    <Content Include="swagger\images\favicon-32x32.png" />
+    <Content Include="swagger\images\favicon.ico" />
+    <Content Include="swagger\images\logo_small.png" />
+    <Content Include="swagger\images\pet_store_api.png" />
+    <Content Include="swagger\images\throbber.gif" />
+    <Content Include="swagger\images\wordnik_api.png" />
+    <Content Include="swagger\index.html" />
+    <Content Include="swagger\lang\ca.js" />
+    <Content Include="swagger\lang\el.js" />
+    <Content Include="swagger\lang\en.js" />
+    <Content Include="swagger\lang\es.js" />
+    <Content Include="swagger\lang\fr.js" />
+    <Content Include="swagger\lang\geo.js" />
+    <Content Include="swagger\lang\it.js" />
+    <Content Include="swagger\lang\ja.js" />
+    <Content Include="swagger\lang\ko-kr.js" />
+    <Content Include="swagger\lang\pl.js" />
+    <Content Include="swagger\lang\pt.js" />
+    <Content Include="swagger\lang\ru.js" />
+    <Content Include="swagger\lang\tr.js" />
+    <Content Include="swagger\lang\translator.js" />
+    <Content Include="swagger\lang\zh-cn.js" />
+    <Content Include="swagger\lib\backbone-min.js" />
+    <Content Include="swagger\lib\es5-shim.js" />
+    <Content Include="swagger\lib\handlebars-4.0.5.js" />
+    <Content Include="swagger\lib\highlight.9.1.0.pack.js" />
+    <Content Include="swagger\lib\highlight.9.1.0.pack_extended.js" />
+    <Content Include="swagger\lib\jquery-1.8.0.min.js" />
+    <Content Include="swagger\lib\jquery.ba-bbq.min.js" />
+    <Content Include="swagger\lib\jquery.slideto.min.js" />
+    <Content Include="swagger\lib\jquery.wiggle.min.js" />
+    <Content Include="swagger\lib\js-yaml.min.js" />
+    <Content Include="swagger\lib\jsoneditor.min.js" />
+    <Content Include="swagger\lib\lodash.min.js" />
+    <Content Include="swagger\lib\marked.js" />
+    <Content Include="swagger\lib\object-assign-pollyfill.js" />
+    <Content Include="swagger\lib\sanitize-html.min.js" />
+    <Content Include="swagger\lib\swagger-oauth.js" />
+    <Content Include="swagger\o2c.html" />
+    <Content Include="swagger\swagger-ui.js" />
+    <Content Include="swagger\swagger-ui.min.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -382,6 +424,9 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\UserProfile.cshtml" />
     <Content Include="Service References\Application Insights\ConnectedService.json" />
+    <Content Include="swagger\fonts\DroidSans-Bold.ttf" />
+    <Content Include="swagger\fonts\DroidSans.ttf" />
+    <Content Include="swagger\swagger.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DICOMcloud.Core.Azure\DICOMcloud.Core.Azure.csproj">
@@ -522,6 +567,7 @@
     <TypeScriptSourceMap>True</TypeScriptSourceMap>
     <TypeScriptMapRoot />
     <TypeScriptSourceRoot />
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Test|AnyCPU'">
     <TypeScriptTarget>ES5</TypeScriptTarget>

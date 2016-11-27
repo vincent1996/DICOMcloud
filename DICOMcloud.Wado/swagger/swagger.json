@@ -1,0 +1,1551 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "v1",
+        "title": "DICOMcloud.Wado"
+    },
+    "host": "localhost:44301",
+    "schemes": [
+        "https"
+    ],
+    "paths": {
+        "/qidors/studies": {
+            "get": {
+                "tags": [
+                    "QidoRS"
+                ],
+                "summary": "Look up studies (i.e., for a particular patient)",
+                "operationId": "QidoRS_SearchForStudies",
+                "produces": [
+                    "application/dicom+json",
+                    "multipart/related; type=\"application/dicom+xml\""
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/study-attributeID"
+                    },
+                    {
+                        "$ref": "#/parameters/includefield"
+                    },
+                    {
+                        "$ref": "#/parameters/fuzzymatching"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/qidoOK"
+                    },
+                    "400": {
+                        "$ref": "#/responses/qidoBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/qidoUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/qidoForbidden"
+                    },
+                    "413": {
+                        "$ref": "#/responses/qidoTooLong"
+                    },
+                    "503": {
+                        "$ref": "#/responses/qidoBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/qidors/studies/{StudyInstanceUID}/series": {
+            "get": {
+                "tags": [
+                    "QidoRS"
+                ],
+                "summary": "Look up a series",
+                "operationId": "QidoRS_SearchForSeries",
+                "consumes": [],
+                "produces": [
+                    "application/dicom+json",
+                    "multipart/related; type=\"application/dicom+xml\""
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/series-studyInstance"
+                    },
+                    {
+                        "$ref": "#/parameters/series-attributeID"
+                    },
+                    {
+                        "$ref": "#/parameters/includefield"
+                    },
+                    {
+                        "$ref": "#/parameters/fuzzymatching"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/qidoOK"
+                    },
+                    "400": {
+                        "$ref": "#/responses/qidoBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/qidoUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/qidoForbidden"
+                    },
+                    "413": {
+                        "$ref": "#/responses/qidoTooLong"
+                    },
+                    "503": {
+                        "$ref": "#/responses/qidoBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/qidors/series": {
+            "get": {
+                "tags": [
+                    "QidoRS"
+                ],
+                "summary": "Look up a series",
+                "operationId": "QidoRS_SearchForSeries1",
+                "consumes": [],
+                "produces": [
+                    "application/dicom+json",
+                    "multipart/related; type=\"application/dicom+xml\""
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/series-attributeID"
+                    },
+                    {
+                        "$ref": "#/parameters/includefield"
+                    },
+                    {
+                        "$ref": "#/parameters/fuzzymatching"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/qidoOK"
+                    },
+                    "400": {
+                        "$ref": "#/responses/qidoBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/qidoUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/qidoForbidden"
+                    },
+                    "413": {
+                        "$ref": "#/responses/qidoTooLong"
+                    },
+                    "503": {
+                        "$ref": "#/responses/qidoBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/qidors/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances": {
+            "get": {
+                "tags": [
+                    "QidoRS"
+                ],
+                "summary": "Look up instances",
+                "operationId": "QidoRS_SearchForInstances",
+                "consumes": [],
+                "produces": [
+                    "application/dicom+json",
+                    "multipart/related; type=\"application/dicom+xml\""
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/instance-studyInstance"
+                    },
+                    {
+                        "$ref": "#/parameters/seriesInstance"
+                    },
+                    {
+                        "$ref": "#/parameters/instance-attributeID"
+                    },
+                    {
+                        "$ref": "#/parameters/includefield"
+                    },
+                    {
+                        "$ref": "#/parameters/fuzzymatching"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/qidoOK"
+                    },
+                    "400": {
+                        "$ref": "#/responses/qidoBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/qidoUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/qidoForbidden"
+                    },
+                    "413": {
+                        "$ref": "#/responses/qidoTooLong"
+                    },
+                    "503": {
+                        "$ref": "#/responses/qidoBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/qidors/studies/{StudyInstanceUID}/instances": {
+            "get": {
+                "tags": [
+                    "QidoRS"
+                ],
+                "summary": "Look up instances",
+                "operationId": "QidoRS_SearchForInstances1",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/instance-studyInstance"
+                    },
+                    {
+                        "$ref": "#/parameters/instance-attributeID"
+                    },
+                    {
+                        "$ref": "#/parameters/includefield"
+                    },
+                    {
+                        "$ref": "#/parameters/fuzzymatching"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/qidoOK"
+                    },
+                    "400": {
+                        "$ref": "#/responses/qidoBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/qidoUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/qidoForbidden"
+                    },
+                    "413": {
+                        "$ref": "#/responses/qidoTooLong"
+                    },
+                    "503": {
+                        "$ref": "#/responses/qidoBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/qidors/instances": {
+            "get": {
+                "tags": [
+                    "QidoRS"
+                ],
+                "summary": "Look up instances",
+                "operationId": "QidoRS_SearchForInstances2",
+                "consumes": [],
+                "produces": [
+                    "application/dicom+json",
+                    "multipart/related; type=\"application/dicom+xml\""
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/instance-attributeID"
+                    },
+                    {
+                        "$ref": "#/parameters/includefield"
+                    },
+                    {
+                        "$ref": "#/parameters/fuzzymatching"
+                    },
+                    {
+                        "$ref": "#/parameters/limit"
+                    },
+                    {
+                        "$ref": "#/parameters/offset"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/qidoOK"
+                    },
+                    "400": {
+                        "$ref": "#/responses/qidoBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/qidoUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/qidoForbidden"
+                    },
+                    "413": {
+                        "$ref": "#/responses/qidoTooLong"
+                    },
+                    "503": {
+                        "$ref": "#/responses/qidoBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/stowrs/studies/{StudyInstanceUID}": {
+            "post": {
+                "tags": [
+                    "StowRS"
+                ],
+                "operationId": "StowRS_Post",
+                "consumes": [
+                    "multipart/related; type=\"application/dicom\"; boundary={messageBoundary},",
+                    "multipart/related; type=\"application/dicom+xml\"; boundary={messageBoundary},",
+                    "multipart/related; type=\"application/dicom+json\"; boundary={messageBoundary}"
+                ],
+                "produces": [
+                    "application/dicom+xml",
+                    "application/dicom+json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/stowStudyInstanceUID"
+                    },
+                    {
+                        "$ref": "#/parameters/stowContent"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/stowOK"
+                    },
+                    "202": {
+                        "$ref": "#/responses/stowAccepted"
+                    },
+                    "400": {
+                        "$ref": "#/responses/stowBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/stowUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/stowForbidden"
+                    },
+                    "409": {
+                        "$ref": "#/responses/stowConflict"
+                    },
+                    "415": {
+                        "$ref": "#/responses/stowUnsupportedMedia"
+                    },
+                    "503": {
+                        "$ref": "#/responses/stowBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/stowrs/studies/": {
+            "post": {
+                "tags": [
+                    "StowRS"
+                ],
+                "operationId": "StowRS_Post2",
+                "consumes": [
+                    "multipart/related; type=\"application/dicom\"; boundary={messageBoundary},",
+                    "multipart/related; type=\"application/dicom+xml\"; boundary={messageBoundary},",
+                    "multipart/related; type=\"application/dicom+json\"; boundary={messageBoundary}"
+                ],
+                "produces": [
+                    "application/dicom+xml",
+                    "application/dicom+json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/stowContent"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/stowOK"
+                    },
+                    "202": {
+                        "$ref": "#/responses/stowAccepted"
+                    },
+                    "400": {
+                        "$ref": "#/responses/stowBadRequest"
+                    },
+                    "401": {
+                        "$ref": "#/responses/stowUnauthorized"
+                    },
+                    "403": {
+                        "$ref": "#/responses/stowForbidden"
+                    },
+                    "409": {
+                        "$ref": "#/responses/stowConflict"
+                    },
+                    "415": {
+                        "$ref": "#/responses/stowUnsupportedMedia"
+                    },
+                    "503": {
+                        "$ref": "#/responses/stowBusy"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/wadors/studies/{StudyInstanceUID}": {
+            "get": {
+                "tags": [
+                    "WadoRS"
+                ],
+                "operationId": "WadoRS_GetStudies",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "StudyInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/wadors/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}": {
+            "get": {
+                "tags": [
+                    "WadoRS"
+                ],
+                "operationId": "WadoRS_GetSeries",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "StudyInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SeriesInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.seriesInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/wadors/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}": {
+            "get": {
+                "tags": [
+                    "WadoRS"
+                ],
+                "operationId": "WadoRS_GetInstance",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "StudyInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SeriesInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SOPInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.seriesInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.sOPInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.frame",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/wadors/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/frames/{FrameList}": {
+            "get": {
+                "tags": [
+                    "WadoRS"
+                ],
+                "operationId": "WadoRS_GetFrames",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "StudyInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SeriesInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SOPInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "FrameList",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.frames",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.seriesInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.sOPInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.frame",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/wadors/studies/{StudyInstanceUID}/metadata": {
+            "get": {
+                "tags": [
+                    "WadoRS"
+                ],
+                "operationId": "WadoRS_GetStudiesMetadata",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "StudyInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/wadors/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/metadata": {
+            "get": {
+                "tags": [
+                    "WadoRS"
+                ],
+                "operationId": "WadoRS_GetSeriesMetadata",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "StudyInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SeriesInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.seriesInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/wadors/studies/{StudyInstanceUID}/series/{SeriesInstanceUID}/instances/{SOPInstanceUID}/metadata": {
+            "get": {
+                "tags": [
+                    "WadoRS"
+                ],
+                "operationId": "WadoRS_GetInstanceMetadata",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "StudyInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SeriesInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "SOPInstanceUID",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.seriesInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.sOPInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.frame",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/api/WadoUri": {
+            "get": {
+                "tags": [
+                    "WadoUri"
+                ],
+                "operationId": "WadoUri_Get",
+                "consumes": [],
+                "produces": [
+                    "application/json",
+                    "text/json",
+                    "application/xml",
+                    "text/xml"
+                ],
+                "parameters": [
+                    {
+                        "name": "request.requestType",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.contentType",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.charset",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.anonymize",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.burnAnnotation",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32",
+                        "enum": [
+                            0,
+                            1,
+                            2
+                        ]
+                    },
+                    {
+                        "name": "request.imageRequestInfo.rows",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.columns",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.frameNumber",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.imageQuality",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.region",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.windowCenter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.windowWidth",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.presentationUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.presentationSeriesUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.imageRequestInfo.transferSyntax",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.acceptHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.acceptCharsetHeader",
+                        "in": "query",
+                        "required": false,
+                        "type": "array",
+                        "items": {}
+                    },
+                    {
+                        "name": "request.sOPInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.frame",
+                        "in": "query",
+                        "required": false,
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "request.seriesInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "request.studyInstanceUID",
+                        "in": "query",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        }
+    },
+    "parameters": {
+        "series-studyInstance": {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Study Instance UID of the returned series"
+        },
+        "instance-studyInstance": {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Study Instance UID of the returned instance"
+        },
+        "seriesInstance": {
+            "name": "SeriesInstanceUID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Series Instance UID of the returned instance"
+        },
+        "study-attributeID": {
+            "name": "0020000D",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "collectionFormat": "multi",
+            "format": "attributeID=value",
+            "description": "0-n / {attributeID}={value} pairs allowed. {attributeID} is any {dicomTag} in Hex representation. 0020000D is for Study Instance UID"
+        },
+        "series-attributeID": {
+            "name": "00200010",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "collectionFormat": "multi",
+            "format": "attributeID=value",
+            "description": "0-n / {attributeID}={value} pairs allowed. {attributeID} is any {dicomTag} in Hex representation. 00200010 is for Study ID"
+        },
+        "instance-attributeID": {
+            "name": "00080060",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "collectionFormat": "multi",
+            "format": "attributeID=value",
+            "description": "0-n / {attributeID}={value} pairs allowed. {attributeID} is any {dicomTag} in Hex representation. 00080060 is for Modality"
+        },
+        "includefield": {
+            "name": "includefield",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "collectionFormat": "multi",
+            "format": "includefield=attributeID",
+            "description": "0-n includefield / {attributeID} pairs allowed (e.g. includefield=00100020)"
+        },
+        "fuzzymatching": {
+            "name": "fuzzymatching",
+            "in": "query",
+            "required": false,
+            "type": "boolean",
+            "description": "fuzzy matching is always supported by the server"
+        },
+        "limit": {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "description": "Not supported. Per DICOM, The “limit” parameter value is an unsigned integer, which specifies the maximum number of results the origin server should return.If the “limit” parameter is not present, its value is 50."
+        },
+        "offset": {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64",
+            "description": "Not supported. Per DICOM, The “offset” parameter value is an unsigned integer, which specifies the number of results the origin server should skip before thefirst returned result. If the “offset” query parameter is not present, its value is 0."
+        },
+        "stowStudyInstanceUID": {
+            "name": "StudyInstanceUID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "default": "",
+            "description": "is the study instance UID for a single study. If not specified, instances can be from multiple studies. If specified, all instances shall be from that study; instances not matching the StudyInstanceUID shall be rejected."
+        },
+        "stowContent": {
+            "name": "content",
+            "in": "body",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/Object"
+            },
+            "description": " 1. (supported) The DICOM Request Message has a multipart body.  \n\n  * *Content-Type*: multipart/related; type=\"application/dicom\"; boundary={MessageBoundary} \n\n  * The multipart request body contains every instance to be stored. Each instance is in a separate part of the multipart body. \n\n  * Each part in the multipart body represents a DICOM SOP Instance with the following HTTP headers: Content-Type: application/dicom\n\n\n\n1. (not supported) The XML Metadata and Bulk Data Request Message has a multipart body.\n\n2. (not supported) The JSON Metadata and Bulk Data Request Message has a multipart body."
+        }
+    },
+    "responses": {
+        "qidoOK": {
+            "description": "OK. The query completed and any matching results are returned in the message body."
+        },
+        "qidoBadRequest": {
+            "description": "Bad Request. The QIDO-RS Provider was unable to perform the query because the ServiceProvider cannot understand the query component."
+        },
+        "qidoUnauthorized": {
+            "description": "(not used) Unauthorized. The QIDO-RS Provider refused to perform the query because the client is notauthenticated."
+        },
+        "qidoForbidden": {
+            "description": "(not used) Forbidden. The QIDO-RS Provider understood the request, but is refusing to perform thequery (e.g., an authenticated user with insufficient privileges)."
+        },
+        "qidoTooLong": {
+            "description": "(not used) Request Too Long. The query was too broad and a narrower query or paging should be requested.The use of this status code should be documented in the conformance statement."
+        },
+        "qidoBusy": {
+            "description": "Busy. Service is unavailable."
+        },
+        "stowBadRequest": {
+            "description": "Bad Request. This indicates that the STOW-RS Service was unable to store any instances due tobad syntax."
+        },
+        "stowUnauthorized": {
+            "description": "Unauthorized. This indicates that the STOW-RS Service refused to create or append any instancesbecause the client is not authorized."
+        },
+        "stowForbidden": {
+            "description": "Forbidden. This indicates that the STOW-RS Service understood the request, but is refusing tofulfill it (e.g., an authorized user with insufficient privileges)."
+        },
+        "stowConflict": {
+            "description": "Conflict. This indicates that the STOW-RS Service request was formed correctly but the servicewas unable to store any instances due to a conflict in the request (e.g., unsupported SOP Class or StudyInstanceUID mismatch). This may also be used to indicate that a STOW-RS Service was unable to store any instances for a mixture of reasons. Additional information regarding the instance errors can be found in the XML response message body."
+        },
+        "stowUnsupportedMedia": {
+            "description": "Unsupported Media. This indicates that the STOW-RS Service does not support the Content-Type specifiedin the storage request (e.g., the service does not support JSON metadata)."
+        },
+        "stowBusy": {
+            "description": "Busy. This indicates that the STOW-RS Service was unable to store any instances because it was out of resources."
+        },
+        "stowAccepted": {
+            "description": "Accepted. This indicates that the STOW-RS Service stored some of the instances but warnings or failures exist for others. Additional information regarding this error can be found in the XML response message body"
+        },
+        "stowOK": {
+            "description": "OK. This indicates that the STOW-RS Service successfully stored all the instances."
+        }
+    },
+    "definitions": {
+        "IQidoRequestModel": {
+            "type": "object",
+            "properties": {
+                "FuzzyMatching": {
+                    "type": "boolean"
+                },
+                "Limit": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "Offset": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "Query": {
+                    "$ref": "#/definitions/QidoQuery"
+                },
+                "AcceptHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MediaTypeWithQualityHeaderValue"
+                    }
+                },
+                "AcceptCharsetHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StringWithQualityHeaderValue"
+                    }
+                }
+            }
+        },
+        "QidoQuery": {
+            "type": "object",
+            "properties": {
+                "MatchingElements": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "readOnly": true
+                },
+                "IncludeElements": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "readOnly": true
+                }
+            }
+        },
+        "MediaTypeWithQualityHeaderValue": {
+            "type": "object",
+            "properties": {
+                "Quality": {
+                    "format": "double",
+                    "type": "number"
+                },
+                "CharSet": {
+                    "type": "string"
+                },
+                "Parameters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NameValueHeaderValue"
+                    },
+                    "readOnly": true
+                },
+                "MediaType": {
+                    "type": "string"
+                }
+            }
+        },
+        "StringWithQualityHeaderValue": {
+            "type": "object",
+            "properties": {
+                "Value": {
+                    "type": "string",
+                    "readOnly": true
+                },
+                "Quality": {
+                    "format": "double",
+                    "type": "number",
+                    "readOnly": true
+                }
+            }
+        },
+        "NameValueHeaderValue": {
+            "type": "object",
+            "properties": {
+                "Name": {
+                    "type": "string",
+                    "readOnly": true
+                },
+                "Value": {
+                    "type": "string"
+                }
+            }
+        },
+        "Object": {
+            "type": "object",
+            "properties": {}
+        },
+        "IWadoRsStudiesRequest": {
+            "type": "object",
+            "properties": {
+                "AcceptHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MediaTypeWithQualityHeaderValue"
+                    }
+                },
+                "AcceptCharsetHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StringWithQualityHeaderValue"
+                    }
+                },
+                "StudyInstanceUID": {
+                    "type": "string"
+                }
+            }
+        },
+        "IWadoRsSeriesRequest": {
+            "type": "object",
+            "properties": {
+                "AcceptHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MediaTypeWithQualityHeaderValue"
+                    }
+                },
+                "AcceptCharsetHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StringWithQualityHeaderValue"
+                    }
+                },
+                "StudyInstanceUID": {
+                    "type": "string"
+                },
+                "SeriesInstanceUID": {
+                    "type": "string"
+                }
+            }
+        },
+        "IWadoRSInstanceRequest": {
+            "type": "object",
+            "properties": {
+                "AcceptHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MediaTypeWithQualityHeaderValue"
+                    }
+                },
+                "AcceptCharsetHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StringWithQualityHeaderValue"
+                    }
+                },
+                "StudyInstanceUID": {
+                    "type": "string"
+                },
+                "SeriesInstanceUID": {
+                    "type": "string"
+                },
+                "SOPInstanceUID": {
+                    "type": "string"
+                },
+                "Frame": {
+                    "format": "int32",
+                    "type": "integer"
+                }
+            }
+        },
+        "IWadoRSFramesRequest": {
+            "type": "object",
+            "properties": {
+                "Frames": {
+                    "type": "array",
+                    "items": {
+                        "format": "int32",
+                        "type": "integer"
+                    }
+                },
+                "AcceptHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MediaTypeWithQualityHeaderValue"
+                    }
+                },
+                "AcceptCharsetHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StringWithQualityHeaderValue"
+                    }
+                },
+                "StudyInstanceUID": {
+                    "type": "string"
+                },
+                "SeriesInstanceUID": {
+                    "type": "string"
+                },
+                "SOPInstanceUID": {
+                    "type": "string"
+                },
+                "Frame": {
+                    "format": "int32",
+                    "type": "integer"
+                }
+            }
+        },
+        "IWadoUriRequest": {
+            "type": "object",
+            "properties": {
+                "RequestType": {
+                    "type": "string"
+                },
+                "ContentType": {
+                    "type": "string"
+                },
+                "Charset": {
+                    "type": "string"
+                },
+                "Anonymize": {
+                    "type": "boolean"
+                },
+                "ImageRequestInfo": {
+                    "$ref": "#/definitions/IWadoUriImageRequestParams"
+                },
+                "AcceptHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/MediaTypeWithQualityHeaderValue"
+                    }
+                },
+                "AcceptCharsetHeader": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/StringWithQualityHeaderValue"
+                    }
+                },
+                "SOPInstanceUID": {
+                    "type": "string"
+                },
+                "Frame": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "SeriesInstanceUID": {
+                    "type": "string"
+                },
+                "StudyInstanceUID": {
+                    "type": "string"
+                }
+            }
+        },
+        "IWadoUriImageRequestParams": {
+            "type": "object",
+            "properties": {
+                "BurnAnnotation": {
+                    "format": "int32",
+                    "enum": [
+                        0,
+                        1,
+                        2
+                    ],
+                    "type": "integer"
+                },
+                "Rows": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "Columns": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "FrameNumber": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "ImageQuality": {
+                    "format": "int32",
+                    "type": "integer"
+                },
+                "Region": {
+                    "type": "string"
+                },
+                "WindowCenter": {
+                    "type": "string"
+                },
+                "WindowWidth": {
+                    "type": "string"
+                },
+                "PresentationUID": {
+                    "type": "string"
+                },
+                "presentationSeriesUID": {
+                    "type": "string"
+                },
+                "TransferSyntax": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
