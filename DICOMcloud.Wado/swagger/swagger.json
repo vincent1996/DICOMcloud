@@ -16,6 +16,10 @@
                 ],
                 "summary": "Look up studies (i.e., for a particular patient)",
                 "operationId": "QidoRS_SearchForStudies",
+                "consumes": [
+                    "application/dicom+json",
+                    "multipart/related; type=\"application/dicom+xml\""
+                ],
                 "produces": [
                     "application/dicom+json",
                     "multipart/related; type=\"application/dicom+xml\""
