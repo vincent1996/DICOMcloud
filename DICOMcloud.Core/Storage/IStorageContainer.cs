@@ -14,8 +14,8 @@ namespace DICOMcloud.Core.Storage
         }
 
         IStorageLocation              GetLocation    ( string name = null, IMediaId id = null ) ;
-        IEnumerable<IStorageLocation> GetLocations   (string v);
-        void                          DeleteLocation ( IStorageLocation location );
-        bool                          LocationExists ( string v );
+        IEnumerable<IStorageLocation> GetLocations   (string key );
+        bool                          LocationExists ( string key );
+        void                          Delete ( );
     }
 }

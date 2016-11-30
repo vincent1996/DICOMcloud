@@ -23,14 +23,6 @@ namespace DICOMcloud.Core.Storage
             location.Upload ( stream ) ;
         }
 
-        //public virtual Stream GetWriteStream ( string key)
-        //{
-        //    IStorageLocation location = GetLocation ( key ) ;
-
-        //    return location.GetWriteStream();
-        //}
-
-        
         public virtual IStorageLocation GetLocation ( IMediaId id )
         {
             string            key       = KeyProvider.GetStorageKey ( id ) ;
@@ -57,6 +49,26 @@ namespace DICOMcloud.Core.Storage
 
         }
 
+        public void DeleteLocations ( IMediaId id )
+        {
+            string  key          = KeyProvider.GetStorageKey ( id ) ;
+            string containerName = KeyProvider.GetContainerName ( key) ;
+            
+            
+            if ( ContainerExists ( key) )
+            {
+                var container = GetContainer ( key ) ;
+
+                container.Delete ( ) ;
+            }
+            else
+            {
+                var location = GetLocation (id ) ;
+                
+                location.Delete ( ) ;
+            }
+        }
+
         public bool Exists ( IMediaId id )
         {
             string key           = KeyProvider.GetStorageKey ( id ) ;
@@ -73,8 +85,6 @@ namespace DICOMcloud.Core.Storage
 
             return false ;
         }
-
-
 
         protected virtual IKeyProvider KeyProvider 
         { 
@@ -110,3 +120,11 @@ namespace DICOMcloud.Core.Storage
         private object       _keyLock     = new object ( ) ;
     }
 }
+
+
+//public virtual Stream GetWriteStream ( string key)
+//{
+//    IStorageLocation location = GetLocation ( key ) ;
+
+//    return location.GetWriteStream();
+//}

@@ -23,5 +23,7 @@ namespace DICOMcloud.Core.Storage
         bool   Exists ( IMediaId key ) ;
 
         IEnumerable<IStorageLocation> EnumerateLocation ( IMediaId key ) ;
+
+        void DeleteLocations ( IMediaId key ) ;
     }
 }

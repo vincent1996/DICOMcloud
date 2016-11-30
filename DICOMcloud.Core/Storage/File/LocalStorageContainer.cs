@@ -42,49 +42,41 @@ namespace DICOMcloud.Core.Storage
         }
         
 
-        //public IStorageLocation GetTempLocation ( )
-        //{
-        //    IStorageLocation location = new LocalStorageLocation ( Path.GetTempFileName ( ) ) ;
-
-        //    return location ;
-        //}
-
         public IStorageLocation GetLocation ( string name = null, IMediaId id = null )
         {
-            if ( string.IsNullOrWhiteSpace(name))
+            if ( string.IsNullOrWhiteSpace ( name ) )
             {
-                name = Guid.NewGuid ( ).ToString ( ) ;
+                name = Guid.NewGuid ( ).ToString ( );
             }
 
-            return new LocalStorageLocation ( Path.Combine ( FolderPath, name), id ) ;
+            return new LocalStorageLocation ( GetLocationPath ( name ), id );
         }
 
-        public void DeleteLocation ( IStorageLocation location )
+        public void Delete ( )
         {
-            location.Delete ( ) ;
+            Directory.Delete ( FolderPath, true ) ;
         }
 
         public IEnumerable<IStorageLocation> GetLocations ( string name )
         {
             //check if name is really a file 
             string path = Path.Combine ( FolderPath, name ) ;
-
-            if ( !Directory.Exists ( FolderPath ))
-            {
-                yield return null ;
-            }
+            
 
             if ( File.Exists (path))
             {
                 yield return GetLocation ( path ) ;
             }
-
-            if ( Directory.Exists ( path ))
+            else if ( Directory.Exists ( path ))
             {
                 foreach ( string file in Directory.EnumerateFiles ( path , "*", SearchOption.AllDirectories ) )
                 {
                     yield return GetLocation ( file ) ;
                 }
+            }
+            else
+            {
+                yield return null ;
             }
         }
 
@@ -92,5 +84,18 @@ namespace DICOMcloud.Core.Storage
         {
             return File.Exists ( Path.Combine ( FolderPath, name) ) ;
         }
+
+        protected virtual string GetLocationPath ( string name )
+        {
+            return Path.Combine ( FolderPath, name );
+        }
     }
 }
+
+
+        //public IStorageLocation GetTempLocation ( )
+        //{
+        //    IStorageLocation location = new LocalStorageLocation ( Path.GetTempFileName ( ) ) ;
+
+        //    return location ;
+        //}

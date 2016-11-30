@@ -9,6 +9,8 @@ namespace DICOMcloud.Core.Storage
 {
     public class LocalStorageLocation : IStorageLocation
     {
+        private long? _size ;
+
         public bool AutoDeleteWriteStream
         {
             get; set;
@@ -23,6 +25,25 @@ namespace DICOMcloud.Core.Storage
         }
 
         public IMediaId MediaId { get; }
+
+        public long Size
+        {
+            get
+            {
+                if ( null != _size )
+                {
+                    return _size.Value ;
+                }
+                else
+                {
+                    var fileInfo = new FileInfo ( ID ) ;
+
+                    _size = fileInfo.Length ;
+
+                    return _size.Value ;
+                }
+            }
+        }
 
         public LocalStorageLocation ( string fileName, IMediaId id = null )
         { 

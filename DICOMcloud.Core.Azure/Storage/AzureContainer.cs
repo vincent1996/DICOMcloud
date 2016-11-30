@@ -31,9 +31,9 @@ namespace DICOMcloud.Core.Azure.Storage
             }
         }
 
-        public void DeleteLocation(IStorageLocation location)
+        public void Delete()
         {
-            throw new NotImplementedException();
+            __Container.DeleteIfExists ( ) ;
         }
 
         public IStorageLocation GetLocation(string key = null, IMediaId id = null )

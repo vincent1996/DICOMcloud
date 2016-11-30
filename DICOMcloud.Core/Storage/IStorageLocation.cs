@@ -11,9 +11,10 @@ namespace DICOMcloud.Core.Storage
     {
         string   ContentType { get; }
         string   Name        { get; }
-        string   ID         { get; }
+        string   ID          { get; }
         IMediaId MediaId     { get; }
         string   Metadata    { get; set ; }
+        long     Size        {get; }
         //IStorageContainer StorageContainer { get;  }
 
 

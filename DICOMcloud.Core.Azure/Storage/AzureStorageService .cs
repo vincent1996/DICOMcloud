@@ -26,6 +26,7 @@ namespace DICOMcloud.Core.Azure.Storage
         {
             // Create a blob client for interacting with the blob service.
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            
             Init(blobClient);
         }
 

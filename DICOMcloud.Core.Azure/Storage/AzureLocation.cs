@@ -9,109 +9,128 @@ using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace DICOMcloud.Core.Azure.Storage
 {
-    public class AzureLocation : IStorageLocation
+    public class AzureLocation : ObservableStorageLocation
     {
+        private long? _size ;
+        private IMediaId _mediaId;
+
         public AzureLocation ( ICloudBlob blob, IMediaId id = null )
         {
-            __Blob  = blob;
-            MediaId = id;        
+            Blob  = blob;
+            _mediaId = id;        
         }
 
-        public void Delete()
+        public override string Name
         {
-            __Blob.Delete ();
+            get {  return Blob.Name ; }
         }
 
-        public string Name
+        public override string ID
         {
-            get {  return __Blob.Name ; }
+            get {  return Blob.Uri.AbsolutePath ; }
         }
 
-        public string ID
+        public override bool Exists()
         {
-            get {  return __Blob.Uri.AbsolutePath ; }
+            return Blob.Exists ( ) ;
         }
 
-        //public Stream GetWriteStream (  )
-        //{
-        //    stream = 
-            
-        //    return __Blob.Uri.ToString();
-        //}
-
-        public Stream Download()
-        {
-            return __Blob.OpenRead();
-        }
-
-        public void Upload(Stream stream)
-        {
-            __Blob.Properties.ContentType = ContentType ;
-            __Blob.UploadFromStream (stream);
-            
-            WriteMetadata ( ) ;
-        }
-
-        private void WriteMetadata ( )
-        {
-            __Blob.SetMetadata ( ) ;
-            //__Blob.SetProperties ( ) ;
-        }
-
-        public void Download(Stream stream)
-        {
-            __Blob.DownloadToStream ( stream ) ;
-        }
-
-        public virtual void Upload ( byte[] buffer )
-        {
-            __Blob.UploadFromByteArray ( buffer, 0, buffer.Length ) ;
-            WriteMetadata ( ) ;
-        }
-
-        public void Upload(string filename)
-        {
-            __Blob.UploadFromFile (filename ) ;
-            WriteMetadata( ) ;
-         }
-
-        public Stream GetReadStream()
-        {
-            return __Blob.OpenRead ( ) ;
-        }
-
-        public bool Exists()
-        {
-            return __Blob.Exists ( ) ;
-        }
-
-        public string ContentType 
+        public override string ContentType 
         { 
             get
             {
-                return __Blob.Properties.ContentType ;
+                return Blob.Properties.ContentType ;
             } 
         }
 
-        public IMediaId MediaId { get; private set; }
+        public override IMediaId MediaId { get { return _mediaId ; } }
 
-        private ICloudBlob __Blob
-        {
-            get; 
-            set; 
-        }
-
-        public string Metadata
+        public override long Size
         {
             get
             {
-                return __Blob.Metadata["meta"] ;
+                if ( null != _size )
+                {
+                    return _size.Value ;
+                }
+                else if ( Blob.Exists ( ) )
+                {
+
+                    Blob.FetchAttributes ( ) ;
+
+                    _size = Blob.Properties.Length ;
+
+                    return _size.Value ;
+                }
+
+                //doesn't exist
+                return 0 ;
+            }
+        }
+
+        public override string Metadata
+        {
+            get
+            {
+                return Blob.Metadata["meta"] ;
             }
 
             set
             {
-                __Blob.Metadata["meta"] = value ;
+                Blob.Metadata["meta"] = value ;
             }
+        }
+
+        protected override void DoDelete()
+        {
+            Blob.Delete ();
+        }
+
+        protected override Stream DoDownload()
+        {
+            return Blob.OpenRead();
+        }
+
+        protected override void DoDownload(Stream stream)
+        {
+            Blob.DownloadToStream ( stream ) ;
+        }
+
+        protected override void DoUpload(Stream stream)
+        {
+            Blob.Properties.ContentType = ContentType ;
+            Blob.UploadFromStream (stream);
+            
+            WriteMetadata ( ) ;
+        }
+
+        protected override void DoUpload ( byte[] buffer )
+        {
+            Blob.UploadFromByteArray ( buffer, 0, buffer.Length ) ;
+            WriteMetadata ( ) ;
+        }
+
+        protected override void DoUpload(string filename)
+        {
+            Blob.UploadFromFile (filename ) ;
+            WriteMetadata( ) ;
+         }
+
+        protected override Stream DoGetReadStream()
+        {
+            return Blob.OpenRead ( ) ;
+        }
+
+        private void WriteMetadata ( )
+        {
+            Blob.SetMetadata ( ) ;
+            //__Blob.SetProperties ( ) ;
+        }
+
+        public ICloudBlob Blob
+        {
+            get; 
+            set; 
         }
     }
 }

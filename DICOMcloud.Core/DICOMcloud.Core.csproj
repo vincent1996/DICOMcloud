@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ComonExtensions.cs" />
+    <Compile Include="EventArgs\IPropertiesEventArgs.cs" />
     <Compile Include="Messaging\EventBroker.cs" />
     <Compile Include="Helpers\ClassHelper.cs" />
     <Compile Include="Messaging\IMessageSender.cs" />
@@ -82,6 +83,10 @@
     <Compile Include="Storage\ILocationProvider.cs" />
     <Compile Include="Storage\Memory\MemoryStorageService.cs" />
     <Compile Include="Storage\Memory\MemoryStorageLocation.cs" />
+    <Compile Include="Storage\ObservableStorageLocation\LocationEventArgs.cs" />
+    <Compile Include="Storage\ObservableStorageLocation\LocationUplodedEventArgs.cs" />
+    <Compile Include="Storage\ObservableStorageLocation\LocationDownloadedEventArgs.cs" />
+    <Compile Include="Storage\ObservableStorageLocation\ObservableStorageLocation.cs" />
     <Compile Include="Storage\StorageLifetime.cs" />
     <Compile Include="Storage\File\TempFile.cs" />
     <Compile Include="Storage\TempStream.cs" />

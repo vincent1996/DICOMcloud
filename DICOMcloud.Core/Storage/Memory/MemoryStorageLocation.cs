@@ -49,17 +49,24 @@ namespace DICOMcloud.Core.Storage
             private set ;
         }
 
-        public string Metadata
+        public long Size
         {
             get
             {
-                throw new NotImplementedException ( );
-            }
+                if ( Exists ( ) )
+                {
+                    return _location.Length ;
+                }
 
-            set
-            {
-                throw new NotImplementedException ( );
+                return 0 ;
             }
+        }
+
+        public string Metadata
+        {
+            get ;
+
+            set ;
         }
 
         public string Name
