@@ -42,7 +42,7 @@ namespace DICOMcloud.Pacs.Commands
 
             StoreQueryModel ( request ) ;
             
-            EventBroker.Publish ( new DicomStoreSuccessEventArgs ( request.Metadata ) ) ;            
+            EventBroker.Instance.Publish ( new DicomStoreSuccessEventArgs ( request.Metadata ) ) ;            
             
             return null ;
         }
@@ -133,9 +133,9 @@ namespace DICOMcloud.Pacs.Commands
             MediaTypes = new List<DicomMediaProperties> ( ) ;
         
             MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.ExplicitVRLittleEndian.UID.UID ) ) ;
-//            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Json ) ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Json ) ) ;
             MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.UncompressedData, fo.DicomTransferSyntax.ExplicitVRLittleEndian.UID.UID ) ) ;
-//            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.xmlDicom ) ) ;
+            MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.xmlDicom ) ) ;
             MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.JPEG2000Lossless.UID.UID ) ) ;
             MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.DICOM, fo.DicomTransferSyntax.JPEG2000Lossy.UID.UID ) ) ;
             //MediaTypes.Add ( new DicomMediaProperties ( MimeMediaTypes.Jpeg, fo.DicomTransferSyntax.JPEGProcess14SV1.UID.UID ) ) ;
