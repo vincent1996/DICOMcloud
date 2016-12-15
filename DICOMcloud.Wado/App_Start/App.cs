@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Web.Configuration;
 using System.Web.Http;
 using DICOMcloud.Core.Azure.Storage;
 using DICOMcloud.Core.Storage;
@@ -9,6 +10,7 @@ using DICOMcloud.Dicom.DataAccess.DB.Schema;
 using DICOMcloud.Pacs;
 using DICOMcloud.Pacs.Commands;
 using DICOMcloud.Wado.Core;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure;
 using Microsoft.Practices.Unity;
 using Microsoft.WindowsAzure.Storage;
@@ -22,6 +24,8 @@ namespace DICOMcloud.Wado
     {
         private App ()
         {
+            AddInsights ( ) ;
+
             fo.Log.LogManager.SetImplementation ( Dicom.TraceLogManager.Instance ) ;
             RegisterComponents ( ) ; 
             var path = System.IO.Path.Combine ( System.Web.Hosting.HostingEnvironment.MapPath ( "~/"), "bin" ) ;
@@ -75,6 +79,16 @@ namespace DICOMcloud.Wado
             }
 
             RegisterMediaWriters(container);
+        }
+
+        private void AddInsights ( )
+        {
+            if( WebConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"] != null )
+            {
+                TelemetryConfiguration.Active.InstrumentationKey = WebConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"];    
+
+                System.Diagnostics.Trace.TraceInformation ( "Insights key added" ) ;
+            }
         }
     }
 }
