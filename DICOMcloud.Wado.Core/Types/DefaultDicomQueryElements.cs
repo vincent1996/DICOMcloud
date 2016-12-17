@@ -65,12 +65,12 @@ namespace DICOMcloud.Wado.Core
 
         }
 
-        //TODO: adding empty elements is a challenge. How can I update/append values?
         private static void FillStudyLevel(fo.DicomDataset studyDs)
         {
             studyDs.Add<object>(fo.DicomTag.SpecificCharacterSet,null) ;
             studyDs.Add<object>(fo.DicomTag.StudyDate,null) ;
             studyDs.Add<object>(fo.DicomTag.StudyTime,null) ;
+            studyDs.Add<object>(fo.DicomTag.StudyDescription,null) ;
             studyDs.Add<object>(fo.DicomTag.AccessionNumber,null) ;
             studyDs.Add<object>(fo.DicomTag.InstanceAvailability,null) ;
             studyDs.Add<object>(fo.DicomTag.ModalitiesInStudy,null) ;
