@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DICOMcloud.Dicom.Data
+namespace DICOMcloud.Dicom
 {
-    public interface ISeriesId : IStudyId
-    { 
-        string SeriesInstanceUID { get; set ; }
+    public enum ObjectLevel
+    {
+        Study,
+        Series,
+        Instance
     }
 }

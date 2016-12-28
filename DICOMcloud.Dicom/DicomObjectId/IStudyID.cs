@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Dicom.Data
 {
-    public interface IStudyID
+    public interface IStudyId
     { 
         string StudyInstanceUID { get; set ; }
     }

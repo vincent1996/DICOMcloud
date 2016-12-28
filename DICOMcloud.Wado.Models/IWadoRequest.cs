@@ -7,7 +7,7 @@ using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Wado.Models
 {
-   public interface IWadoUriRequest : IWadoRequestHeader, IObjectID
+   public interface IWadoUriRequest : IWadoRequestHeader, IObjectId
    {
       string RequestType {  get; set; }
       string ContentType   {  get; set; }

@@ -46,9 +46,7 @@ namespace DICOMcloud.Wado.Core
 
                 currentTransfer = GetRequestedMediaTransferSyntax ( request, mediaType );
 
-                dcmLocation = RetrieveService.RetrieveSopInstance ( request,
-                                                                    new Dicom.Media.DicomMediaProperties ( mediaType.MediaType, currentTransfer ) );
-
+                dcmLocation = GetLocation ( request, currentTransfer, mediaType );
 
                 if ( null != dcmLocation && dcmLocation.Exists ( ) )
                 {
@@ -80,6 +78,12 @@ namespace DICOMcloud.Wado.Core
                 //The HTTP behavior is that an error (406 - Not Acceptable) is returned if the required media type cannot be served.
                 return new HttpResponseMessage ( HttpStatusCode.NotAcceptable ) ;
             }
+        }
+
+        protected virtual IStorageLocation GetLocation ( IWadoUriRequest request, string currentTransfer, MediaTypeHeaderValue mediaType )
+        {
+            return RetrieveService.RetrieveSopInstance ( request,
+                                                                new Dicom.Media.DicomMediaProperties ( mediaType.MediaType, currentTransfer ) );
         }
 
         private static string GetRequestedMediaTransferSyntax ( IWadoUriRequest request, MediaTypeHeaderValue mediaType )

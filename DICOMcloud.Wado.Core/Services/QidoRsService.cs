@@ -103,7 +103,8 @@ namespace DICOMcloud.Wado.Core.Services
                 {
                     string paramValue = queryParam.Value;
 
-                    InsertDicomElement(dicomSource, queryParam.Key, paramValue);
+
+                    InsertDicomElement ( dicomSource, queryParam.Key, paramValue);
                 }
 
                 foreach ( var returnParam in includeParams )

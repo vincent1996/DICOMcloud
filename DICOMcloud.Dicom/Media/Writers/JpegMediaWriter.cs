@@ -15,7 +15,7 @@ namespace DICOMcloud.Dicom.Media
     {
         public JpegMediaWriter ( ) : base ( ) {}
          
-        public JpegMediaWriter ( IMediaStorageService mediaStorage ) : base ( mediaStorage ) {}
+        public JpegMediaWriter ( IMediaStorageService mediaStorage, IDicomMediaIdFactory mediaFactory ) : base ( mediaStorage, mediaFactory ) {}
 
         public override string MediaType
         {
@@ -36,15 +36,14 @@ namespace DICOMcloud.Dicom.Media
 
         protected override fo.DicomDataset GetMediaDataset ( fo.DicomDataset data, DicomMediaProperties mediaInfo )
         {
-            //TODO: this is still not working with fo-dicom 
-            //when images are not compatible from one Transfer to the other
+            //TODO: this is still not working with when images BPP are not compatible from one Transfer to the other (12/16-bit -> 8-bit)
             if ( !string.IsNullOrWhiteSpace ( mediaInfo.TransferSyntax ) )
             {
-                return data.ChangeTransferSyntax ( fo.DicomTransferSyntax.Parse ( mediaInfo.TransferSyntax ) ) ;
+                return data.Clone ( fo.DicomTransferSyntax.Parse ( mediaInfo.TransferSyntax ) ) ;
             }
             else if (data.InternalTransferSyntax != fo.DicomTransferSyntax.JPEGProcess1)
             {
-                return data.ChangeTransferSyntax ( fo.DicomTransferSyntax.JPEGProcess1 ) ;
+                return data.Clone ( fo.DicomTransferSyntax.JPEGProcess1 ) ;
             }
 
             return base.GetMediaDataset ( data, mediaInfo ) ;

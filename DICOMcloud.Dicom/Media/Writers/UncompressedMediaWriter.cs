@@ -14,7 +14,7 @@ namespace DICOMcloud.Dicom.Media
     {
         public UncompressedMediaWriter ( ) : base ( ) {}
          
-        public UncompressedMediaWriter ( IMediaStorageService mediaStorage ) : base ( mediaStorage ) {}
+        public UncompressedMediaWriter ( IMediaStorageService mediaStorage, IDicomMediaIdFactory mediaFactory ) : base ( mediaStorage, mediaFactory ) {}
 
         public override string MediaType
         {

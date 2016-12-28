@@ -118,7 +118,7 @@ namespace DICOMcloud.Pacs.Commands
             condFactory = new DicomStoreParameterFactory ( ) ;
             conditions = condFactory.ProcessDataSet ( data.Dataset ) ;
 
-            DataAccess.StoreInstance ( new ObjectID ( data.Dataset ), conditions, data.Metadata ) ;
+            DataAccess.StoreInstance ( new ObjectId ( data.Dataset ), conditions, data.Metadata ) ;
         }
         
 

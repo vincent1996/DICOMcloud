@@ -29,7 +29,7 @@ namespace DICOMcloud.Wado.Core
             return string.Format ( "{0}/{1}/studies/{2}", BaseUrl, "wadors", studyInstanceUID )  ;
         }
 
-        public string GetInstanceUrl ( ObjectID instance )
+        public string GetInstanceUrl ( ObjectId instance )
         {
             return GetInstanceUrl ( instance.StudyInstanceUID, instance.SeriesInstanceUID, instance.SOPInstanceUID ) ;
         }

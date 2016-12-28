@@ -25,7 +25,7 @@ namespace DICOMcloud.Wado.Core
             _storageService = storage ;
         }
 
-        public async Task<HttpResponseMessage> ProcessRequest 
+        public virtual async Task<HttpResponseMessage> ProcessRequest 
         (
             IWebStoreRequest request, 
             string studyInstanceUID 
@@ -89,6 +89,11 @@ namespace DICOMcloud.Wado.Core
             }
         }
 
+        //TODO: uncomment
+        //public virtual async Task<HttpResponseMessage> ProcessRequest ( WebDeleteRequest request )
+        //{
+        //}
+
         protected virtual fo.DicomDataset GetDicom ( Stream dicomStream )
         {
             fo.DicomFile dicom ;
@@ -99,7 +104,7 @@ namespace DICOMcloud.Wado.Core
             return dicom.Dataset ;
         }
 
-        protected virtual InstanceMetadata GetObjectMetadata ( fo.DicomDataset dataset, IWebStoreRequest request )
+        protected virtual InstanceMetadata CreateObjectMetadata ( fo.DicomDataset dataset, IWebStoreRequest request )
         {
             return new InstanceMetadata ( ) { } ;
         }
@@ -114,7 +119,7 @@ namespace DICOMcloud.Wado.Core
                 var    dicomDs     = GetDicom ( dicomStream ) ;
                 try
                 {
-                    var result = _storageService.StoreDicom ( dicomDs, GetObjectMetadata ( dicomDs, request ) ) ;
+                    var result = _storageService.StoreDicom ( dicomDs, CreateObjectMetadata ( dicomDs, request ) ) ;
 
                     response.AddResult(result);
                 }
@@ -127,5 +132,7 @@ namespace DICOMcloud.Wado.Core
 
             return response;
         }
+
+
     }
 }

@@ -17,18 +17,24 @@ namespace DICOMcloud.Wado.Core
    
         public abstract bool CanProcess(string mimeType);
       
-        public ObjectHandlerBase ( IMediaStorageService mediaStorage )
+        public ObjectHandlerBase ( IMediaStorageService mediaStorage, IDicomMediaIdFactory mediaFactory )
         {
             MediaStorage = mediaStorage ;
+            MediaFactory = mediaFactory ;
         }
 
-        public IWadoRsResponse Process(IWadoUriRequest request, string mimeType)
+        public virtual IDicomMediaIdFactory MediaFactory
         {
-            //base class that has the logic to get the DICOM file
+            get; protected set;
+        }
 
-            Location = MediaStorage.GetLocation ( new DicomMediaId (request, mimeType, (request.ImageRequestInfo != null ) ? request.ImageRequestInfo.TransferSyntax : "" ) ) ;
+        public virtual IWadoRsResponse Process (IWadoUriRequest request, string mimeType)
+        {
+            Location = MediaStorage.GetLocation ( MediaFactory.Create (request, 
+                                                                       GetMediaProperties ( request, mimeType, 
+                                                                                            GetTransferSyntax ( request ) ) ) ) ;
          
-            if ( Location.Exists ( ) )
+            if ( Location != null && Location.Exists ( ) )
             {
                 WadoResponse response = new WadoResponse ( Location.GetReadStream ( ), mimeType ) ;
                 
@@ -39,6 +45,17 @@ namespace DICOMcloud.Wado.Core
                 //TODO: in case mime not storedmethod to create on 
                 return DoProcess(request, mimeType);
             }
+        }
+
+
+        protected virtual string GetTransferSyntax ( IWadoUriRequest request )
+        {
+            return (request.ImageRequestInfo != null) ? request.ImageRequestInfo.TransferSyntax : "" ;
+        }
+
+        protected virtual DicomMediaProperties GetMediaProperties ( IWadoUriRequest request, string mimeType, string transferSyntax )
+        {
+            return new DicomMediaProperties {  MediaType = mimeType, TransferSyntax = transferSyntax } ;
         }
 
       protected abstract WadoResponse DoProcess(IWadoUriRequest request, string mimeType);

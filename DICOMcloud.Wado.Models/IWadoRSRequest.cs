@@ -7,17 +7,17 @@ using DICOMcloud.Dicom.Data;
 
 namespace DICOMcloud.Wado.Models
 {
-    public interface IWadoRsStudiesRequest : IWadoRequestHeader, IStudyID
+    public interface IWadoRsStudiesRequest : IWadoRequestHeader, IStudyId
     {
     
     }
 
-    public interface IWadoRsSeriesRequest : IWadoRsStudiesRequest, ISeriesID
+    public interface IWadoRsSeriesRequest : IWadoRsStudiesRequest, ISeriesId
     {
         
     }
 
-    public interface IWadoRSInstanceRequest : IWadoRsSeriesRequest, IObjectID
+    public interface IWadoRSInstanceRequest : IWadoRsSeriesRequest, IObjectId
     {
 
     }

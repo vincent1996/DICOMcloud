@@ -71,10 +71,13 @@
     <Compile Include="DicomObjectId\ISeriesID.cs" />
     <Compile Include="DicomObjectId\IStudyID.cs" />
     <Compile Include="DicomObjectId\ObjectID.cs" />
+    <Compile Include="DicomObjectId\ObjectLevel.cs" />
     <Compile Include="JsonDicomConverter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Media\Factories\DicomMediaReaderFactory.cs" />
+    <Compile Include="Media\Factories\DicomMediaIdFactory.cs" />
+    <Compile Include="Media\Factories\IDicomMediaIdFactory.cs" />
     <Compile Include="Media\Factories\IDicomMediaReaderFactory.cs" />
     <Compile Include="Media\DicomMediaProperties.cs" />
     <Compile Include="Media\Readers\BulkDataMediaReader.cs" />

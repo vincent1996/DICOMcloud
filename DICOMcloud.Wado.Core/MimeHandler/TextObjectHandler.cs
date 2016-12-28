@@ -14,7 +14,7 @@ namespace DICOMcloud.Wado.Core
 {
     public class TextObjectHandler : ObjectHandlerBase
     {
-        public TextObjectHandler ( IMediaStorageService mediaStorage ) : base ( mediaStorage )
+        public TextObjectHandler ( IMediaStorageService mediaStorage, IDicomMediaIdFactory mediaFactory ) : base ( mediaStorage, mediaFactory )
         {}
 
         public override bool CanProcess(string mimeType)

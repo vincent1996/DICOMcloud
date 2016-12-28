@@ -12,14 +12,16 @@ namespace DICOMcloud.Dicom.Media
 {
     public abstract class DicomMediaWriterBase : IDicomMediaWriter
     {
-        public ILocationProvider MediaStorage { get; set; }
+        public virtual ILocationProvider    MediaStorage { get; protected set ; }
+        public virtual IDicomMediaIdFactory MediaFactory { get; protected set ; }
 
-        public DicomMediaWriterBase() : this(new FileStorageService())
+        public DicomMediaWriterBase() : this(new FileStorageService(), new DicomMediaIdFactory ( ) )
         { }
 
-        public DicomMediaWriterBase ( ILocationProvider storageProvider )
+        public DicomMediaWriterBase ( ILocationProvider storageProvider, IDicomMediaIdFactory mediaFactory )
         {
             MediaStorage = storageProvider ;
+            MediaFactory = mediaFactory ;
         }
 
         public abstract string MediaType
@@ -59,7 +61,7 @@ namespace DICOMcloud.Dicom.Media
                 
                 for ( int frame = 1; frame <= framesCount; frame++ )
                 {
-                    var storeLocation = sotrageProvider.GetLocation ( new DicomMediaId ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
+                    var storeLocation = sotrageProvider.GetLocation ( MediaFactory.Create ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
                     
                     
                     Upload ( dataset, frame, storeLocation ) ;
@@ -95,7 +97,7 @@ namespace DICOMcloud.Dicom.Media
 
             foreach ( int frame in frameList )
             {
-                var storeLocation = storageProvider.GetLocation ( new DicomMediaId ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
+                var storeLocation = storageProvider.GetLocation ( MediaFactory.Create ( mediaParameters.Dataset, frame, MediaType, transferSyntax ));
                     
                     
                 Upload ( mediaParameters.Dataset, frame, storeLocation ) ;

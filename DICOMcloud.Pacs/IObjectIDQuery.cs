@@ -9,7 +9,7 @@ using DICOMcloud.Pacs;
 
 namespace DICOMcloud.Dicom.Data.Services
 {
-    public interface IObjectQuery : IObjectID
+    public interface IObjectQuery : IObjectId
     {
         ObjectQueryLevel QueryLevel     { get; set; }
     }

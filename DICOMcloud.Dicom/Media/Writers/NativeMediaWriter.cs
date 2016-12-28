@@ -15,7 +15,7 @@ namespace DICOMcloud.Dicom.Media
     {
         public NativeMediaWriter ( ) : base ( ) {}
          
-        public NativeMediaWriter ( IMediaStorageService mediaStorage ) : base ( mediaStorage ) 
+        public NativeMediaWriter ( IMediaStorageService mediaStorage, IDicomMediaIdFactory mediaFactory ) : base ( mediaStorage, mediaFactory ) 
         {
         }
 

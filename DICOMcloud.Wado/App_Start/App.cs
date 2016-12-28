@@ -6,6 +6,7 @@ using DICOMcloud.Core.Storage;
 using DICOMcloud.Dicom.Data.Services;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.DataAccess.DB.Schema;
+using DICOMcloud.Dicom.Media;
 using DICOMcloud.Pacs;
 using DICOMcloud.Pacs.Commands;
 using DICOMcloud.Wado.Core;
@@ -23,7 +24,9 @@ namespace DICOMcloud.Wado
         private App ()
         {
             fo.Log.LogManager.SetImplementation ( Dicom.TraceLogManager.Instance ) ;
-            RegisterComponents ( ) ; 
+            
+            RegisterComponents ( ) ;
+             
             var path = System.IO.Path.Combine ( System.Web.Hosting.HostingEnvironment.MapPath ( "~/"), "bin" ) ;
 
             System.Diagnostics.Trace.TraceInformation ( "Path: " + path ) ;
@@ -58,7 +61,9 @@ namespace DICOMcloud.Wado
             container.RegisterType<IWadoRsService, WadoRsService>();
             
             container.RegisterInstance<IDicomInstnaceStorageDataAccess>(dataAccess);
-            container.RegisterInstance<IDicomStorageQueryDataAccess>(dataAccess);
+            container.RegisterInstance<IDicomStorageQueryDataAccess>   (dataAccess);
+            
+            container.RegisterType<IDicomMediaIdFactory,DicomMediaIdFactory> ();
 
             if ( System.IO.Path.IsPathRooted( storageConection ) )
             {

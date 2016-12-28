@@ -11,31 +11,38 @@ namespace DICOMcloud.Pacs
 {
     public class ObjectRetrieveDataService : IObjectRetrieveDataService
     {
-        public IMediaStorageService StorageService { get; private set; }
-        public IDicomMediaWriterFactory MediaWriterFactory { get; private set ; }
+        public virtual IMediaStorageService     StorageService     { get; protected set; }
+        public virtual IDicomMediaWriterFactory MediaWriterFactory { get; protected set ; }
+        public virtual IDicomMediaIdFactory     MediaFactory       { get; protected set ; }
+        public virtual string AnyTransferSyntaxValue               { get; set; }
 
-
-        public ObjectRetrieveDataService ( IMediaStorageService mediaStorage, IDicomMediaWriterFactory mediaWriterFactory )
+        public ObjectRetrieveDataService 
+        ( 
+            IMediaStorageService mediaStorage, 
+            IDicomMediaWriterFactory mediaWriterFactory, 
+            IDicomMediaIdFactory mediaFactory 
+        )
         {
             AnyTransferSyntaxValue = "*" ;
             
             StorageService     = mediaStorage ;
             MediaWriterFactory = mediaWriterFactory ;
+            MediaFactory       = mediaFactory ;
         }
         
-        public virtual IStorageLocation RetrieveSopInstance ( IObjectID query, DicomMediaProperties mediaInfo ) 
+        public virtual IStorageLocation RetrieveSopInstance ( IObjectId query, DicomMediaProperties mediaInfo ) 
         {
-            return StorageService.GetLocation ( new DicomMediaId ( query, mediaInfo )) ;
+            return StorageService.GetLocation ( MediaFactory.Create (query, mediaInfo ) ) ;
         }
         
-        public virtual IEnumerable<IStorageLocation> RetrieveSopInstances ( IObjectID query, DicomMediaProperties mediaInfo ) 
+        public virtual IEnumerable<IStorageLocation> RetrieveSopInstances ( IObjectId query, DicomMediaProperties mediaInfo ) 
         {
-            return StorageService.EnumerateLocation ( new DicomMediaId ( query, mediaInfo )) ;
+            return StorageService.EnumerateLocation ( MediaFactory.Create ( query, mediaInfo )) ;
         }
 
         public virtual IEnumerable<ObjectRetrieveResult> FindSopInstances
         ( 
-            IObjectID query, 
+            IObjectId query, 
             string mediaType, 
             IEnumerable<string> transferSyntaxes, 
             string defaultTransfer
@@ -46,7 +53,7 @@ namespace DICOMcloud.Pacs
                 string instanceTransfer = (transfer == AnyTransferSyntaxValue) ? defaultTransfer : transfer ;
 
                 var    mediaProperties = new DicomMediaProperties ( mediaType, instanceTransfer ) ;
-                var    mediaID         = new DicomMediaId ( query, mediaProperties ) ;
+                var    mediaID         = MediaFactory.Create      ( query, mediaProperties ) ;
                 var    found           = false ;
                 
                 foreach ( IStorageLocation location in StorageService.EnumerateLocation ( mediaID ) )
@@ -65,7 +72,7 @@ namespace DICOMcloud.Pacs
 
         public virtual IEnumerable<ObjectRetrieveResult> GetTransformedSopInstances 
         ( 
-            IObjectID query, 
+            IObjectId query, 
             string fromMediaType, 
             string fromTransferSyntax, 
             string toMediaType, 
@@ -73,7 +80,7 @@ namespace DICOMcloud.Pacs
         ) 
         {
             var fromMediaProp = new DicomMediaProperties ( fromMediaType, fromTransferSyntax ) ;
-            var fromMediaID   = new DicomMediaId         ( query, fromMediaProp ) ;
+            var fromMediaID   = MediaFactory.Create      ( query, fromMediaProp ) ;
             var frameList     = ( null != query.Frame ) ? new int[] { query.Frame.Value } : null ;
             
              
@@ -91,7 +98,13 @@ namespace DICOMcloud.Pacs
             }
         }
 
-        public virtual IEnumerable<IStorageLocation> TransformDataset ( fo.DicomDataset dataset, string mediaType, string instanceTransfer, int[] frameList = null ) 
+        public virtual IEnumerable<IStorageLocation> TransformDataset 
+        ( 
+            fo.DicomDataset dataset, 
+            string mediaType, 
+            string instanceTransfer, 
+            int[] frameList = null 
+        ) 
         {
             var mediaProperties  = new DicomMediaProperties ( mediaType, instanceTransfer ) ;
             var writerParams     = new DicomMediaWriterParameters ( ) { Dataset = dataset, MediaInfo = mediaProperties } ;
@@ -109,7 +122,7 @@ namespace DICOMcloud.Pacs
             
         }
 
-        public virtual fo.DicomDataset RetrieveDicomDataset ( IObjectID objectId, DicomMediaProperties mediainfo )
+        public virtual fo.DicomDataset RetrieveDicomDataset ( IObjectId objectId, DicomMediaProperties mediainfo )
         {
             IStorageLocation location    ;
             fo.DicomFile defaultFile ;
@@ -128,18 +141,13 @@ namespace DICOMcloud.Pacs
 
         }
 
-        public virtual bool ObjetInstanceExist ( IObjectID objectId, string mediaType, string transferSyntax )
+        public virtual bool ObjetInstanceExist ( IObjectId objectId, string mediaType, string transferSyntax )
         {
             var mediaProperties = new DicomMediaProperties ( mediaType, transferSyntax ) ;
-            var mediaID         = new DicomMediaId         ( objectId, mediaProperties ) ;
+            var mediaID         = MediaFactory.Create      ( objectId, mediaProperties ) ;
             
                 
             return StorageService.Exists (  mediaID ) ;
-        }
-        
-        public virtual string AnyTransferSyntaxValue
-        {
-            get; set;
         }
     }
 }

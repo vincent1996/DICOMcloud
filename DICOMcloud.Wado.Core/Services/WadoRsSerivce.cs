@@ -100,7 +100,7 @@ namespace DICOMcloud.Wado.Core
             }
         }
 
-        public virtual HttpResponseMessage RetrieveMultipartInstance ( IWadoRequestHeader header, IObjectID request )
+        public virtual HttpResponseMessage RetrieveMultipartInstance ( IWadoRequestHeader header, IObjectId request )
         {
             IWadoResponseService responseService ; 
             HttpResponseMessage response ;
@@ -169,7 +169,7 @@ namespace DICOMcloud.Wado.Core
         protected virtual HttpResponseMessage ProcessJsonRequest 
         ( 
             IWadoRequestHeader header, 
-            IObjectID objectID
+            IObjectId objectID
         )
         {
             List<IWadoRsResponse> responses = new List<IWadoRsResponse> ( ) ;
@@ -250,7 +250,7 @@ namespace DICOMcloud.Wado.Core
         /// </Examples>
         protected virtual IEnumerable<IWadoRsResponse> ProcessMultipartRequest
         (
-            IObjectID objectID,
+            IObjectId objectID,
             MediaTypeWithQualityHeaderValue mediaTypeHeader
             
         )
@@ -266,7 +266,7 @@ namespace DICOMcloud.Wado.Core
 
             transferSyntaxes = GetRequestedTransferSyntax ( mediaTypeHeader, defaultTransfer );
 
-            foreach ( var result in RetrieveService.FindSopInstances ( objectID, subMediaType, transferSyntaxes, defaultTransfer ) )
+            foreach ( var result in FindLocations ( objectID, subMediaType, transferSyntaxes, defaultTransfer ) )
             {
                 instancesFound = true ;
 
@@ -288,7 +288,12 @@ namespace DICOMcloud.Wado.Core
             }
         }
 
-        protected virtual IEnumerable<IStorageLocation> GetLocations ( IObjectID request, DicomMediaProperties mediaInfo )
+        protected virtual IEnumerable<ObjectRetrieveResult> FindLocations ( IObjectId objectID, string subMediaType, IEnumerable<string> transferSyntaxes, string defaultTransfer )
+        {
+            return RetrieveService.FindSopInstances ( objectID, subMediaType, transferSyntaxes, defaultTransfer ) ;
+        }
+
+        protected virtual IEnumerable<IStorageLocation> GetLocations ( IObjectId request, DicomMediaProperties mediaInfo )
         {
             if ( null != request.Frame )
             {

@@ -16,10 +16,10 @@ namespace DICOMcloud.Dicom.Media
 
         public IDicomConverter<string> Converter { get; set; }
         
-        public DicomMediaWriter (  IDicomConverter<string> converter, string mediaType ) : this ( new FileStorageService ( ), converter, mediaType )
+        public DicomMediaWriter (  IDicomConverter<string> converter, string mediaType ) : this ( new FileStorageService ( ), converter, mediaType, new DicomMediaIdFactory ( ) )
         {}
 
-        public DicomMediaWriter ( IMediaStorageService mediaStorage, IDicomConverter<string> converter, string mediaType ) : base ( mediaStorage )
+        public DicomMediaWriter ( IMediaStorageService mediaStorage, IDicomConverter<string> converter, string mediaType, IDicomMediaIdFactory mediaFactory ) : base ( mediaStorage, mediaFactory )
         {
             Converter  = converter ;
             _mediaType = mediaType ;

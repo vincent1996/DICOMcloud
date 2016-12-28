@@ -2,7 +2,7 @@
 
 namespace DICOMcloud.Dicom.Data
 {
-    public interface IObjectID : ISeriesID
+    public interface IObjectId : ISeriesId
     {
         string SOPInstanceUID {  get; set; }
 
