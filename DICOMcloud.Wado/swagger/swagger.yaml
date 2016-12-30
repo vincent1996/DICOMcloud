@@ -1,14 +1,22 @@
 swagger: '2.0'
 info:
-  version: preview
+  version: v0.5 (preview)
   title: DICOMcloud
-  description: DICOMcloud is an open source DICOMweb server that implements RESTful services in DICOM part 18
+  description: " 
+      **DICOMcloud is an open source DICOMweb server that implements RESTful services in DICOM part 18**
     
     
-    Documentation below is powered by Swagger and is under development 
-externalDocs:
-  description: Find the source code on github
-  url: https://github.com/Zaid-Safadi/DICOMcloud
+    Below is the API documentation of the DICOM PS3.18 Web Services implemented by the DICOMcloud server.
+    
+    
+    The documentation is powered by swagger UI using the OpenAPI specification. The “Try it out!” button won’t work on all APIs (can’t process multipart/related). 
+    
+    
+    **For an example client that uses this server, a live demo is hosted [here](http://dicomweb.azurewebsites.net/) with the source code in [GitHub](https://github.com/Zaid-Safadi/dicom-webJS).**
+    
+    
+    [**DICOMcloud Source Code on GitHub**](https://github.com/Zaid-Safadi/DICOMcloud)
+    "
 host: 'localhost:44301'
 schemes:
   - https
@@ -750,115 +758,151 @@ paths:
       tags:
         - WadoUri
       operationId: WadoUri_Get
-      summary: in progress
+      summary: Web Access to DICOM Objects by URI
+      description: A service enabling the user  to retrieve DICOM Objects managed by the DICOMcloud server,through HTTP/HTTPS protocol.
+      
+        WADO-URI is not a RESTful service and has it own way of negotiating media content in addition to the regual content-type header. For detailed information on allowed media types and expected output you can refer to [PS3.18 2016 sec. 6](http://dicom.nema.org/medical/dicom/current/output/html/part18.html#chapter_6)
+      externalDocs:
+         description: Find more info here
+         url: http://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.2
       consumes: []
-      produces:
-        - application/json
-        - text/json
-        - application/xml
-        - text/xml
+      produces: []
       parameters:
-        - name: request.requestType
+        - name: requestType
           in: query
-          required: false
+          required: true
           type: string
-        - name: request.contentType
-          in: query
-          required: false
-          type: string
-        - name: request.charset
-          in: query
-          required: false
-          type: string
-        - name: request.anonymize
-          in: query
-          required: false
-          type: boolean
-        - name: request.imageRequestInfo.burnAnnotation
-          in: query
-          required: false
-          type: integer
-          format: int32
+          description: "**(supported)** The parameter name shall be \"requestType\"."
           enum:
-            - 0
-            - 1
-            - 2
-        - name: request.imageRequestInfo.rows
+            - "WADO"
+        - name: studyUID
+          in: query
+          required: true
+          type: string
+          description: "**(supported)** Study Instance UID as defined in PS3.3"
+        - name: seriesUID
+          in: query
+          required: true
+          type: string
+          description: "**(supported)** Series Instance UID as defined in PS3.3"
+        - name: objectUID
+          in: query
+          required: true
+          type: string
+          description: "**(supported)** SOP Instance UID as defined in PS3.3"
+        - name: contentType
+          in: query
+          required: false
+          type: string
+          description: "**(partially supported - not all media types)**. This parameter contains one or more Acceptable Media Types as defined in Section [6.1.1.4](http://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_6.1.1.4)"
+        - name: charset
+          in: query
+          required: false
+          type: string
+          description: "Character set with which the returned objects are to be encoded, as defined in the [RFC7230]."
+        - name: frameNumber
           in: query
           required: false
           type: integer
           format: int32
-        - name: request.imageRequestInfo.columns
+          description: "**(supported)** Specifies that the single frame with that number within a multi-frame image object, as defined in PS3.3
+          
+          
+          It shall not be present if contentType is ap-plication/dicom.
+          
+          
+          The value shall be encoded as an integer string (IS), as specified in PS3.5."
+        - name: transferSyntax
+          in: query
+          required: false
+          type: string
+          description: "
+            **(supported)**. The Transfer Syntax to be used within the DICOM image objects, as specified in PS3.6.
+          
+            By default the DICOM object(s) returned will be encoded in Explicit VR Little Endian. Neither Implicit VR, nor Big Endian will be be used. The response will be the Transfer Syntax requested if possible. If it is not possible for the response to be sent using the requested transfer syntax then the Explicit VR Little Endian Uncompressed Transfer Syntax will be used."
+        - name: anonymize
+          in: query
+          required: false
+          type: string
+          description: "(not supported). Removal of all patient identification information from within the DICOM Objects, if not already done, as defined in PS3.15"
+          enum:
+            - "yes"
+        - name: burnAnnotation
+          in: query
+          required: false
+          type: integer
+          format: string
+          enum:
+            - "patient"
+            - "technique"
+          description: "(not supported). For image Annotation of objects retrieved and displayed as an image."
+        - name: rows
           in: query
           required: false
           type: integer
           format: int32
-        - name: request.imageRequestInfo.frameNumber
+          description: "(not supported). The value shall be expressed as an integer, representing the image height to be returned"
+        - name: columns
           in: query
           required: false
           type: integer
           format: int32
-        - name: request.imageRequestInfo.imageQuality
+          description: "(not supported). The value shall be expressed as an integer, representing the image width to be returned."
+        - name: region
+          in: query
+          required: false
+          type: string
+          description: "(not supported). This parameter allows selection of a rectangular region of an image matrix to be retrieved. The purpose of this parameter is to allow a user to view a selected area of the image matrix, for example at higher magnification.
+          
+          
+            It shall only be present if the Acceptable Media Types are Rendered Media Types. See Section 6.1.1.3.
+            
+            
+            It shall not be present if the Unique Identifier of the Presentation Object parameter is present.
+            
+            
+            For more information about the format of this parameter refer to [PS3.18 2016 sec. 8.2.4](http://dicom.nema.org/medical/dicom/current/output/html/part18.html#sect_8.2.4)"
+        - name: windowCenter
+          in: query
+          required: false
+          type: string
+          description: "(not supported). Controls the window center of the images as defined in PS3.3.
+          
+          
+            This parameter shall not be present if there is a presentationUID parameter. It shall notbe present if contentType is application/dicom."
+        - name: windowWidth
+          in: query
+          required: false
+          type: string
+          description: "(not supported). Controls the window width of the images as defined in PS3.3.
+          
+          
+          This parameter shall not be present if there is a presentationUID parameter. It shall not be present ifcontentType is application/dicom.
+          
+          
+          The value shall be encoded as a decimal string (DS), as specified in PS3.5."
+        - name: imageQuality
           in: query
           required: false
           type: integer
           format: int32
-        - name: request.imageRequestInfo.region
+          description: "(not supported). It shall not be present if contentType isapplication/dicom, except if the transferSyntax parameter is present and corresponds to a lossy compression.
+            
+            
+            If the requested media type is for a lossy compressed image (e.g., image/jpeg), this parameter indicates the required quality of theimage to be returned within the range 1 to 100, 100 being the best quality."
+        - name: presentationUID
           in: query
           required: false
           type: string
-        - name: request.imageRequestInfo.windowCenter
+          description: "(not supported). SOP Instance UID of the presentation state storage object to be applied to the images."
+        - name: presentationSeriesUID
           in: query
           required: false
           type: string
-        - name: request.imageRequestInfo.windowWidth
-          in: query
-          required: false
-          type: string
-        - name: request.imageRequestInfo.presentationUID
-          in: query
-          required: false
-          type: string
-        - name: request.imageRequestInfo.presentationSeriesUID
-          in: query
-          required: false
-          type: string
-        - name: request.imageRequestInfo.transferSyntax
-          in: query
-          required: false
-          type: string
-        - name: request.acceptHeader
-          in: query
-          required: false
-          type: array
-          items: {}
-        - name: request.acceptCharsetHeader
-          in: query
-          required: false
-          type: array
-          items: {}
-        - name: request.sOPInstanceUID
-          in: query
-          required: false
-          type: string
-        - name: request.frame
-          in: query
-          required: false
-          type: integer
-          format: int32
-        - name: request.seriesInstanceUID
-          in: query
-          required: false
-          type: string
-        - name: request.studyInstanceUID
-          in: query
-          required: false
-          type: string
+          description: "(not supported). Series Instance UID of the series containing the presentation state storage object to be applied on the images."
       responses:
         '200':
           description: OK
-          schema:
-            $ref: '#/definitions/Object'
       deprecated: false
 parameters:
   series-studyInstance:
