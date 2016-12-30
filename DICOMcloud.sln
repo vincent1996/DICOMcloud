@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DICOMcloud.Core", "DICOMcloud.Core\DICOMcloud.Core.csproj", "{5627B6EF-610C-40C9-BDB2-6F4D77FCB23C}"
 EndProject
@@ -180,7 +180,6 @@ Global
 		{1B7C024B-F1B9-4B41-B6F9-FB26F7135EF0}.Test|x86.Build.0 = Test|Any CPU
 		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x64.Build.0 = Debug|Any CPU
 		{DB3743B7-A6FB-4138-95BD-E0823758B9F7}.Debug|x64.Deploy.0 = Debug|Any CPU
