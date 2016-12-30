@@ -27,7 +27,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
         }
 
 
-        public IDbCommand CreateSelectCommand 
+        public virtual IDbCommand CreateSelectCommand 
         ( 
             string sourceTable, 
             IEnumerable<IMatchingCondition> conditions, 
@@ -49,7 +49,36 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             return SelectCommand ;
         }
 
-        public IDbCommand CreateInsertCommand 
+        public virtual IDbCommand CreateSelectStudyKeyCommand ( IStudyId study )
+        {
+            throw new NotImplementedException ( );
+        }
+
+        public virtual IDbCommand CreateSelectSeriesKeyCommand ( ISeriesId series )
+        {
+            throw new NotImplementedException ( );
+        }
+
+        public virtual IDbCommand CreateSelectInstanceKeyCommand ( IObjectId instance ) 
+        {
+            ObjectArchieveQueryBuilder queryBuilder   = CreateQueryBuilder ( ) ;
+            TableKey                   sourceTable    = SchemaProvider.GetTableInfo ( StorageDbSchemaProvider.ObjectInstanceTableName ) ;
+            SingleValueMatching        sopUIDMatching = new SingleValueMatching ( ) ;
+
+
+            queryBuilder.ProcessColumn ( sourceTable, sopUIDMatching, sourceTable.ModelKeyColumns[0], new string[] { instance.SOPInstanceUID } );
+            
+            
+            var getSopKeyCmd = CreateCommand ( ) ;
+
+            SetConnectionIfNull ( getSopKeyCmd ) ;
+            
+            getSopKeyCmd.CommandText = queryBuilder.GetQueryText ( sourceTable );
+        
+            return getSopKeyCmd ;    
+        }
+
+        public virtual IDbCommand CreateInsertCommand 
         ( 
             IEnumerable<IDicomDataParameter> conditions,
             InstanceMetadata data = null
@@ -65,18 +94,42 @@ namespace DICOMcloud.Dicom.DataAccess.DB
         
         }
         
-        public IDbCommand CreateDeleteInstanceCommand ( string sopInstanceUID )
+        public virtual IDbCommand CreateDeleteStudyCommand ( long studyKey )
         {
             IDbCommand command  = CreateCommand ( ) ;
 
-            BuildDelete ( sopInstanceUID, command ) ;
+            //TODO: uncomment
+            //BuildDelete ( study, command ) ;
+
+            SetConnectionIfNull ( command ) ;
+
+            return command ;
+        }
+        
+        public virtual IDbCommand CreateDeleteSeriesCommand ( long seriesKey )
+        {
+            IDbCommand command  = CreateCommand ( ) ;
+
+            //TODO: uncomment
+            //BuildDelete ( series, command ) ;
+
+            SetConnectionIfNull ( command ) ;
+
+            return command ;
+        }
+        
+        public virtual IDbCommand CreateDeleteInstancCommand ( long instanceKey )
+        {
+            IDbCommand command  = CreateCommand ( ) ;
+
+            BuildDelete ( instanceKey, command ) ;
 
             SetConnectionIfNull ( command ) ;
 
             return command ;
         }
 
-        public IDbCommand CreateUpdateMetadataCommand ( IObjectID objectId, InstanceMetadata data )
+        public IDbCommand CreateUpdateMetadataCommand ( IObjectId objectId, InstanceMetadata data )
         {
             IDbCommand insertCommand = CreateCommand ( ) ;
             var instance             = objectId ;
@@ -108,7 +161,7 @@ DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn ) ;
             return insertCommand ; 
         }
 
-        public IDbCommand CreateGetMetadataCommand ( IObjectID instance )
+        public IDbCommand CreateGetMetadataCommand ( IObjectId instance )
         {
             IDbCommand command  = CreateCommand ( ) ;
             var        sopParam = CreateParameter ( "@" + DB.Schema.StorageDbSchemaProvider.MetadataTable.SopInstanceColumn, instance.SOPInstanceUID ) ;
@@ -205,14 +258,12 @@ DB.Schema.StorageDbSchemaProvider.MetadataTable.OwnerColumn ) ;
             insertCommand.CommandText = stroageBuilder.GetInsertText ( ) ;
         }
 
-        protected virtual void BuildDelete ( string sopInstanceUID, IDbCommand command)
+        protected virtual void BuildDelete ( long instanceKy, IDbCommand command)
         {
-            string delete = SqlDeleteStatments.GetDeleteInstanceCommandText (sopInstanceUID ) ;
-            
-             command.CommandText = delete ;
+            command.CommandText = SqlDeleteStatments.GetDeleteInstanceCommandText ( instanceKy ) ;
 
         }
-        
+
         protected virtual void SetConnectionIfNull ( IDbCommand command )
         {
             if (command !=null && command.Connection == null)

@@ -68,6 +68,7 @@
     <Compile Include="Commands\DicomCommandResult.cs" />
     <Compile Include="Commands\IStoreCommand.cs" />
     <Compile Include="Commands\StoreCommandData.cs" />
+    <Compile Include="Commands\DeleteCommandData.cs" />
     <Compile Include="Commands\StoreCommandResult.cs" />
     <Compile Include="IObjectIDQuery.cs" />
     <Compile Include="ObjectQueryLevel.cs" />

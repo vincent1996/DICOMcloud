@@ -9,20 +9,19 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Dicom.DataAccess.DB.Query
 {
-    public partial class ObjectArchieveQueryBuilder    
+    public partial class ObjectArchieveQueryBuilder
     {
-        private List<string> _returns = new List<string> ( ) ;
-        private List<string> _conditions = new List<string> ( ) ;
-        private List<string> _columnDefenitions = new List<string> ( ) ;
-        private SqlJoinBuilder _joins = new SqlJoinBuilder ( ) ;
         private SortedDictionary<TableKey, List<string> > _processedColumns = new SortedDictionary<TableKey, List<string> > ( ) ;
         
 
         public ObjectArchieveQueryBuilder ( ) 
         {
-            _returns    = new List<string>   ( ) ;
-            _conditions = new List<string>   ( ) ;
-            _joins      = new SqlJoinBuilder ( ) ;
+            Returns           = new List<string>   ( ) ;
+            Conditions        = new List<string>   ( ) ;
+            ColumnDefenitions = new List<string>   ( ) ;
+            Joins             = new SqlJoinBuilder ( ) ;
+            ConditionBuilder  = new DicomConditionBuilder ( ) ;
+            
         }
 
         //static ObjectArchieveQueryBuilder ( )
@@ -39,16 +38,11 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
         //                                    SqlQueries.Joins.ObjectToSeries ) ;
         //}
 
-        private static string GetJoinKey(string sourceTable, string destTable)
-        {
-            return string.Format ( SqlQueries.Table_Column_Formatted, sourceTable, destTable) ;
-        }
-
         public virtual string GetQueryText ( string sourceTable )
         {
-            string selectText = string.Join ( ",", _returns  ) ;
-            string joinsText  = string.Join ( " ", _joins.ToString ( ) ) ;
-            string whereText  = string.Join ( " AND ", _conditions ) ; 
+            string selectText = string.Join ( ",", Returns  ) ;
+            string joinsText  = string.Join ( " ", Joins.ToString ( ) ) ;
+            string whereText  = string.Join ( " AND ", Conditions ) ; 
 
             if ( string.IsNullOrWhiteSpace ( joinsText ))
             {
@@ -67,7 +61,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             string tableParam = "@someTableParam " ;
             StringBuilder queryBuilder = new StringBuilder ( ) ;
 
-            AppendDeclareTableParam ( tableParam, string.Join ( ",", _columnDefenitions), queryBuilder ) ;
+            AppendDeclareTableParam ( tableParam, string.Join ( ",", ColumnDefenitions), queryBuilder ) ;
             
             queryBuilder.Append ( "INSERT INTO " + tableParam  ) ;
             queryBuilder.AppendFormat ( SqlQueries.Select_Command_Formatted, selectText, sourceTable, joinsText , whereText ) ;
@@ -96,73 +90,20 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             IList<string> columnValues
         )
         {
+            string whereCondition ;
+            
+                
             FillReturns ( column ) ;
             FillJoins ( sourceTable, column ) ;
 
-            string whereCondition = AddMatching ( sourceTable, column, queryInfo, columnValues ) ;
+            whereCondition = ConditionBuilder.CreateMatching ( sourceTable, column, queryInfo, columnValues ) ;
         
             if ( !string.IsNullOrWhiteSpace ( whereCondition ) )
             { 
-                _conditions.Add ( whereCondition ) ;
+                Conditions.Add ( whereCondition ) ;
             }
 
             //_processedColumns.Add ( column ) ;
-        }
-
-        protected virtual string AddMatching 
-        ( 
-            string sourceTable, 
-            ColumnInfo column, 
-            IQueryInfo queryInfo, 
-            IList<string> matchValues 
-        )
-        {
-            if ( (null!= matchValues) && (matchValues.Count != 0) )
-            {
-                MatchBuilder matchBuilder = new MatchBuilder ( ) ;
-                
-                if ( column.IsDateTime && matchValues.Count >= 2 )
-                {
-                    matchBuilder.Column ( column ).GreaterThanOrEqual ( ).Value ( matchValues [ 0 ] ).And ( ).
-                                 Column ( column ).LessThanOrEqual ( ).Value ( matchValues [ 1]  ) ;
-                }
-                else
-                {
-                    for ( int valueIndex = 0; valueIndex < matchValues.Count; valueIndex++ )
-                    {
-                        string stringValue = matchValues[valueIndex] ;
-                    
-                        if ( string.IsNullOrWhiteSpace (stringValue) )
-                        { 
-                            continue ;
-                        }
-                    
-                        matchBuilder.Column ( column ) ;
-                    
-                        //TODO:??
-                        //if ( queryInfo.)
-                        if ( queryInfo.ExactMatch )
-                        { 
-                            matchBuilder.Equals ( ) ;
-                        }
-                        else
-                        { 
-                            matchBuilder.Like ( ) ;
-                        }
-
-                        matchBuilder.Value ( stringValue) ;
-
-                        if ( valueIndex != matchValues.Count -1 )
-                        { 
-                            matchBuilder.Or ( ) ;
-                        }
-                    }
-                }
-
-                return matchBuilder.Match.ToString ( )  ;
-            }
-
-            return "" ;
         }
 
         protected virtual void FillReturns(ColumnInfo column )
@@ -180,19 +121,22 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             }
 
             
-            //always return any matching
-            _returns.Add ( string.Format (SqlQueries.Table_Column_Formatted, column.Table.Name, column.Name )) ;
+            if ( !_processedColumns[column.Table].Contains ( column.Name ) )
+            {
+                //always return any matching
+                Returns.Add ( string.Format (SqlQueries.Table_Column_Formatted, column.Table.Name, column.Name )) ;
             
-            _processedColumns[column.Table].Add ( column.Name ) ;
+                _processedColumns[column.Table].Add ( column.Name ) ;
             
-            _columnDefenitions.Add ( column.Defenition ) ;
+                ColumnDefenitions.Add ( column.Defenition ) ;
+            }
         }
 
         protected virtual void FillJoins ( TableKey sourceTable, ColumnInfo column )
         {
             if ( !column.Table.Name.Equals (sourceTable, StringComparison.InvariantCultureIgnoreCase ) )
             {
-                _joins.AddJoins ( sourceTable, column.Table ) ;
+                Joins.AddJoins ( sourceTable, column.Table ) ;
                 //string joinKey = GetJoinKey ( sourceTable, column.Table.Name ) ;
 
                 //if ( !_joins.ContainsKey ( joinKey ))
@@ -202,9 +146,78 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             }
         }
 
-        protected List<string>   Returns { get { return _returns ; } }
-        protected List<string>   Conditions { get { return _conditions ; } }
-        protected List<string>   ColumnDefenitions { get { return _columnDefenitions ; } }
-        protected SqlJoinBuilder Joins { get { return _joins ; } }
+        protected virtual List<string>          Returns           { get; set; }
+        protected virtual List<string>          Conditions        { get; set; }
+        protected virtual List<string>          ColumnDefenitions { get; set; }
+        protected virtual SqlJoinBuilder        Joins             { get; set; }
+        protected virtual DicomConditionBuilder ConditionBuilder  { get; set; } 
+
+        private static string GetJoinKey(string sourceTable, string destTable)
+        {
+            return string.Format ( SqlQueries.Table_Column_Formatted, sourceTable, destTable) ;
+        }
+
+    }
+
+    public partial class ObjectArchieveQueryBuilder
+    {
+        public class DicomConditionBuilder
+        {
+            public virtual string CreateMatching
+            ( 
+                string sourceTable, 
+                ColumnInfo column, 
+                IQueryInfo queryInfo, 
+                IList<string> matchValues 
+            )
+            {
+                if ( (null!= matchValues) && (matchValues.Count != 0) )
+                {
+                    MatchBuilder matchBuilder = new MatchBuilder ( ) ;
+                
+                    if ( column.IsDateTime && matchValues.Count >= 2 )
+                    {
+                        matchBuilder.Column ( column ).GreaterThanOrEqual ( ).Value ( matchValues [ 0 ] ).And ( ).
+                                     Column ( column ).LessThanOrEqual ( ).Value ( matchValues [ 1]  ) ;
+                    }
+                    else
+                    {
+                        for ( int valueIndex = 0; valueIndex < matchValues.Count; valueIndex++ )
+                        {
+                            string stringValue = matchValues[valueIndex] ;
+                    
+                            if ( string.IsNullOrWhiteSpace (stringValue) )
+                            { 
+                                continue ;
+                            }
+                    
+                            matchBuilder.Column ( column ) ;
+                    
+                            //TODO:??
+                            //if ( queryInfo.)
+                            if ( queryInfo.ExactMatch )
+                            { 
+                                matchBuilder.Equals ( ) ;
+                            }
+                            else
+                            { 
+                                matchBuilder.Like ( ) ;
+                            }
+
+                            matchBuilder.Value ( stringValue) ;
+
+                            if ( valueIndex != matchValues.Count -1 )
+                            { 
+                                matchBuilder.Or ( ) ;
+                            }
+                        }
+                    }
+
+                    return matchBuilder.Match.ToString ( )  ;
+                }
+
+                return "" ;
+            }
+        }
     }
 }

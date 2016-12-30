@@ -5,9 +5,16 @@ namespace DICOMcloud.Dicom.DataAccess
 {
     public interface IDicomInstnaceStorageDataAccess
     {
-        void DeleteInstance ( string instance ) ;
-        void StoreInstance(IObjectID objectId,  IEnumerable<IDicomDataParameter> parameters, InstanceMetadata data ) ;
-        void StoreInstanceMetadata( IObjectID objectId, InstanceMetadata data ) ;
-        InstanceMetadata GetInstanceMetadata( IObjectID instance ) ;
+        void StoreInstance        ( IObjectId objectId, IEnumerable<IDicomDataParameter> parameters, InstanceMetadata data ) ;
+        void StoreInstanceMetadata( IObjectId objectId, InstanceMetadata data ) ;
+        
+        void DeleteInstance ( IObjectId instance );
+        void DeleteStudy    ( IStudyId  study    );
+        void DeleteSeries   ( ISeriesId series   );
+        
+        //InstanceMetadata[] GetStudyMetadata    ( IStudyId  study    );
+        //InstanceMetadata[] GetSeriesMetadata   ( ISeriesId study    );
+        InstanceMetadata   GetInstanceMetadata ( IObjectId instance ) ;
+
     }
 }

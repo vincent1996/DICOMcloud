@@ -43,7 +43,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             return result.ToString ( ) ;
         }
 
-        public void BuildInsertOrUpdateMetadata ( ObjectID instance, IDbCommand insertCommand )
+        public void BuildInsertOrUpdateMetadata ( ObjectId instance, IDbCommand insertCommand )
         {
             
         }

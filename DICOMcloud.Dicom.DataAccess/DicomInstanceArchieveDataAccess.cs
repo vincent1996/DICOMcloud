@@ -94,7 +94,7 @@ namespace DICOMcloud.Dicom.DataAccess
 
         public virtual void StoreInstance 
         ( 
-            IObjectID objectId,  
+            IObjectId objectId,  
             IEnumerable<IDicomDataParameter> parameters, 
             InstanceMetadata data = null
         )
@@ -126,12 +126,12 @@ namespace DICOMcloud.Dicom.DataAccess
             }
         }
 
-        public virtual void StoreInstanceMetadata ( IObjectID objectId, InstanceMetadata data )
+        public virtual void StoreInstanceMetadata ( IObjectId objectId, InstanceMetadata data )
         {
             StoreInstanceMetadata ( objectId, data, CreateDataAdapter ( ) );
         }
 
-        public virtual InstanceMetadata GetInstanceMetadata( IObjectID instance ) 
+        public virtual InstanceMetadata GetInstanceMetadata( IObjectId instance ) 
         {
             DicomDataAdapter dbAdapter = CreateDataAdapter ( ) ;
             
@@ -162,30 +162,45 @@ namespace DICOMcloud.Dicom.DataAccess
             }
         }
 
-        public virtual void DeleteInstance ( string instance )
+        public virtual void DeleteStudy ( IStudyId study )
         {
-            DicomDataAdapter dbAdapter = CreateDataAdapter ( ) ;
-            IDbCommand cmd ;
+            DicomDataAdapter dbAdapter = CreateDataAdapter ( );
+            IDbCommand cmd;
+            long       studyKey = GetStudyKey ( dbAdapter, study ) ;
             
-            dbAdapter.CreateConnection ( ) ;
             
-            cmd = dbAdapter.CreateDeleteInstanceCommand ( instance ) ;
-        
-            cmd.Connection.Open ( ) ;
+            cmd = dbAdapter.CreateDeleteStudyCommand ( studyKey );
 
-            try
-            { 
-                cmd.ExecuteScalar ( ) ;
-            }
-            finally
-            { 
-                cmd.Connection.Close ( ) ;
-            }
+            ExecuteScalar ( cmd ) ;
+        }
+
+        public virtual void DeleteSeries ( ISeriesId series )
+        {
+            DicomDataAdapter dbAdapter = CreateDataAdapter ( );
+            IDbCommand cmd;
+            long       seriesKey = GetSeriesKey ( dbAdapter, series ) ;
+            
+            
+            cmd = dbAdapter.CreateDeleteSeriesCommand ( seriesKey );
+
+            ExecuteScalar ( cmd ) ;
+        }
+
+        public virtual void DeleteInstance ( IObjectId instance )
+        {
+            DicomDataAdapter dbAdapter = CreateDataAdapter ( );
+            IDbCommand cmd;
+            long       instanceKey = GetInstanceKey ( dbAdapter, instance ) ;
+            
+            
+            cmd = dbAdapter.CreateDeleteInstancCommand ( instanceKey );
+
+            ExecuteScalar ( cmd );
         }
 
         protected virtual void StoreInstanceMetadata 
         ( 
-            IObjectID objectId,
+            IObjectId objectId,
             InstanceMetadata data, 
             DicomDataAdapter dbAdapter 
         )
@@ -217,5 +232,60 @@ namespace DICOMcloud.Dicom.DataAccess
             return new DicomSqlDataAdapter ( ConnectionString ) ;
         }
 
+        protected virtual object ExecuteScalar ( IDbCommand cmd )
+        {
+            cmd.Connection.Open ( );
+
+            try
+            {
+                return cmd.ExecuteScalar ( ) ;
+            }
+            finally
+            {
+                cmd.Connection.Close ( );
+            }
+        }
+
+        protected virtual long GetStudyKey ( DicomDataAdapter adapter, IStudyId study )
+        {
+            using ( var studyKeyCmd = adapter.CreateSelectStudyKeyCommand ( study ) )
+            {
+                var result = ExecuteScalar ( studyKeyCmd );
+
+                return GetValue<long> ( result, -1 );
+            }
+        }
+
+        protected virtual long GetSeriesKey ( DicomDataAdapter adapter, ISeriesId series )
+        {
+            using ( var seriesKeyCmd = adapter.CreateSelectSeriesKeyCommand ( series ) )
+            {
+                var result = ExecuteScalar ( seriesKeyCmd );
+
+                return GetValue<long> ( result, -1 );
+            }
+        }
+        
+        protected virtual long GetInstanceKey ( DicomDataAdapter adapter, IObjectId instance )
+        {
+            using ( var sopKeyCmd = adapter.CreateSelectInstanceKeyCommand ( instance ) )
+            {
+                var result = ExecuteScalar ( sopKeyCmd );
+
+                return GetValue<long> ( result, -1 );
+            }
+        }
+
+        private static T GetValue<T> ( object result, T defaultValu )
+        {
+            if ( result != null && result != DBNull.Value )
+            {
+                return (T) result;
+            }
+            else
+            {
+                return defaultValu;
+            }
+        }
     }
 }

@@ -23,11 +23,12 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             //string seriesRefStudyColName, //9
             //string studyRefPatientColName, //10
             //string sopInstanceUidColName, //11
-            string sopInstanceUidValue //12
+            long sopInstanceKey //12
         ) 
         {
             StorageDbSchemaProvider schemaProvider = new StorageDbSchemaProvider ( ) ;
 
+            
             return string.Format ( Delete.Delete_Instance_Command_Formatted,
                                    schemaProvider.ObjectInstanceTable.KeyColumn.Name, 
                                    schemaProvider.SeriesTable.KeyColumn.Name, 
@@ -41,12 +42,41 @@ namespace DICOMcloud.Dicom.DataAccess.DB
                                    schemaProvider.SeriesTable.ForeignColumn,
                                    schemaProvider.StudyTable.ForeignColumn,
                                    schemaProvider.ObjectInstanceTable.ModelKeyColumns.FirstOrDefault().Name, 
-                                   sopInstanceUidValue) ;
+                                   sopInstanceKey ) ;
         }
 
         public class Delete
         {
-            public static readonly string Delete_Instance_Command_Formatted = 
+            static Delete ( )
+            {
+                List<string> DbAliasNames = new List<string> ( ) ;
+                DbAliasNames.Add ( "sopKey") ; //0
+                DbAliasNames.Add ( "seriesKey" ) ; //1
+                DbAliasNames.Add ( "studyKey" ) ; //2
+                DbAliasNames.Add ( "patientKey" ) ; //3
+                DbAliasNames.Add ( "sopTableName" ) ; //4
+                DbAliasNames.Add ( "seriesTableName" ) ; //5
+                DbAliasNames.Add ( "studyTableName" ) ; //6
+                DbAliasNames.Add ( "patientTableName" ) ; //7
+                DbAliasNames.Add ( "sopInstanceRefSeriesColName" ) ; //8
+                DbAliasNames.Add ( "seriesRefStudyColName" ) ; //9
+                DbAliasNames.Add ( "studyRefPatientColName" ) ; //10
+                DbAliasNames.Add ( "sopInstanceUidColName" ) ; //11
+            
+                Delete_Instance_Command_Formatted = __delete_Instance_Command ;
+
+                for ( int index = 0; index < DbAliasNames.Count; index++ )
+                {
+                    string stringReplaced = "{" + DbAliasNames[index] + "}" ;
+                    string indexReplacing = "{" + index + "}" ;
+                     
+                    Delete_Instance_Command_Formatted =  Delete_Instance_Command_Formatted.Replace ( stringReplaced, indexReplacing ) ;
+                }
+
+            }
+
+            public static readonly string Delete_Instance_Command_Formatted ;
+            private static readonly string __delete_Instance_Command =            
             @"
 declare @sop bigint
 declare @series bigint
@@ -56,37 +86,37 @@ declare @sopCount int
 declare @seriesCount int
 declare @studyCount int
 
-SELECT @sop = instance.{0}, @series = ser.{1}, @study = stud.{2}, @patient = p.{3}
-FROM {4} instance, {5} ser, {6} stud, {7} p
+SELECT @sop = instance.{sopKey}, @series = ser.{seriesKey}, @study = stud.{studyKey}, @patient = p.{patientKey}
+FROM {sopTableName} instance, {seriesTableName} ser, {studyTableName} stud, {patientTableName} p
 where 
-	instance.{8} = ser.{1} AND 
-	Ser.{9} = stud.{2} AND
-	stud.{10} = p.{3} AND
-	instance.{11} = '{12}'
-	
-Delete from {4} where {4}.{0} = @sop
+    instance.{sopInstanceRefSeriesColName} = ser.{seriesKey} AND 
+    Ser.{seriesRefStudyColName} = stud.{studyKey} AND
+    stud.{studyRefPatientColName} = p.{patientKey} AND
+    instance.{sopKey} = {12}
+
+Delete from {sopTableName} where {sopTableName}.{sopKey} = @sop
 
 SELECT @sopCount = COUNT(*)
-FROM {4} instance
-WHERE instance.{8} = @series
+FROM {sopTableName} instance
+WHERE instance.{sopInstanceRefSeriesColName} = @series
 
 /* if 0 entries, remove orphaned' series record */
 IF (@sopCount = 0) 
-DELETE FROM {5} WHERE (@series = {5}.{1});
+DELETE FROM {seriesTableName} WHERE (@series = {seriesTableName}.{seriesKey});
 
-SELECT  @seriesCount = COUNT(*) FROM {5} ser
-WHERE ser.{9} = @study
+SELECT  @seriesCount = COUNT(*) FROM {seriesTableName} ser
+WHERE ser.{seriesRefStudyColName} = @study
 
 /* if 0 entries, remove orphaned study record */
 IF (@seriesCount = 0) 
-DELETE FROM {6} WHERE (@study = {6}.{2});
+DELETE FROM {studyTableName} WHERE (@study = {studyTableName}.{studyKey});
 
-SELECT  @studyCount = COUNT(*) FROM {6} stud
-WHERE stud.{10} = @patient
+SELECT  @studyCount = COUNT(*) FROM {studyTableName} stud
+WHERE stud.{studyRefPatientColName} = @patient
 
 /* if 0 entries, remove orphaned patient record */
 IF (@studyCount = 0) 
-DELETE FROM {7} WHERE (@patient = {7}.{3});
+DELETE FROM {patientTableName} WHERE (@patient = {patientTableName}.{patientKey});
             ";
         }
     }
