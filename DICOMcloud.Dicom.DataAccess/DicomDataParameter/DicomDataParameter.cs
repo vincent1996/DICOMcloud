@@ -30,7 +30,15 @@ namespace DICOMcloud.Dicom.DataAccess
                 var item = Elements.First ( ) as fo.DicomElement ;
                 var value = item.Get<string> ( ).TrimEnd ( '\0' ) ;
 
-                return value.Split ( '/' ) ;
+
+                if ( item.Tag.DictionaryEntry.ValueMultiplicity.Maximum > 1 ) //better way to find if has multi value
+                {
+                    return value.Split ( '/' ) ;
+                }
+                else
+                {
+                    return new string[] { value } ;
+                }
             }
 
             return null ;

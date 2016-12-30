@@ -4,7 +4,8 @@
     [StudyInstanceUid] NVARCHAR (64) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
     [StudyId]          NVARCHAR (16) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
     [AccessionNumber]  NVARCHAR (16) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-    [StudyDate]        DATETIME      NULL
+    [StudyDate]        DATETIME      NULL, 
+    [StudyDescription] NVARCHAR(64) NULL
 );
 GO
 ALTER TABLE [dbo].[Study]

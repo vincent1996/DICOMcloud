@@ -29,6 +29,7 @@
       <column name="StudyId" table="Study" defenition="[StudyId] [nvarchar](16) NULL" tag="2097168" />
       <column name="AccessionNumber" table="Study" defenition="[AccessionNumber] [nvarchar](16) NULL" tag="524368" />
       <column name="StudyDate" table="Study" isDate="true" defenition="[StudyDate] [datetime] NULL" tag="524320,524336" />
+      <column name="StudyDescription" table="Study" defenition="[StudyDescription] [nvarchar](64) NULL" tag="528432" />
 
       <column name="SeriesKey" table="Series" key="true" defenition="[SeriesKey] [bigint] NOT NULL" tag="" />
       <column name="Series_StudyKey" table="Series" foreign="true" defenition="[Series_StudyKey] [bigint] NOT NULL" tag="" />

@@ -68,8 +68,10 @@ namespace DICOMcloud.Dicom.DataAccess.DB
             
             if ( null != column.Values && column.Values.Count != 0 )
             {
-                value = column.Values [0] ;
-            
+                //TODO: multivalue must be stored in their own table where each value is a row
+                //in order to support proper query
+                value = column.Values[0] ;
+                            
                 if ( null == value )
                 { 
                     value = DBNull.Value ;
