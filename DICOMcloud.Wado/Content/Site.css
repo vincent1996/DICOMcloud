@@ -15,3 +15,24 @@ select,
 textarea {
     max-width: 280px;
 }
+
+
+/*****************************************/
+.swagger-section #header {
+   background-color: #000000;
+}
+
+.app-logo {
+   float: left;
+   width: 140px;
+   height: 40px;
+   position: absolute;
+   z-index: 501;
+}
+
+.app-logo a {
+   width: 140px;
+   height: 40px;
+   background-image: url(/logo.png);
+}
+

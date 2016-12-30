@@ -61,7 +61,7 @@ namespace DICOMcloud.Wado.Core
 
         public fo.DicomDataset GetResponseContent ( )
         {
-            _dataset.AddOrUpdate<string>(fo.DicomTag.RetrieveURI, UrlProvider.GetStudyUrl ( StudyInstanceUID ) ) ;
+            _dataset.AddOrUpdate<string>(fo.DicomTag.RetrieveURI, UrlProvider.GetStudyUrl ( StudyInstanceUID ?? "" ) ) ;
         
             return _dataset ;
         }
@@ -118,7 +118,7 @@ namespace DICOMcloud.Wado.Core
             _dataset.AddOrUpdate ( referencedSeq ) ;
             referencedSeq.Items.Add ( item ) ;
             
-            item.AddOrUpdate<string> (fo.DicomTag.RetrieveURI, UrlProvider.GetInstanceUrl ( new ObjectID ( ds ) ) ) ; 
+            item.AddOrUpdate<string> (fo.DicomTag.RetrieveURI, UrlProvider.GetInstanceUrl ( new ObjectId ( ds ) ) ) ; 
 
 
             if ( _failureAdded )

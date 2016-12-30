@@ -21,7 +21,7 @@ namespace DICOMcloud.Wado.Controllers
         // POST api/<controller>
         [HttpPost]
         [Route("stowrs/studies/{StudyInstanceUID}")]
-        public async Task<HttpResponseMessage> Post(string StudyInstanceUID)
+        public async Task<HttpResponseMessage> Post(string StudyInstanceUID = null)
         {
 
             WebStoreRequest webStoreRequest = new WebStoreRequest ( ) ;
