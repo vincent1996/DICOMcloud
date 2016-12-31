@@ -96,6 +96,7 @@
     <Compile Include="Services\IQidoRsService.cs" />
     <Compile Include="Services\IWadoRsSerivce.cs" />
     <Compile Include="Services\IWebObjectStoreService.cs" />
+    <Compile Include="Services\MultipartResponseHelper.cs" />
     <Compile Include="Services\QidoRsService.cs" />
     <Compile Include="Services\WadoRsSerivce.cs" />
     <Compile Include="Services\WadoUriService.cs" />
@@ -103,9 +104,8 @@
     <Compile Include="Services\WebObjectStoreService.cs" />
     <Compile Include="Types\DefaultDicomQueryElements.cs" />
     <Compile Include="Types\DefaultMediaTransferSyntax.cs" />
-    <Compile Include="Types\IWadoResponseService.cs" />
     <Compile Include="Types\WadoRequestHeader.cs" />
-    <Compile Include="Types\IWadoService.cs" />
+    <Compile Include="Services\IWadoUriService.cs" />
     <Compile Include="WadoResponse\RetieveUrlProvider.cs" />
     <Compile Include="WadoResponse\WadoStoreResponse.cs" />
   </ItemGroup>

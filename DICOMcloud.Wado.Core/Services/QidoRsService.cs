@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using DICOMcloud.Dicom;
 using DICOMcloud.Dicom.Media;
 using DICOMcloud.Dicom.DataAccess;
+using System.IO;
 
 namespace DICOMcloud.Wado.Core.Services
 {
@@ -77,6 +78,7 @@ namespace DICOMcloud.Wado.Core.Services
         {
             return new QueryOptions ( ) ;
         }
+
         protected virtual IQueryOptions GetQueryOptions ( IQidoRequestModel qidoRequest )
         {
             var queryOptions = CreateNewQueryOptions ( ) ;
@@ -114,26 +116,64 @@ namespace DICOMcloud.Wado.Core.Services
 
                 ICollection<fo.DicomDataset> results = doQuery (QueryService, dicomSource, request) ; //TODO: move configuration params into their own object
 
-                StringBuilder jsonReturn = new StringBuilder ( "[" ) ;
-
-                JsonDicomConverter converter = new JsonDicomConverter ( ) { IncludeEmptyElements = true } ;
-
-                foreach ( var response in results )
+                if ( MultipartResponseHelper.IsMultiPartRequest ( request ) )
                 {
+                    if ( MultipartResponseHelper.GetSubMediaType ( request.AcceptHeader.FirstOrDefault ( ) ) == MimeMediaTypes.xmlDicom )
+                    {
+                        HttpResponseMessage response ;
+                        MultipartContent multiContent ;
+                        
+
+                        response        = new HttpResponseMessage ( ) ;
+                        multiContent    = new MultipartContent ( "related", MultipartResponseHelper.DicomDataBoundary ) ;           
+                        
+                        response.Content = multiContent ;
+
+                        foreach ( var result in results)
+                        {
+                            XmlDicomConverter converter = new XmlDicomConverter ( ) ;
+
+                            MultipartResponseHelper.AddMultipartContent ( multiContent, 
+                                                                          new WadoResponse ( new MemoryStream ( Encoding.ASCII.GetBytes ( converter.Convert (result) )), 
+                                                                                             MimeMediaTypes.xmlDicom ) ) ;
+                        }
+
+                        multiContent.Headers.ContentType.Parameters.Add ( new System.Net.Http.Headers.NameValueHeaderValue ( "type", 
+                                                                                                    "\"" + MimeMediaTypes.xmlDicom + "\"" ) ) ;
                     
-                    jsonReturn.AppendLine (converter.Convert ( response )) ;
-
-                    jsonReturn.Append(",") ;
+                        return response ;                                                                                
+                    }
+                    else
+                    {
+                        return new HttpResponseMessage ( System.Net.HttpStatusCode.BadRequest ) ;
+                    }
                 }
-
-                if ( results.Count > 0 )
+                else
                 {
-                    jsonReturn.Remove ( jsonReturn.Length -1, 1 ) ;
+                    StringBuilder jsonReturn = new StringBuilder ( "[" ) ;
+
+                    JsonDicomConverter converter = new JsonDicomConverter ( ) { IncludeEmptyElements = true } ;
+
+                    foreach ( var response in results )
+                    {
+                    
+                        jsonReturn.AppendLine (converter.Convert ( response )) ;
+
+                        jsonReturn.Append(",") ;
+                    }
+
+                    if ( results.Count > 0 )
+                    {
+                        jsonReturn.Remove ( jsonReturn.Length -1, 1 ) ;
+                    }
+
+                    jsonReturn.Append("]") ;
+                
+                    return new HttpResponseMessage (System.Net.HttpStatusCode.OK )  { 
+                                                                Content = new StringContent ( jsonReturn.ToString ( ), 
+                                                                Encoding.UTF8, 
+                                                                MimeMediaTypes.Json) } ;    
                 }
-
-                jsonReturn.Append("]") ;
-
-                return new HttpResponseMessage (System.Net.HttpStatusCode.OK ) { Content = new StringContent ( jsonReturn.ToString ( ), Encoding.UTF8, MimeMediaTypes.Json) } ;
             }
 
             return null;

@@ -16,20 +16,11 @@ namespace DICOMcloud.Wado.Core
 {
     public class WadoRsService : IWadoRsService
     {
-        IObjectRetrieveDataService RetrieveService     { get; set;  }
-        IWadoResponseService       ResponseService     { get; set;  }
+        IObjectRetrieveDataService RetrieveService { get; set;  }
         
-        public string DicomDataBoundary
-        {
-            get;
-            set;
-        }
-
         public WadoRsService ( IObjectRetrieveDataService retrieveService )
         {
             RetrieveService   = retrieveService ;
-            ResponseService   = new WadoResponseService ( ) ; 
-            DicomDataBoundary =  "DICOM DATA BOUNDARY" ;
         }
 
         //DICOM Instances are returned in either DICOM or Bulk data format
@@ -85,7 +76,7 @@ namespace DICOMcloud.Wado.Core
         {
             if ( IsMultiPartRequest ( request ) )
             {
-                var subMediaHeader = GetSubMediaType ( request.AcceptHeader.FirstOrDefault ( ) ) ;
+                var subMediaHeader = MultipartResponseHelper.GetSubMediaType ( request.AcceptHeader.FirstOrDefault ( ) ) ;
 
                 if ( null == subMediaHeader || subMediaHeader != MimeMediaTypes.xmlDicom ) 
                 {
@@ -102,7 +93,6 @@ namespace DICOMcloud.Wado.Core
 
         public virtual HttpResponseMessage RetrieveMultipartInstance ( IWadoRequestHeader header, IObjectId request )
         {
-            IWadoResponseService responseService ; 
             HttpResponseMessage response ;
             MultipartContent multiContent ;
             MediaTypeWithQualityHeaderValue selectedMediaTypeHeader ;
@@ -113,9 +103,8 @@ namespace DICOMcloud.Wado.Core
                 return  new HttpResponseMessage ( System.Net.HttpStatusCode.NotAcceptable ) ; //TODO: check error code in standard
             }
 
-            responseService = new WadoResponseService ( ) ; 
             response        = new HttpResponseMessage ( ) ;
-            multiContent    = new MultipartContent ( "related", DicomDataBoundary ) ;           
+            multiContent    = new MultipartContent ( "related", MultipartResponseHelper.DicomDataBoundary ) ;           
             selectedMediaTypeHeader = null ;
 
             response.Content = multiContent ;
@@ -132,7 +121,7 @@ namespace DICOMcloud.Wado.Core
 
                         foreach ( var wadoResponse in ProcessMultipartRequest ( request, mediaTypeHeader ) )
                         { 
-                            AddMultipartContent ( multiContent, wadoResponse );
+                            MultipartResponseHelper.AddMultipartContent ( multiContent, wadoResponse );
 
                             selectedMediaTypeHeader = mediaTypeHeader;
                         }
@@ -142,7 +131,7 @@ namespace DICOMcloud.Wado.Core
                 {
                     foreach ( var wadoResponse in ProcessMultipartRequest ( request, mediaTypeHeader ) )
                     { 
-                        AddMultipartContent ( multiContent, wadoResponse );
+                        MultipartResponseHelper.AddMultipartContent ( multiContent, wadoResponse );
 
                         selectedMediaTypeHeader = mediaTypeHeader;
                     }
@@ -155,7 +144,7 @@ namespace DICOMcloud.Wado.Core
 
             if ( selectedMediaTypeHeader != null )
             {
-                multiContent.Headers.ContentType.Parameters.Add ( new System.Net.Http.Headers.NameValueHeaderValue ( "type", "\"" + GetSubMediaType (selectedMediaTypeHeader) + "\"" ) ) ;
+                multiContent.Headers.ContentType.Parameters.Add ( new System.Net.Http.Headers.NameValueHeaderValue ( "type", "\"" + MultipartResponseHelper.GetSubMediaType (selectedMediaTypeHeader) + "\"" ) ) ;
             }
             else
             {
@@ -260,11 +249,11 @@ namespace DICOMcloud.Wado.Core
             string              defaultTransfer = null;
             bool                instancesFound = false ;
 
-            subMediaType = GetSubMediaType(mediaTypeHeader) ;
+            subMediaType = MultipartResponseHelper.GetSubMediaType(mediaTypeHeader) ;
 
             DefaultMediaTransferSyntax.Instance.TryGetValue ( subMediaType, out defaultTransfer );
 
-            transferSyntaxes = GetRequestedTransferSyntax ( mediaTypeHeader, defaultTransfer );
+            transferSyntaxes = MultipartResponseHelper.GetRequestedTransferSyntax ( mediaTypeHeader, defaultTransfer );
 
             foreach ( var result in FindLocations ( objectID, subMediaType, transferSyntaxes, defaultTransfer ) )
             {
@@ -312,47 +301,7 @@ namespace DICOMcloud.Wado.Core
 
         protected virtual bool IsMultiPartRequest ( IWadoRequestHeader header )
         {
-            return ( (MimeMediaType) MimeMediaTypes.MultipartRelated ).IsIn ( header.AcceptHeader ) ;
-        }
-
-        
-        private static void AddMultipartContent ( MultipartContent multiContent, IWadoRsResponse wadoResponse )
-        {
-            StreamContent sContent = new StreamContent ( wadoResponse.Content );
-
-            sContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue ( wadoResponse.MimeType );
-
-            multiContent.Add ( sContent );
-        }
-
-        private static IEnumerable<string> GetRequestedTransferSyntax  (  MediaTypeWithQualityHeaderValue mediaTypeHeader, string defaultTransfer )
-        {
-            //TODO: this should be extended to include query parameters in the request?
-            List<string> transferSyntaxes ;
-            IEnumerable<NameValueHeaderValue> transferSyntaxHeader ;
-
-            
-            transferSyntaxes     = new List<string> ( ) ;
-            transferSyntaxHeader = mediaTypeHeader.Parameters.Where ( n => n.Name == "transfer-syntax" );
-
-            if ( 0 == transferSyntaxHeader.Count ( ) )
-            {
-                transferSyntaxes.Add ( defaultTransfer );
-            }
-            else
-            {
-                transferSyntaxes.AddRange ( transferSyntaxHeader.Select ( n => n.Value ) );
-            }
-
-            return transferSyntaxes ;
-        }
-
-        private static string GetSubMediaType ( MediaTypeWithQualityHeaderValue mediaTypeHeader )
-        {
-        
-            var subMediaTypeHeader = mediaTypeHeader.Parameters.Where ( n => n.Name == "type" ).FirstOrDefault ( );
-
-            return subMediaTypeHeader.Value.Trim ( '"' ) ;
+            return MultipartResponseHelper.IsMultiPartRequest ( header ) ;
         }
     }
 }
