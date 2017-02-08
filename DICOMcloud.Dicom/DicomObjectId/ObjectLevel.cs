@@ -10,6 +10,7 @@ namespace DICOMcloud.Dicom
     {
         Study,
         Series,
-        Instance
+        Instance,
+        Unknown
     }
 }

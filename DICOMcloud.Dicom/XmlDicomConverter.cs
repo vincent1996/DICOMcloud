@@ -28,7 +28,12 @@ namespace DICOMcloud.Dicom
             get;
             private set ;
         }
-        
+
+        public  fo.DicomTransferSyntax TransferSyntax
+        {
+            get; protected set;
+        }
+
         public string Convert ( fo.DicomDataset ds )
         {
             string result ;
@@ -59,11 +64,10 @@ namespace DICOMcloud.Dicom
             fo.DicomDataset ds       = new fo.DicomDataset( ) ;
             XDocument       document = XDocument.Parse ( xmlDcm ) ;
 
-            ReadHeaders (ds, document.Root );
-            ReadChildren(ds, document.Root );
+            ReadChildren(ds, document.Root, 0 );
 
             fo.DicomFile df = new fo.DicomFile ( ds ) ;
-            
+
             return ds ;
         }
 
@@ -249,20 +253,15 @@ namespace DICOMcloud.Dicom
 
         #region Read Methods
         
-        private void ReadHeaders ( fo.DicomDataset ds, XContainer document  )
-        {
-            //ReadDicomAttribute ( ds, ds.Get<fo.DicomItem> ( fo.DicomTag.TransferSyntaxUID, null ) ;
-        }
-
-        private void ReadChildren ( fo.DicomDataset ds, XContainer document ) 
+        private void ReadChildren ( fo.DicomDataset ds, XContainer document, int level = 0 ) 
         {
             foreach ( var element in document.Elements (Constants.ATTRIBUTE_NAME) ) 
             {
-                ReadDicomAttribute(ds, element);
+                ReadDicomAttribute(ds, element, level);
             }
         }
 
-        private void ReadDicomAttribute ( fo.DicomDataset ds, XElement element )
+        private void ReadDicomAttribute ( fo.DicomDataset ds, XElement element, int level )
         {
             XAttribute              vrNode  ;
             fo.DicomTag             tag ;
@@ -279,6 +278,11 @@ namespace DICOMcloud.Dicom
             //{
             //    ds.InternalTransferSyntax = ReadValue ( element ).FirstOrDefault ( ) ;
             //}
+
+            if ( vrNode != null && !string.IsNullOrEmpty ( vrNode.Value ) )
+            {
+                dicomVR = fo.DicomVR.Parse ( vrNode.Value ) ;
+            }
 
             if ( tag.IsPrivate ) 
             {
@@ -298,16 +302,22 @@ namespace DICOMcloud.Dicom
 
             if ( dicomVR == fo.DicomVR.SQ )
             {
-                ReadSequence ( ds, element, tag  ) ;
+                ReadSequence ( ds, element, tag, level ) ;
             }
             else
             {
-                ReadElement ( ds, element, tag, dicomVR ) ;
+                ReadElement ( ds, element, tag, dicomVR, level ) ;
             }
 
         }
 
-        private void ReadSequence ( fo.DicomDataset ds,  XElement element, fo.DicomTag tag )
+        private void ReadSequence 
+        ( 
+            fo.DicomDataset ds,  
+            XElement element, 
+            fo.DicomTag tag, 
+            int level 
+        )
         {
             fo.DicomSequence seq = new fo.DicomSequence ( tag, new fo.DicomDataset[0] ) ;
 
@@ -316,7 +326,11 @@ namespace DICOMcloud.Dicom
             {
                 fo.DicomDataset itemDs = new fo.DicomDataset ( ) ;
                 
-                ReadChildren ( itemDs, item ) ;
+                level++ ;
+
+                ReadChildren ( itemDs, item, level ) ;
+
+                level--;
 
                 seq.Items.Add ( itemDs ) ;
             }
@@ -324,7 +338,14 @@ namespace DICOMcloud.Dicom
             ds.AddOrUpdate ( seq ) ;
         }
         
-        private void ReadElement ( fo.DicomDataset ds, XElement element, fo.DicomTag tag, fo.DicomVR dicomVr )
+        private void ReadElement 
+        ( 
+            fo.DicomDataset ds, 
+            XElement element, 
+            fo.DicomTag tag, 
+            fo.DicomVR dicomVr, 
+            int level
+        )
         {
             if ( dicomVr == fo.DicomVR.PN )
             {
@@ -382,13 +403,25 @@ namespace DICOMcloud.Dicom
                         data = new fo.IO.Buffer.MemoryByteBuffer ( base64 ) ;
                     }
                     
-                    ds.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( dicomVr, tag, data ) ;
+                    if ( tag == fo.DicomTag.PixelData && level == 0 ) 
+                    {
+                        ds.AddOrUpdatePixelData ( dicomVr, data, TransferSyntax ) ;
+                    }
+                    else
+                    {
+                        ds.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( dicomVr, tag, data ) ;
+                    }
                 }
             }
             else 
             {
                 var values = ReadValue ( element );
                 
+                if ( tag == fo.DicomTag.TransferSyntaxUID )
+                {
+                    TransferSyntax = fo.DicomTransferSyntax.Parse ( values.FirstOrDefault ( ) ) ;
+                }
+
                 ds.AddOrUpdate<string> ( dicomVr, tag, values.ToArray ( ) );
             }            
         }

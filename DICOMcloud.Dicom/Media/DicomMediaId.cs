@@ -24,9 +24,9 @@ namespace DICOMcloud.Dicom.Media
 
             DicomObject = new ObjectId ( ) { StudyInstanceUID = parts[1], SeriesInstanceUID = parts[2], SOPInstanceUID = parts[3], Frame = int.Parse(parts[4]) };
 
-            var mediaTypeParts = MediaType.Split (';') ;
+            var mediaTypeParts = parts[0].Split (';') ;
 
-            MediaType   = mediaTypeParts[0] ;
+            MediaType = mediaTypeParts[0] ;
 
             if ( mediaTypeParts.Length == 2 )
             {
