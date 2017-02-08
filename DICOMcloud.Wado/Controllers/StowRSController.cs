@@ -31,9 +31,10 @@ namespace DICOMcloud.Wado.Controllers
                     throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
 
-            await Request.Content.ReadAsMultipartAsync(webStoreRequest);
+            await Request.Content.ReadAsMultipartAsync ( webStoreRequest ) ;
+
             webStoreRequest.AcceptCharsetHeader = Request.Headers.AcceptCharset ;
-            webStoreRequest.AcceptHeader = Request.Headers.Accept ;
+            webStoreRequest.AcceptHeader        = Request.Headers.Accept ;
 
             return await StorageService.ProcessRequest(webStoreRequest, StudyInstanceUID);
         }

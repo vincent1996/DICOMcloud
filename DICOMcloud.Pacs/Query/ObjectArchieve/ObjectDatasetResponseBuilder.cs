@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Dicom.Data.Services
 {
-    public partial class ObjectArchieveResponseBuilder : IStorageDataReader
+    public partial class ObjectDatasetResponseBuilder : IStorageDataReader
     {
         private EntityReadData  CurrentData            = null ;
         private KeyToDataSetCollection CurrentResultSet = null ;
@@ -24,7 +24,7 @@ namespace DICOMcloud.Dicom.Data.Services
             protected set;
         }
 
-        public ObjectArchieveResponseBuilder ( DbSchemaProvider schemaProvider, string queryLevel )
+        public ObjectDatasetResponseBuilder ( DbSchemaProvider schemaProvider, string queryLevel )
         {
             SchemaProvider = schemaProvider ;
             QueryLevel     = queryLevel ;

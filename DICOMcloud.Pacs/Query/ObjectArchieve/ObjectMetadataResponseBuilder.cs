@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using fo = Dicom;
 
-namespace DICOMcloud.Pacs.Commands
+namespace DICOMcloud.Pacs.Query.ObjectArchieve
 {
-    public interface IStoreCommand : IDicomCommand<StoreCommandData,StoreCommandResult>
+    public class ObjectMetadataResponseBuilder
     {
         
     }

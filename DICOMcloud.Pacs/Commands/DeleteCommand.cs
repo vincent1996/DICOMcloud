@@ -13,11 +13,12 @@ using DICOMcloud.Core.Storage;
 
 namespace DICOMcloud.Pacs.Commands
 {
-    public class DeleteCommand : IDicomCommand<DeleteCommandData, DicomCommandResult>
+    public class DeleteCommand : IDicomCommand<DeleteCommandData, DicomCommandResult>, IDeleteCommand
     {
         public IMediaStorageService            StorageService { get; set; }
         public IDicomInstnaceStorageDataAccess DataAccess     { get; set; }
         public IDicomMediaIdFactory            MediaFactory   { get; set; }
+        
         public DeleteCommand
         ( 
             IMediaStorageService storageService,    
@@ -36,83 +37,85 @@ namespace DICOMcloud.Pacs.Commands
             {
                 case Dicom.ObjectLevel.Study:
                 {
-                    DeleteStudy ( commandData.ObjectInstance ) ;
+                    return DeleteStudy ( commandData.Instances ) ;
                 }
-                break;
 
                 case Dicom.ObjectLevel.Series:
                 {
-                    DeleteSeries ( commandData.ObjectInstance ) ;
+                    return DeleteSeries ( commandData.Instances ) ;
                 }
-                break;
 
                 case Dicom.ObjectLevel.Instance:
                 {
-                    return DeleteInstance ( commandData.ObjectInstance ) ;
+                    return DeleteInstance ( commandData.Instances ) ;
                 }
-                //break;
 
                 default:
                 {
                     throw new ApplicationException ( "Invalid delete level" ) ;//TODO:
                 }
             }
-            
-            return new DicomCommandResult ( );//TODO: currently nothing to return    
         }
 
-        protected  virtual DicomCommandResult DeleteStudy ( IStudyId study )
+        protected  virtual DicomCommandResult DeleteStudy ( IEnumerable<IStudyId> studies )
         {
-            DeleteMediaLocations   ( study ) ;
-            DataAccess.DeleteStudy ( study );
+            foreach (var study in studies )
+            {
+                DeleteMediaLocations   ( study ) ;
+                DataAccess.DeleteStudy ( study );
+            }
+                  
+            return new DicomCommandResult ( ) { Status = CommandStatus.Success } ;//TODO: currently nothing to return    
+        }
+
+        protected  virtual DicomCommandResult DeleteSeries ( IEnumerable<ISeriesId> seriesIds )
+        {
+            foreach ( var series in seriesIds )
+            {
+                DeleteMediaLocations    ( series ) ;
+                DataAccess.DeleteSeries ( series );
+            }
                         
-            return new DicomCommandResult ( );//TODO: currently nothing to return    
+            return new DicomCommandResult ( ) { Status = CommandStatus.Success } ;//TODO: currently nothing to return    
         }
 
-        protected  virtual DicomCommandResult DeleteSeries ( ISeriesId series )
+        protected  virtual DicomCommandResult DeleteInstance ( IEnumerable<IObjectId> instances )
         {
-            DeleteMediaLocations    ( series ) ;
-            DataAccess.DeleteSeries ( series );
-                        
-            return new DicomCommandResult ( );//TODO: currently nothing to return    
-        }
+            foreach ( var instance in instances )
+            {
+                DeleteMediaLocations      ( instance );
+                DataAccess.DeleteInstance ( instance ); //delete from DB after all dependencies are completed
+            }
 
-        protected  virtual DicomCommandResult DeleteInstance ( IObjectId instance )
-        {
-            DeleteMediaLocations      ( instance );
-            DataAccess.DeleteInstance ( instance ); //delete from DB after all dependencies are completed
-            
-            return new DicomCommandResult ( );//TODO: currently nothing to return    
+            return new DicomCommandResult ( ) { Status = CommandStatus.Success } ;//TODO: currently nothing to return    
         }
 
         private void DeleteMediaLocations ( IStudyId study )
         {
-            //TODO: uncomment
-            //var studyMeta  = DataAccess.GetStudyMetadata ( study ) ;
-            
-            
-            //if ( null != studyMeta )
-            //{
-            //    foreach ( var objectMetaRaw in studyMeta )
-            //    {
-            //        DeleteMediaLocations ( objectMetaRaw ) ;
-            //    }
-            //}
+            var studyMeta = DataAccess.GetStudyMetadata ( study );
+
+
+            if ( null != studyMeta )
+            {
+                foreach ( var objectMetaRaw in studyMeta )
+                {
+                    DeleteMediaLocations ( objectMetaRaw );
+                }
+            }
         }
 
         private void DeleteMediaLocations ( ISeriesId series )
         {
-            //TODO: uncomment
-            //var seriesMeta = DataAccess.GetSeriesMetadata ( series ) ;
-            
-            
-            //if ( null != seriesMeta )
-            //{
-            //    foreach ( var objectMetaRaw in seriesMeta )
-            //    {
-            //        DeleteMediaLocations ( objectMetaRaw ) ;
-            //    }
-            //}
+            var seriesMeta = DataAccess.GetSeriesMetadata ( series );
+
+
+            if ( null != seriesMeta )
+            {
+                foreach ( var objectMetaRaw in seriesMeta )
+                {
+                    DeleteMediaLocations ( objectMetaRaw );
+                }
+            }
         }
 
         private void DeleteMediaLocations ( IObjectId instance )

@@ -54,7 +54,7 @@ namespace DICOMcloud.Dicom.Data.Services
            IQueryOptions options,
            string queryLevel,
            IEnumerable<IMatchingCondition> conditions,
-           ObjectArchieveResponseBuilder responseBuilder
+           ObjectDatasetResponseBuilder responseBuilder
         )
         {
             QueryDataAccess.Search ( conditions, responseBuilder, options, queryLevel ) ;

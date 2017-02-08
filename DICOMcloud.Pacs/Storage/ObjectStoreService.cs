@@ -1,5 +1,7 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
+using DICOMcloud.Core.Storage;
+using DICOMcloud.Dicom.Data;
 using DICOMcloud.Dicom.DataAccess;
 using DICOMcloud.Dicom.Media;
 using DICOMcloud.Pacs.Commands;
@@ -9,19 +11,15 @@ namespace DICOMcloud.Pacs
 {
     public class ObjectStoreService : IObjectStoreService
     {
-        public IDicomInstnaceStorageDataAccess DataAccess   { get; set; }
-        public IDicomMediaWriterFactory MediaFactory        { get; set ; }
+        public IDicomCommandFactory CommandFactory { get; set; }
         
-        //public ObjectStoreDataService ( ) {}
-        
+
         public ObjectStoreService 
         ( 
-            IDicomInstnaceStorageDataAccess dataAccess,
-            IDicomMediaWriterFactory mediaFactory
+            IDicomCommandFactory commandFactory
         )
         {
-            DataAccess   = dataAccess ;
-            MediaFactory = mediaFactory ;
+            CommandFactory = commandFactory ;
         }
         
         public StoreResult StoreDicom
@@ -30,7 +28,7 @@ namespace DICOMcloud.Pacs
             InstanceMetadata metadata
         )
         {
-            StoreCommand     storeCommand = CreateStoreCommand ( ) ;
+            IStoreCommand    storeCommand = CommandFactory.CreateStoreCommand ( ) ;
             StoreCommandData storeData    = new StoreCommandData ( ) { Dataset = dataset, Metadata = metadata } ;
             StoreResult      storeResult  = new StoreResult ( ) ;
 
@@ -60,9 +58,39 @@ namespace DICOMcloud.Pacs
             return storeResult ;
         }
 
-        protected virtual StoreCommand CreateStoreCommand ( )
+        //TODO: update this to return a type showing what objects got deleted e.g. IObjectId[]
+        //the "reuest" dataset is assumed to have the Object ID values. However, 
+        //an extended implementation might send a query dataset and this method will query the DB and generate multiple Object IDs
+        //Example: the request dataset has a date range, wild-card or SOP Class UID...
+        public DicomCommandResult Delete
+        ( 
+            fo.DicomDataset request,
+            Dicom.ObjectLevel  level
+        )
         {
-            return new StoreCommand ( DataAccess, MediaFactory ) ;
+            DicomCommandResult deleteResult  = null ;
+            IDeleteCommand     deleteCommand = CommandFactory.CreateDeleteCommand ( ) ;
+            DeleteCommandData  deleteData    = new DeleteCommandData ( ) { Instances = new List<ObjectId> ( ) 
+                                                                                        { new ObjectId ( request ) }, 
+                                                                          DeleteLevel = level } ;
+
+            try
+            {
+                deleteResult = deleteCommand.Execute ( deleteData ) ;
+            }
+            catch ( Exception ex )
+            {
+                System.Diagnostics.Trace.Fail ( "Error deleting object", ex.ToString ( ) );
+                deleteResult.Status = CommandStatus.Failed;
+
+                //TODO: must catch specific exception types and set status, message and "code" accoringely
+                //storeResult.DataSet = dataset;
+                deleteResult.Status  = CommandStatus.Failed ;
+                deleteResult.Error   = ex ;
+                deleteResult.Message = ex.Message ;
+            }
+
+            return deleteResult ;
         }
     }
 }

@@ -7,22 +7,13 @@ using fo = Dicom;
 
 namespace DICOMcloud.Pacs.Commands
 {
-    public interface IStoreCommandResult
+    public interface IStoreCommandResult : IDicomCommandResult
     {
+        fo.DicomDataset ReferencedSopInstance { get; set; }
     }
 
-    public class StoreCommandResult
+    public class StoreCommandResult : DicomCommandResult
     {
-        public CommandStatus Status  { get; set; }
-        public Exception     Error   { get; set; }
-        public string        Message { get; set; }
-
         public fo.DicomDataset ReferencedSopInstance { get; set; }
-    }
-
-    public enum CommandStatus
-    {
-        Success,
-        Failed
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using DICOMcloud.Dicom;
 using DICOMcloud.Pacs;
 
 namespace DICOMcloud.Wado.Models
@@ -23,7 +24,7 @@ namespace DICOMcloud.Wado.Models
           set ;
        }
 
-       public ObjectQueryLevel QueryLevel { get; set; } 
+       public ObjectLevel QueryLevel { get; set; } 
     }
 
     public class WadoRSStudiesRequest : WadoRsRequestBase, IWadoRsStudiesRequest

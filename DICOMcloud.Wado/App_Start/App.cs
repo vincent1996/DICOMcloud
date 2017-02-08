@@ -57,13 +57,15 @@ namespace DICOMcloud.Wado
             
             container.RegisterType<DbSchemaProvider> ( new InjectionConstructor() ) ; //default constructor
 
+            container.RegisterType<IDicomCommandFactory, DicomCommandFactory> ( ) ;
+
             container.RegisterType<IObjectArchieveQueryService, ObjectArchieveQueryService>();
             container.RegisterType<IObjectStoreService, ObjectStoreService>();
             container.RegisterType<IObjectRetrieveDataService, ObjectRetrieveDataService>();
 
-            container.RegisterType<IStoreCommand, StoreCommand>();
             container.RegisterType<IWadoRsService, WadoRsService>();
-            
+            container.RegisterType<IWebObjectStoreService, WebObjectStoreService> ();
+
             container.RegisterInstance<IDicomInstnaceStorageDataAccess>(dataAccess);
             container.RegisterInstance<IDicomStorageQueryDataAccess>   (dataAccess);
             

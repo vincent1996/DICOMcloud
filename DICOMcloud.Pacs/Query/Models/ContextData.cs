@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DICOMcloud.Dicom.Data.Services
 {
-    public partial class ObjectArchieveResponseBuilder
+    public partial class ObjectDatasetResponseBuilder
     { 
         private class EntityReadData
         { 

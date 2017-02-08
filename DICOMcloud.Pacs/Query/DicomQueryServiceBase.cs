@@ -37,7 +37,7 @@ namespace DICOMcloud.Dicom.Data.Services.Query
         {
 
             IEnumerable<IMatchingCondition> conditions = null;
-            ObjectArchieveResponseBuilder responseBuilder = CreateResponseBuilder ( queryLevel ) ;
+            ObjectDatasetResponseBuilder responseBuilder = CreateResponseBuilder ( queryLevel ) ;
 
 
             conditions = BuildConditions ( request );
@@ -47,12 +47,12 @@ namespace DICOMcloud.Dicom.Data.Services.Query
             return responseBuilder.GetResponse ( );
         }
 
-        protected virtual ObjectArchieveResponseBuilder CreateResponseBuilder 
+        protected virtual ObjectDatasetResponseBuilder CreateResponseBuilder 
         ( 
             string queryLevel
         )
         {
-            return new ObjectArchieveResponseBuilder ( SchemaProvider, queryLevel );
+            return new ObjectDatasetResponseBuilder ( SchemaProvider, queryLevel );
         }
 
         protected virtual IEnumerable<IMatchingCondition> BuildConditions
@@ -81,7 +81,7 @@ namespace DICOMcloud.Dicom.Data.Services.Query
             IQueryOptions options, 
             string queryLevel,
             IEnumerable<IMatchingCondition> conditions, 
-            ObjectArchieveResponseBuilder responseBuilder
+            ObjectDatasetResponseBuilder responseBuilder
         ) ;
     }
 }

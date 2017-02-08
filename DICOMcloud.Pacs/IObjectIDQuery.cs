@@ -11,6 +11,6 @@ namespace DICOMcloud.Dicom.Data.Services
 {
     public interface IObjectQuery : IObjectId
     {
-        ObjectQueryLevel QueryLevel     { get; set; }
+        ObjectLevel QueryLevel     { get; set; }
     }
 }

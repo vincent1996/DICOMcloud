@@ -8,6 +8,7 @@ namespace DICOMcloud.Pacs
 {
     public interface IObjectStoreService
     {
-        StoreResult StoreDicom ( fo.DicomDataset dataset, InstanceMetadata metadata ) ;
+        StoreResult        StoreDicom ( fo.DicomDataset dataset, InstanceMetadata metadata ) ;
+        DicomCommandResult Delete     ( fo.DicomDataset request, Dicom.ObjectLevel  level ) ;
     }
 }

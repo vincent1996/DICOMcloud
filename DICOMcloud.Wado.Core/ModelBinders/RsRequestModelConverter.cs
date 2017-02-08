@@ -1,14 +1,11 @@
 ﻿
-using DICOMcloud.Wado.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.ValueProviders;
-using DICOMcloud.Pacs;
+using DICOMcloud.Dicom;
+using DICOMcloud.Wado.Models;
 
 namespace DICOMcloud.Wado.Core
 {
@@ -17,7 +14,7 @@ namespace DICOMcloud.Wado.Core
         public RsRequestModelConverter ( )
         { }
 
-        public bool TryParse ( HttpRequestMessage request, ModelBindingContext bindingContext, out T result )
+        public virtual bool TryParse ( HttpRequestMessage request, ModelBindingContext bindingContext, out T result )
         {
             var query = request.RequestUri.ParseQueryString ( ) ;        
             result = null ;
@@ -28,7 +25,7 @@ namespace DICOMcloud.Wado.Core
 
                 FillStudyParams ( bindingContext.ValueProvider, wadoReq ) ;
                 
-                wadoReq.QueryLevel = ObjectQueryLevel.Study ;
+                wadoReq.QueryLevel = ObjectLevel.Study ;
                 
                 result = wadoReq as T;
             }
@@ -39,7 +36,7 @@ namespace DICOMcloud.Wado.Core
 
                 FillSeriesParams ( bindingContext.ValueProvider, wadoReq ) ;
              
-                wadoReq.QueryLevel = ObjectQueryLevel.Series ;
+                wadoReq.QueryLevel = ObjectLevel.Series ;
                 
                 result = wadoReq as T;
             }
@@ -50,7 +47,7 @@ namespace DICOMcloud.Wado.Core
 
                 FillInstanceParams ( bindingContext.ValueProvider, wadoReq ) ;
 
-                wadoReq.QueryLevel = ObjectQueryLevel.Instance ;
+                wadoReq.QueryLevel = ObjectLevel.Instance ;
                 
                 result = wadoReq as T;
             }
@@ -61,7 +58,7 @@ namespace DICOMcloud.Wado.Core
 
                 FillIFramesParams ( bindingContext.ValueProvider, wadoReq) ;
 
-                wadoReq.QueryLevel = ObjectQueryLevel.Instance ;
+                wadoReq.QueryLevel = ObjectLevel.Instance ;
 
                 result = wadoReq as T;
             }
@@ -72,7 +69,7 @@ namespace DICOMcloud.Wado.Core
 
                 reqBase.AcceptHeader        = request.Headers.Accept;
                 reqBase.AcceptCharsetHeader = request.Headers.AcceptCharset;
-                reqBase.QueryLevel          = ObjectQueryLevel.Instance ;
+                reqBase.QueryLevel          = ObjectLevel.Instance ;
                 
                 return true ;
             }

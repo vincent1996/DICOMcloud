@@ -16,9 +16,10 @@ namespace DICOMcloud.Wado.Core
             if (bindingContext.ModelType == typeof(T))
             {
                 T result ;
-                
                 var theValue = bindingContext.ValueProvider.GetValue ( bindingContext.ModelName);
-                if ( new RsRequestModelConverter<T> ( ).TryParse ( actionContext.Request, bindingContext, out result) )
+                
+                
+                if ( GetConverter ( ).TryParse ( actionContext.Request, bindingContext, out result) )
                 { 
                     bindingContext.Model = result;
                
@@ -33,6 +34,11 @@ namespace DICOMcloud.Wado.Core
             }
 
             return false ;
+        }
+
+        protected virtual RsRequestModelConverter<T> GetConverter ( ) 
+        {
+            return new RsRequestModelConverter<T> ( ) ;
         }
     }
 }

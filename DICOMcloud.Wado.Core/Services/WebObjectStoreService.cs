@@ -25,7 +25,7 @@ namespace DICOMcloud.Wado.Core
             _storageService = storage ;
         }
 
-        public virtual async Task<HttpResponseMessage> ProcessRequest 
+        public virtual async Task<HttpResponseMessage> ProcessRequest
         (
             IWebStoreRequest request, 
             string studyInstanceUID 
@@ -44,16 +44,14 @@ namespace DICOMcloud.Wado.Core
 
                 case MimeMediaTypes.xmlDicom:
                 {
-
+                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 }
-                break ;
-
+                
                 case MimeMediaTypes.Json:
                 {
-
+                    throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
                 }
-                break ;
-
+                
                 default:
                 {
                     throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
@@ -87,6 +85,19 @@ namespace DICOMcloud.Wado.Core
             {
                 return new HttpResponseMessage ( HttpStatusCode.BadRequest ) ;
             }
+        }
+
+        public virtual async Task<HttpResponseMessage> ProcessDelete  ( IWebDeleteRequest request )
+        {
+            var result = _storageService.Delete ( request.Dataset, request.DeleteLevel )  ;
+
+            if ( result.Status == Pacs.Commands.CommandStatus.Failed )
+            {
+                //TODO: inspect exception type and return proper error
+                return new HttpResponseMessage ( HttpStatusCode.InternalServerError ) ;
+            }
+            
+            return new HttpResponseMessage ( HttpStatusCode.OK ) ;
         }
 
         //TODO: uncomment
@@ -132,7 +143,5 @@ namespace DICOMcloud.Wado.Core
 
             return response;
         }
-
-
     }
 }

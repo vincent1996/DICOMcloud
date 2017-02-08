@@ -55,7 +55,5 @@ namespace DICOMcloud.Wado.Models
             _tempStreamReference = new MemoryStream ( );
             return _tempStreamReference ;
         }
-
-
     }
 }
