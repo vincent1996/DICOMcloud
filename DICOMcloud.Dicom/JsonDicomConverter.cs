@@ -16,6 +16,11 @@ namespace DICOMcloud.Dicom
     {
         private int _minValueIndex;
 
+        public string TransferSyntaxUID
+        {
+            get; set;
+        }
+
         public JsonDicomConverter ( )
         {
             IncludeEmptyElements = false;
@@ -76,7 +81,7 @@ namespace DICOMcloud.Dicom
                         if ( reader.TokenType != JsonToken.StartObject )
                             throw new JsonReaderException ( "Malformed DICOM json" );
 
-                        ReadChildren ( reader, dataset );
+                        ReadChildren ( reader, dataset, 0 );
                     }
                 }
             }
@@ -296,7 +301,7 @@ namespace DICOMcloud.Dicom
         #endregion
 
         #region Read Methods
-        protected virtual void ReadChildren ( JsonTextReader reader, fo.DicomDataset dataset )
+        protected virtual void ReadChildren ( JsonTextReader reader, fo.DicomDataset dataset, int level )
         {
             while ( reader.Read ( ) && reader.TokenType == JsonToken.PropertyName )
             {
@@ -304,7 +309,7 @@ namespace DICOMcloud.Dicom
                 
                 if ( reader.Read ( ) && reader.TokenType == JsonToken.StartObject )
                 {
-                    ReadDicomItem ( reader, tag, dataset );
+                    ReadDicomItem ( reader, tag, dataset, level );
                 }
             }
 
@@ -316,7 +321,8 @@ namespace DICOMcloud.Dicom
         (
             JsonTextReader reader,
             fo.DicomTag tag,
-            fo.DicomDataset dataset
+            fo.DicomDataset dataset, 
+            int level
         )
         {
             var vr = tag.DictionaryEntry.ValueRepresentations.FirstOrDefault ( );
@@ -337,19 +343,19 @@ namespace DICOMcloud.Dicom
 
                     case JsonConstants.ValueField:
                     {
-                        ReadDefaultVr ( tag, vr, reader, dataset );
+                        ReadDefaultVr ( tag, vr, reader, dataset, level );
                     }
                     break ;
 
                     case JsonConstants.ELEMENT_BULKDATA:
                     {
-                        ReadBulkData ( tag, vr, reader, dataset ) ;
+                        ReadBulkData ( tag, vr, reader, dataset, level ) ;
                     }
                     break ;
 
                     case JsonConstants.ELEMENT_INLINEBINARY:
                     {
-                        ReadInlineBinary ( tag, vr, reader, dataset );
+                        ReadInlineBinary ( tag, vr, reader, dataset, level );
                     }
                     break ;
 
@@ -367,7 +373,8 @@ namespace DICOMcloud.Dicom
             fo.DicomTag tag, 
             fo.DicomVR vr, 
             JsonTextReader reader, 
-            fo.DicomDataset dataset 
+            fo.DicomDataset dataset,
+            int level
         )
         {
             fo.IO.Buffer.BulkDataUriByteBuffer data = null ;
@@ -382,9 +389,16 @@ namespace DICOMcloud.Dicom
                 {
                     data = new fo.IO.Buffer.BulkDataUriByteBuffer ( uri ) ;
                 }
-            }
 
-            dataset.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( vr, tag, data ) ;
+                if ( tag == fo.DicomTag.PixelData && level == 0 )
+                {
+                    dataset.AddOrUpdatePixelData ( vr, data, fo.DicomTransferSyntax.Parse ( TransferSyntaxUID ) ) ;
+                }
+                else
+                {
+                    dataset.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( vr, tag, data ) ;
+                }
+            }
         }
 
         private void ReadInlineBinary
@@ -392,24 +406,31 @@ namespace DICOMcloud.Dicom
             fo.DicomTag tag, 
             fo.DicomVR vr, 
             JsonTextReader reader, 
-            fo.DicomDataset dataset 
+            fo.DicomDataset dataset,
+            int level
         )
         {
-            byte[] data   = new byte[0] ;
-
-            
             if ( reader.Read ( ) )
             {
+                fo.IO.Buffer.MemoryByteBuffer buffer = null ;
+                byte[] data   = new byte[0] ;
                 string base64 = (string) reader.Value ;
             
                 
                 if ( !string.IsNullOrEmpty ( base64 ) )
                 {
-                    data = System.Convert.FromBase64String ( base64 ) ;
+                    buffer = new fo.IO.Buffer.MemoryByteBuffer ( System.Convert.FromBase64String ( base64 ) ) ;
+                }
+            
+                if ( tag == fo.DicomTag.PixelData && level == 0 )
+                {
+                    dataset.AddOrUpdatePixelData ( vr, buffer, fo.DicomTransferSyntax.Parse ( TransferSyntaxUID ) ) ;
+                }
+                else
+                {
+                    dataset.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( vr, tag, buffer ) ;
                 }
             }
-            
-            dataset.AddOrUpdate<fo.IO.Buffer.IByteBuffer> ( vr, tag, new fo.IO.Buffer.MemoryByteBuffer ( data ) ) ;
         }
 
         protected virtual void ReadDefaultVr
@@ -417,7 +438,8 @@ namespace DICOMcloud.Dicom
             fo.DicomTag tag,
             fo.DicomVR vr, 
             JsonTextReader reader, 
-            fo.DicomDataset dataset 
+            fo.DicomDataset dataset,
+            int level
         )
         {
             //if VR was the first property we already read the right thing above, 
@@ -426,7 +448,7 @@ namespace DICOMcloud.Dicom
             {
                 case fo.DicomVRCode.SQ:
                 {
-                    ReadVr_SQ ( reader, tag, dataset );
+                    ReadVr_SQ ( reader, tag, dataset, level );
                 }
                 break;
 
@@ -449,6 +471,11 @@ namespace DICOMcloud.Dicom
                         }
 
                         break;
+                    }
+
+                    if ( tag == fo.DicomTag.TransferSyntaxUID )
+                    {
+                        TransferSyntaxUID = values.FirstOrDefault ( ) ; 
                     }
 
                     dataset.AddOrUpdate<string> ( vr, tag, values.ToArray ( ) );                
@@ -497,7 +524,7 @@ namespace DICOMcloud.Dicom
             }
         }
 
-        protected virtual void ReadVr_SQ ( JsonTextReader reader, fo.DicomTag tag, fo.DicomDataset dataset )
+        protected virtual void ReadVr_SQ ( JsonTextReader reader, fo.DicomTag tag, fo.DicomDataset dataset, int level )
         {
             fo.DicomSequence seq = new fo.DicomSequence ( tag, new fo.DicomDataset[0] ) ;
 
@@ -510,8 +537,10 @@ namespace DICOMcloud.Dicom
                     {
                         fo.DicomDataset itemDs = new fo.DicomDataset ( ) ;
                         
-                        ReadChildren ( reader, itemDs ) ;
+                        ReadChildren ( reader, itemDs, ++level ) ;
                         
+                        --level ;
+
                         seq.Items.Add ( itemDs ) ;
                     }
                     
