@@ -43,7 +43,9 @@
       <column name="SopInstanceUid" table="ObjectInstance" modelKey="true" defenition="[SopInstanceUid] [nchar](64) NOT NULL" tag="524312" />
       <column name="SopClassUid" table="ObjectInstance" defenition="[SopClassUid] [nchar](43) NOT NULL" tag="524310" />
       <column name="InstanceNumber" table="ObjectInstance" isNum="true" defenition="[InstanceNumber] [int] NULL" tag="2097171" />
-
+      <column name="Metadata" table="ObjectInstance" isData="true" defenition="[Metadata] TEXT NULL" tag="" />
+      <column name="Owner" table="ObjectInstance" defenition="[Owner] NVARCHAR (265) NULL" tag="" />      
+    
       <column name="Id" table="RequestAttributeSequence" key="true" defenition="[Id] [int] NOT NULL" tag="" />
       <column name="ScheduledProcedureStepID" table="RequestAttributeSequence" modelKey="true" defenition="[ScheduledProcedureStepID] [nvarchar](16) NOT NULL" tag="4194313" />
       <column name="RequestedProcedureID" table="RequestAttributeSequence" modelKey="true" defenition="[RequestedProcedureID] [nvarchar](16) NOT NULL" tag="4198401" />

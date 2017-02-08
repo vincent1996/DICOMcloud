@@ -63,12 +63,13 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
 
             AppendDeclareTableParam ( tableParam, string.Join ( ",", ColumnDefenitions), queryBuilder ) ;
             
-            queryBuilder.Append ( "INSERT INTO " + tableParam  ) ;
+            queryBuilder.AppendLine   ( "INSERT INTO " + tableParam  ) ;
             queryBuilder.AppendFormat ( SqlQueries.Select_Command_Formatted, selectText, sourceTable, joinsText , whereText ) ;
 
             foreach ( var tableToColumns in _processedColumns )
             {
-                AppendSelectGroupBy ( tableParam, string.Join ( ",", tableToColumns.Value ), queryBuilder ) ;
+                AppendSelectKeyColumnRange ( tableToColumns.Key.KeyColumn.Name, tableParam, string.Join ( ",", tableToColumns.Value ), queryBuilder ) ;
+                //AppendSelectGroupBy ( tableParam, string.Join ( ",", tableToColumns.Value ), queryBuilder ) ;
             }
 
             return queryBuilder.ToString ( ) ;
@@ -85,9 +86,9 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
         public virtual void ProcessColumn
         (   
             TableKey sourceTable,
-            IQueryInfo queryInfo,
             ColumnInfo column, 
-            IList<string> columnValues
+            IQueryInfo queryInfo = null,
+            IList<string> columnValues = null
         )
         {
             string whereCondition ;
@@ -134,9 +135,11 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
 
         protected virtual void FillJoins ( TableKey sourceTable, ColumnInfo column )
         {
-            if ( !column.Table.Name.Equals (sourceTable, StringComparison.InvariantCultureIgnoreCase ) )
+            if ( !column.Table.Name.Equals (sourceTable, StringComparison.InvariantCultureIgnoreCase ) &&
+                 !column.IsData )
             {
                 Joins.AddJoins ( sourceTable, column.Table ) ;
+                
                 //string joinKey = GetJoinKey ( sourceTable, column.Table.Name ) ;
 
                 //if ( !_joins.ContainsKey ( joinKey ))
@@ -168,7 +171,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
                 string sourceTable, 
                 ColumnInfo column, 
                 IQueryInfo queryInfo, 
-                IList<string> matchValues 
+                IList<string> matchValues
             )
             {
                 if ( (null!= matchValues) && (matchValues.Count != 0) )

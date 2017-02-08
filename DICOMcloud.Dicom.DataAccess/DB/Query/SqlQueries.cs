@@ -13,6 +13,11 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
             sb.AppendFormat ( SqlQueries.Select_GroupBy, returns, from ) ;
         }
 
+        private void AppendSelectKeyColumnRange ( string keyColumn, string from, string returns, StringBuilder sb  )
+        {
+            sb.AppendFormat ( SqlQueries.Select_KeyColumn, returns, from, keyColumn ) ;
+        }
+
         private void AppendDeclareTableParam ( string paramName, string columns, StringBuilder sb )
         {
             sb.AppendFormat ( SqlQueries.DeclareTableParam_Formatted, paramName, columns ) ;
@@ -24,7 +29,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Query
         public static readonly string Table_Column_Formatted   = "[{0}].[{1}]" ;
         public static readonly string Select_Command_Formatted = "SELECT {0} FROM {1} {2} WHERE 1=1 {3}" ;
         public static readonly string Select_GroupBy = "SELECT {0} FROM {1} GROUP BY {0}\n\r" ;
-
+        public static readonly string Select_KeyColumn = "SELECT {0} FROM {1} WHERE {2} in (SELECT Distinct({2}) {2} FROM {1})\n\r" ;
         public static readonly string Table_Column_NumberCondition_Formatted = "[{0}].[{1}]={2}" ;
         public static readonly string Table_Column_TextCondition_Formatted = "[{0}].[{1}]='{2}'" ;
 

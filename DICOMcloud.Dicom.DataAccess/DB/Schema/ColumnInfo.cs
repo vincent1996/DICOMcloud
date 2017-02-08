@@ -73,5 +73,11 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
         public bool IsForeign { get; set; }
 
         public bool IsModelKey { get; set; }
+
+        public bool IsData
+        {
+            get;
+            set;
+        }
     }
 }

@@ -29,7 +29,7 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
         {
         }
 
-        protected override void PupolateTemplate ( List<IDicomDataParameter> parametersTemplate )
+        protected override void PopulateTemplate ( List<IDicomDataParameter> parametersTemplate )
         {
             parametersTemplate.Add ( studyDateTime ) ;
             parametersTemplate.Add ( seqMatching ) ;
@@ -39,7 +39,7 @@ namespace DICOMcloud.Dicom.DataAccess.Matching
             parametersTemplate.Add ( sivMatching ) ;
             parametersTemplate.Add ( uniMatching ) ;
 
-            //Stupid C# is not accepting this
+            //C# is not accepting this
             //R matchingParam = new SequenceMatching ( ) ;
             //or this:
             //parametersTemplate.Add ( new SequenceMatching ( ) ) ;

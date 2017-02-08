@@ -8,13 +8,13 @@ namespace DICOMcloud.Dicom.DataAccess
         void StoreInstance        ( IObjectId objectId, IEnumerable<IDicomDataParameter> parameters, InstanceMetadata data ) ;
         void StoreInstanceMetadata( IObjectId objectId, InstanceMetadata data ) ;
         
-        void DeleteInstance ( IObjectId instance );
-        void DeleteStudy    ( IStudyId  study    );
-        void DeleteSeries   ( ISeriesId series   );
+        bool DeleteInstance ( IObjectId instance );
+        bool DeleteStudy    ( IStudyId  study    );
+        bool DeleteSeries   ( ISeriesId series   );
         
-        //InstanceMetadata[] GetStudyMetadata    ( IStudyId  study    );
-        //InstanceMetadata[] GetSeriesMetadata   ( ISeriesId study    );
-        InstanceMetadata   GetInstanceMetadata ( IObjectId instance ) ;
+        IEnumerable<InstanceMetadata> GetStudyMetadata    ( IStudyId study );
+        IEnumerable<InstanceMetadata> GetSeriesMetadata   ( ISeriesId series );
+        InstanceMetadata              GetInstanceMetadata ( IObjectId instance ) ;
 
     }
 }

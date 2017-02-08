@@ -66,6 +66,7 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
                 column.IsForeign    = GetIsForeign  ( childElement ) ;
                 column.IsKey        = GetIsKey      ( childElement ) ;
                 column.IsNumber     = GetIsNumber   ( childElement ) ;
+                column.IsData       = GetIsData     ( childElement ) ;
                 column.IsDateTime   = GetIsDateTime ( childElement ) ; 
                 column.IsModelKey   = GetIsModelKey ( childElement ) ;
 
@@ -118,6 +119,11 @@ namespace DICOMcloud.Dicom.DataAccess.DB.Schema
         private bool GetIsNumber(XElement childElement)
         {
             return ReadBoolValue ( childElement, "isNum") ;
+        }
+
+        private bool GetIsData(XElement childElement)
+        {
+            return ReadBoolValue ( childElement, "isData") ;
         }
 
         private bool GetIsKey(XElement childElement)

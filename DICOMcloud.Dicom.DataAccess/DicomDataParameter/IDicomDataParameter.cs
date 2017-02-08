@@ -14,12 +14,12 @@ namespace DICOMcloud.Dicom.DataAccess
         bool        AllowExtraElement { get; set ; }
         IList<uint> SupportedTags     { get ; }
 
-        bool                  IsSupported     ( fo.DicomItem element );
-        void                  SetElement      ( fo.DicomItem element ) ;
-        string[]              GetValues       ( ) ;
-        List<PersonNameData>  GetPNValues     ( ) ;
-        IDicomDataParameter   CreateParameter ( ) ;
-        IList<fo.DicomItem> Elements { get; set ; }
+        bool                 IsSupported     ( fo.DicomItem element );
+        void                 SetElement      ( fo.DicomItem element ) ;
+        string[]             GetValues       ( ) ;
+        List<PersonNameData> GetPNValues     ( ) ;
+        IDicomDataParameter  CreateParameter ( ) ;
+        IList<fo.DicomItem>  Elements { get; set ; }
     
     }
 }

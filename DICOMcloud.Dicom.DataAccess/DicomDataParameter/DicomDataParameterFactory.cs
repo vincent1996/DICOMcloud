@@ -15,7 +15,7 @@ namespace DICOMcloud.Dicom.DataAccess
         protected List<T> InternalResult { get; set; }
 
 
-        protected virtual void PupolateTemplate ( List<IDicomDataParameter> parametersTemplate )
+        protected virtual void PopulateTemplate ( List<IDicomDataParameter> parametersTemplate )
         {
             parametersTemplate.Add ( new DicomDataParameter ( ) ) ;
         }
@@ -26,7 +26,7 @@ namespace DICOMcloud.Dicom.DataAccess
             ProcessingList     = new List<IDicomDataParameter> ( ) ;
             InternalResult     = new List<T> ( ) ;
 
-            PupolateTemplate ( ParametersTemplate ) ;
+            PopulateTemplate ( ParametersTemplate ) ;
         }
 
         public IEnumerable<T> ProcessDataSet ( fo.DicomDataset dataset )
@@ -107,7 +107,7 @@ namespace DICOMcloud.Dicom.DataAccess
         { 
         }
 
-        protected override void PupolateTemplate(List<IDicomDataParameter> parametersTemplate)
+        protected override void PopulateTemplate(List<IDicomDataParameter> parametersTemplate)
         {
             List<uint> supportedDateTime = new List<uint> ( ) ;
             supportedDateTime.Add ( (uint) fo.DicomTag.StudyDate ) ;
