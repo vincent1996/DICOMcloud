@@ -1,12 +1,7 @@
+# DICOMcloud
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FZaid-Safadi%2FDICOMcloud%2Fdevelopment%2Fazuredeploy.json">
 <img src="https://camo.githubusercontent.com/9285dd3998997a0835869065bb15e5d500475034/687474703a2f2f617a7572656465706c6f792e6e65742f6465706c6f79627574746f6e2e706e67" data-canonical-src="http://azuredeploy.net/deploybutton.png" style="max-width:100%;">
 </a> 
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FZaid-Safadi%2FDICOMcloud%2Fdevelopment%2Fazuredeploy.json">
-    <img src="https://camo.githubusercontent.com/536ab4f9bc823c2e0ce72fb610aafda57d8c6c12/687474703a2f2f61726d76697a2e696f2f76697375616c697a65627574746f6e2e706e67" data-canonical-src="http://armviz.io/visualizebutton.png" style="max-width:100%;">
-</a>
-
-# DICOMcloud
-
 [![Join the chat at https://gitter.im/Zaid-Safadi/DICOMcloud](https://badges.gitter.im/Zaid-Safadi/DICOMcloud.svg)](https://gitter.im/Zaid-Safadi/DICOMcloud?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)  [![Build status](https://ci.appveyor.com/api/projects/status/v9c3lcjv9xymabww/branch/master?svg=true)](https://ci.appveyor.com/project/Zaid-Safadi/dicomcloud/branch/development)
 
 DICOMcloud is a highly customizable, open source DICOMweb server that implements RESTful services in DICOM part 18
@@ -23,6 +18,16 @@ I'm maintining an online version of the server, check the wiki [Home](https://gi
 There is a client Demo that I open sourced and hosting:
 [https://github.com/Zaid-Safadi/dicom-webJS](https://github.com/Zaid-Safadi/dicom-webJS/)
 
+# Deployment To Azure
+In order to simplify the deployment of the DICOMcloud server to Azure an Azure Resource Manager (ARM) Template is created on the repository root [azuredeploy.json](https://github.com/Zaid-Safadi/DICOMcloud/blob/development/azuredeploy.json).
+
+This template can be utilized to deploy the DICOMcloud server to your Azure subscription in multiple ways. The ARM template will take care of creating the database, the storage account, the website and configuration.
+
+Precisely the template will create the following resources in Azure:
+ 1. A SQL Server with Single SQL Database. ~$5/month
+ 2. Standard Storage Account. ~$0.1/month 
+ 3. Free Tier App Service Plan. Free
+ 
 # Implementation
 The server code is written in C# .NET 4.5.2 and Visual Studio 2015. The web services are built as ASP.NET REST WebApi Controllers.
 Check the [code and project's structure](https://github.com/Zaid-Safadi/DICOMcloud/wiki/Code-and-Projects-Structure) wiki page for more details.
