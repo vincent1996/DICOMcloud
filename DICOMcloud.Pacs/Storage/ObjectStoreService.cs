@@ -45,14 +45,15 @@ namespace DICOMcloud.Pacs
             }
             catch ( Exception ex )
             {
-                System.Diagnostics.Trace.Fail ( "Error storing object", ex.ToString ( ) );
+                string errorMsg = "Error storing object" ;
+                System.Diagnostics.Trace.Fail ( errorMsg, ex.ToString ( ) );
                 storeResult.Status = CommandStatus.Failed ;
 
                 //TODO: must catch specific exception types and set status, message and "code" accoringely
                 storeResult.DataSet = dataset ;
                 storeResult.Status  = CommandStatus.Failed ;
                 storeResult.Error   = ex ;
-                storeResult.Message = ex.Message ;
+                storeResult.Message = errorMsg ;
             }
             
             return storeResult ;

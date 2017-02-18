@@ -43,13 +43,13 @@ namespace DICOMcloud.Wado.Core
             {
                 case CommandStatus.Success:
                 {
-                    AddSuccessItem ( result.DataSet ) ;
+                    AddSuccessItem ( result ) ;
                 }
                 break;
 
                 case CommandStatus.Failed:
                 {
-                    AddFailedItem ( result.DataSet, result.Error ) ;
+                    AddFailedItem ( result ) ;
                 }
                 break;
 
@@ -70,11 +70,15 @@ namespace DICOMcloud.Wado.Core
         {
             fo.DicomFile dataSet = fo.DicomFile.Open ( dicomStream ) ;
             
-            AddFailedItem ( GetReferencedInstsance ( dataSet.Dataset ), ex ) ;
+            AddFailedItem ( new StoreResult ( ) { DataSet = GetReferencedInstsance ( dataSet.Dataset ), 
+                                                  Error =  ex,
+                                                  Status = CommandStatus.Failed,
+                                                  Message = "Error" } ) ;
         }
 
-        private void AddFailedItem ( fo.DicomDataset ds, Exception error = null )
+        private void AddFailedItem ( StoreResult result )
         {
+            var ds                 = result.DataSet ;
             var referencedInstance = GetReferencedInstsance ( ds ) ;
             var failedSeq          = new fo.DicomSequence ( fo.DicomTag.FailedSOPSequence ) ;
             var item               = new fo.DicomDataset ( ) ;
@@ -87,10 +91,10 @@ namespace DICOMcloud.Wado.Core
 
             item.AddOrUpdate<UInt16> (fo.DicomTag.FailureReason, 272 ) ; //TODO: for now 272 == "0110 - Processing failure", must map proper result code from org. exception
             
-            if ( null != error )
+            if ( !string.IsNullOrEmpty (result.Message) )
             {
                 //TODO: temp
-                item.AddOrUpdate<string> ( fo.DicomTag.RetrieveURI, error.Message );
+                item.AddOrUpdate<string> ( fo.DicomTag.RetrieveURI, result.Message );
             }
 
             if ( _successAdded )
@@ -106,8 +110,9 @@ namespace DICOMcloud.Wado.Core
 
         }
 
-        private void AddSuccessItem ( fo.DicomDataset ds )
+        private void AddSuccessItem ( StoreResult result )
         {
+            var ds                 = result.DataSet ;
             var referencedInstance = GetReferencedInstsance ( ds ) ;
             var referencedSeq      = new fo.DicomSequence ( fo.DicomTag.ReferencedInstanceSequence ) ;
             var item               = new fo.DicomDataset ( ) ;
@@ -137,10 +142,13 @@ namespace DICOMcloud.Wado.Core
 
         private fo.DicomDataset GetReferencedInstsance ( fo.DicomDataset ds )
         {
-            fo.DicomDataset dataset = new fo.DicomDataset ( ) ;
+            var classUID = ds.Get<fo.DicomElement> ( fo.DicomTag.SOPClassUID, null ) ;
+            var sopUID   = ds.Get<fo.DicomElement> ( fo.DicomTag.SOPInstanceUID, null ) ;
+            var dataset  = new fo.DicomDataset ( ) ;
 
-            dataset.AddOrUpdate ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPClassUID) ) ;
-            dataset.AddOrUpdate ( ds.Get<fo.DicomElement> (fo.DicomTag.SOPInstanceUID) ) ;
+
+            dataset.AddOrUpdate ( classUID ) ;
+            dataset.AddOrUpdate ( sopUID ) ;
 
             return dataset ;
         }
